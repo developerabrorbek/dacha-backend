@@ -5,8 +5,12 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Client } from 'minio';
-import { MinioUploadRequest, MinioUploadResponse } from './interfaces';
-import sharp from 'sharp';
+import {
+  MinioRemoveObjectRequest,
+  MinioUploadRequest,
+  MinioUploadResponse,
+} from './interfaces';
+import * as sharp from 'sharp';
 import { randomUUID } from 'crypto';
 
 @Injectable()
@@ -32,13 +36,24 @@ export class MinioService {
         `/${objectName}.${format}`,
         file,
       );
+
       if (!res.etag)
         throw new InternalServerErrorException('Error while uploading image');
       return {
-        image: `${payload.bucket}/${objectName}.${format}`,
+        image: `/${objectName}.${format}`,
       };
     } catch (error) {
       throw new ConflictException('Error on uploading image');
+    }
+  }
+
+  async removeObject(payload: MinioRemoveObjectRequest): Promise<void> {
+    try {
+      await this.#_client.removeObject(payload.bucket, payload.objectName);
+    } catch (error) {
+      throw new InternalServerErrorException(
+        error.message || 'Error while deleting object',
+      );
     }
   }
 }

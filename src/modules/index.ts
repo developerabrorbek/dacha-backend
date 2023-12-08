@@ -1,2 +1,6 @@
 export * from './language'
 export * from './translate'
+export * from './region'
+export * from './place'
+export * from './comfort'
+export * from './cottage'

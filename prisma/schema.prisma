@@ -1,5 +1,5 @@
 datasource db {
-  url = env("DATABASE_URL")
+  url      = env("DATABASE_URL")
   provider = "postgresql"
 }
 
@@ -8,7 +8,7 @@ generator dacha_client {
 }
 
 enum TranslateType {
-  error @map("error")
+  error   @map("error")
   content @map("content")
 
   @@map("translate_type")
@@ -17,6 +17,33 @@ enum TranslateType {
 enum Status {
   active   @map("active")
   inactive @map("inactive")
+}
+
+enum CottageType {
+  cottage
+  picnic
+  fishing
+}
+
+enum MainImage {
+  true
+  false
+}
+
+enum NotificationStatus {
+  new
+  seen
+}
+
+enum CottageStatus {
+  progress
+  confirmed
+  rejected
+}
+
+enum NotificationType {
+  personal
+  public
 }
 
 model Language {
@@ -34,7 +61,7 @@ model Translate {
   id         String        @default(dbgenerated("GEN_RANDOM_UUID()")) @map("id") @db.Uuid
   code       String        @map("code") @db.VarChar()
   type       TranslateType @map("type")
-  status     Status        @map("status")
+  status     Status        @default(inactive) @map("status")
   definition Definition[]
 
   @@id([id])
@@ -53,4 +80,87 @@ model Definition {
 
   @@id([id])
   @@map("definition")
+}
+
+model Region {
+  id      String    @default(dbgenerated("GEN_RANDOM_UUID()")) @map("id") @db.Uuid
+  name    String    @map("name") @db.Uuid
+  places  Place[]
+  cottage Cottage[]
+
+  @@id([id])
+  @@map("region")
+}
+
+model Place {
+  id       String @default(dbgenerated("GEN_RANDOM_UUID()")) @map("id") @db.Uuid
+  name     String @map("name") @db.Uuid
+  image    String @map("image") @db.VarChar()
+  regionId String @map("region_id") @db.Uuid
+
+  region  Region    @relation(fields: [regionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  cottage Cottage[]
+
+  @@id([id])
+  @@map("place")
+}
+
+model Comfort {
+  id       String               @default(dbgenerated("GEN_RANDOM_UUID()")) @map("id") @db.Uuid
+  name     String               @map("name") @db.Uuid
+  image    String               @map("image") @db.VarChar()
+  cottages Cottage[] @relation("ComfortsOnCottages")
+
+  @@id([id])
+  @@map("comfort")
+}
+
+model CottageImage {
+  id          String    @default(dbgenerated("GEN_RANDOM_UUID()")) @map("id") @db.Uuid
+  image       String    @map("image") @db.VarChar()
+  status      Status    @default(active) @map("status")
+  isMainImage MainImage @default(false) @map("main_image")
+  cottage     Cottage?  @relation(fields: [cottageId], references: [id])
+  cottageId   String    @map("cottage_id") @db.Uuid
+  created_at DateTime @map("created_at") @db.Timestamp() @default(now())
+
+
+  @@id([id])
+  @@map("cottage_image")
+}
+
+model Cottage {
+  id            String        @default(dbgenerated("GEN_RANDOM_UUID()")) @map("id") @db.Uuid
+  name          String        @map("name") @db.Uuid
+  rating      Float         @map("rating") @db.Real
+  description   String        @map("description") @db.Uuid
+  cottageType   CottageType[] @map("cottage_type")
+  cottageStatus CottageStatus @default(progress) @map("cottage_status")
+  price         Float         @map("price") @db.Real
+  priceWeekend  Float         @map("price_weekend") @db.Real
+  status        Status        @default(active) @map("status")
+  regionId      String        @map("region_id") @db.Uuid
+  placeId       String        @map("place_id") @db.Uuid
+  created_at DateTime @map("created_at") @db.Timestamp() @default(now())
+
+
+  region   Region               @relation(fields: [regionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  place    Place                @relation(fields: [placeId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  images   CottageImage[]
+  comforts Comfort[] @relation("ComfortsOnCottages")
+
+  @@id([id])
+  @@map("cottage")
+}
+
+model Notification {
+  id String @map("id") @default(dbgenerated("GEN_RANDOM_UUID()")) @db.Uuid
+  message String @map("message") @db.VarChar()
+  type NotificationType @map("type") @default(personal)
+  status NotificationStatus @map("status") @default(new)
+  userId String @map("user_id") @db.Uuid
+  created_at DateTime @map("created_at") @db.Timestamp() @default(now())
+
+  @@id([id])
+  @@map("notification")
 }
