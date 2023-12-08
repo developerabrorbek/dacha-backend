@@ -2,13 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateRegionRequest, UpdateRegionRequest } from './interfaces';
 import { Region } from '@prisma/client';
+import { TranslateService } from 'modules/translate';
 
 @Injectable()
 export class RegionService {
   #_prisma: PrismaService;
+  #_translate: TranslateService;
 
-  constructor(prisma: PrismaService) {
+  constructor(prisma: PrismaService, translate: TranslateService) {
     this.#_prisma = prisma;
+    this.#_translate = translate;
   }
 
   async createRegion(payload: CreateRegionRequest): Promise<void> {
@@ -16,8 +19,15 @@ export class RegionService {
   }
 
   async getRegionList(languageCode: string): Promise<Region[]> {
-    console.log(languageCode, 'getregions');
-    return await this.#_prisma.region.findMany();
+    const data = await this.#_prisma.region.findMany();
+    for (const el of data) {
+      const res = await this.#_translate.getSingleTranslate({
+        languageCode,
+        translateId: el.name,
+      });
+      el.name = res.value;
+    }
+    return data;
   }
 
   async updateRegion(payload: UpdateRegionRequest): Promise<void> {

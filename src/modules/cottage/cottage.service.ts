@@ -1,7 +1,11 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { Cottage } from '@prisma/client';
-import { CreateCottageRequest, UpdateCottageRequest } from './interfaces';
+import {
+  CreateCottageRequest,
+  UpdateCottageImageRequest,
+  UpdateCottageRequest,
+} from './interfaces';
 import { MinioService } from 'client';
 import { ConfigService } from '@nestjs/config';
 
@@ -124,5 +128,16 @@ export class CottageService {
 
   async deleteCottage(id: string): Promise<void> {
     await this.#_prisma.cottage.delete({ where: { id } });
+  }
+
+  async updateCottageImage(payload: UpdateCottageImageRequest): Promise<void> {
+    await this.#_prisma.cottageImage.update({
+      where: { id: payload.id },
+      data: { isMainImage: payload.mainImage, status: payload.status },
+    });
+  }
+
+  async deleteCottageImage(id: string): Promise<void> {
+    await this.#_prisma.cottageImage.delete({ where: { id } });
   }
 }

@@ -14,6 +14,7 @@ import { ApiTags } from '@nestjs/swagger';
 import {
   CreateCottageDto,
   UpdateCottageDto,
+  UpdateCottageImageDto,
 } from './dtos';
 
 @ApiTags('Cottage')
@@ -48,5 +49,18 @@ export class CottageController {
   @Delete('/delete/:id')
   async deleteCottage(@Param('id') id: string): Promise<void> {
     await this.#_service.deleteCottage(id);
+  }
+
+  @Patch('/image/:id')
+  async updateCottageImage(
+    @Param('id') id: string,
+    @Body() payload: UpdateCottageImageDto,
+  ): Promise<void> {
+    await this.#_service.updateCottageImage({ id, ...payload });
+  }
+
+  @Delete('/image/:id')
+  async deleteCottageImage(@Param('id') id: string): Promise<void> {
+    await this.#_service.deleteCottageImage(id);
   }
 }

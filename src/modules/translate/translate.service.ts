@@ -65,6 +65,11 @@ export class TranslateService {
       },
     });
 
+    await this.#_prisma.translate.update({
+      where: { id: payload.translateId },
+      data: { status: 'active' },
+    });
+
     const translate = await this.#_prisma.translate.findFirst({
       where: { id: payload.translateId },
       select: {
