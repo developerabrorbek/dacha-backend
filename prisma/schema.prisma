@@ -19,12 +19,6 @@ enum Status {
   inactive @map("inactive")
 }
 
-enum CottageType {
-  cottage
-  picnic
-  fishing
-}
-
 enum MainImage {
   true
   false
@@ -105,11 +99,18 @@ model Place {
   @@map("place")
 }
 
+model CottageType {
+  id   String @default(dbgenerated("GEN_RANDOM_UUID()")) @map("id") @db.Uuid
+  name String @map("name") @db.Uuid
+
+  @@id([id])
+  @@map("cottage_type")
+}
+
 model Comfort {
-  id       String    @default(dbgenerated("GEN_RANDOM_UUID()")) @map("id") @db.Uuid
-  name     String    @map("name") @db.Uuid
-  image    String    @map("image") @db.VarChar()
-  cottages Cottage[] @relation("ComfortsOnCottages")
+  id    String @default(dbgenerated("GEN_RANDOM_UUID()")) @map("id") @db.Uuid
+  name  String @map("name") @db.Uuid
+  image String @map("image") @db.VarChar()
 
   @@id([id])
   @@map("comfort")
@@ -133,33 +134,67 @@ model Cottage {
   name          String        @map("name") @db.Uuid
   rating        Float         @map("rating") @db.Real
   description   String        @map("description") @db.Uuid
-  cottageType   CottageType[] @map("cottage_type")
+  cottageType   String[]      @map("cottage_type")
   cottageStatus CottageStatus @default(progress) @map("cottage_status")
   price         Float         @map("price") @db.Real
   priceWeekend  Float         @map("price_weekend") @db.Real
   status        Status        @default(active) @map("status")
+  comforts      String[]      @map("comforts") @db.Uuid
   regionId      String        @map("region_id") @db.Uuid
   placeId       String        @map("place_id") @db.Uuid
-  created_at    DateTime      @default(now()) @map("created_at") @db.Timestamp()
+  longitude     String        @map("longitude") @db.VarChar()
+  lattitude     String        @map("lattitude") @db.VarChar()
+  bookedTime    String[]      @map("booked_time") @db.VarChar()
+  createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamp()
+  createdBy     String        @map("user_id") @db.Uuid
 
-  region   Region         @relation(fields: [regionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  place    Place          @relation(fields: [placeId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  images   CottageImage[]
-  comforts Comfort[]      @relation("ComfortsOnCottages")
+  region Region         @relation(fields: [regionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  place  Place          @relation(fields: [placeId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  images CottageImage[]
 
   @@id([id])
   @@map("cottage")
 }
 
+
 model Notification {
-  id         String             @default(dbgenerated("GEN_RANDOM_UUID()")) @map("id") @db.Uuid
-  message    String             @map("message") @db.VarChar()
-  type       NotificationType   @default(personal) @map("type")
-  status     NotificationStatus @default(new) @map("status")
-  userId     String?             @map("user_id") @db.Uuid
-  created_at DateTime           @default(now()) @map("created_at") @db.Timestamp()
-  created_by String @map("created_by") @db.Uuid 
+  id           String             @default(dbgenerated("GEN_RANDOM_UUID()")) @map("id") @db.Uuid
+  message      String             @map("message") @db.VarChar()
+  type         NotificationType   @default(personal) @map("type")
+  status       NotificationStatus @default(new) @map("status")
+  userId       String?            @map("user_id") @db.Uuid
+  watchedUsers String[]           @map("watched_users") @db.Uuid
+  createdAt    DateTime           @default(now()) @map("created_at") @db.Timestamp()
+  createdBy    String             @map("created_by") @db.Uuid
 
   @@id([id])
   @@map("notification")
+}
+
+model User {
+  id               String       @default(dbgenerated("GEN_RANDOM_UUID()")) @map("id") @db.Uuid
+  name             String       @map("name") @db.VarChar()
+  phone            String       @map("phone") @db.VarChar()
+  balance          Float?       @map("balance") @db.DoublePrecision
+  favoriteCottages String[]     @map("favorite_cottages") @db.Uuid
+  password         String?      @map("password") @db.VarChar()
+  username         String?      @map("username") @db.VarChar()
+  userDevices       UserDevice[]
+
+  @@id([id])
+  @@map("user")
+}
+
+model UserDevice {
+  id           String  @default(dbgenerated("GEN_RANDOM_UUID()")) @map("id") @db.Uuid
+  userAgent    String? @map("user_agent") @db.VarChar()
+  ip           String? @map("ip") @db.VarChar()
+  refreshToken String  @map("refresh_token") @db.VarChar()
+  accessToken  String  @map("access_token") @db.VarChar()
+  userId       String  @map("user_id") @db.Uuid
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([id])
+  @@map("user_device")
 }

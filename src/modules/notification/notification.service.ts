@@ -1,9 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import {
-  CreateNotificationRequest,
-  CreateRegionRequest,
-  UpdateRegionRequest,
+  // CreateNotificationRequest,
 } from './interfaces';
 import { Region } from '@prisma/client';
 
@@ -15,17 +13,17 @@ export class NotificationService {
     this.#_prisma = prisma;
   }
 
-  async createNotification(payload: CreateNotificationRequest): Promise<void> {
-    await this.#_prisma.notification.create({
-      data: {
-        message: payload.message,
-        userId: payload.userId,
-        status: payload.status,
-        type: payload.type,
-        created_by: payload.createdBy,
-      },
-    });
-  }
+  // async createNotification(payload: CreateNotificationRequest): Promise<void> {
+  //   await this.#_prisma.notification.create({
+  //     data: {
+  //       message: payload.message,
+  //       userId: payload.userId,
+  //       status: payload.status,
+  //       type: payload.type,
+  //       created_by: payload.createdBy,
+  //     },
+  //   });
+  // }
 
   async getRegionList(): Promise<Region[]> {
     const data = await this.#_prisma.region.findMany();
@@ -33,7 +31,7 @@ export class NotificationService {
     return data;
   }
 
-  async updateRegion(payload: UpdateRegionRequest): Promise<void> {
+  async updateRegion(payload): Promise<void> {
     await this.#_prisma.region.update({
       where: { id: payload.id },
       data: { name: payload.name },
