@@ -156,7 +156,6 @@ model Cottage {
   @@map("cottage")
 }
 
-
 model Notification {
   id           String             @default(dbgenerated("GEN_RANDOM_UUID()")) @map("id") @db.Uuid
   message      String             @map("message") @db.VarChar()
@@ -179,7 +178,7 @@ model User {
   favoriteCottages String[]     @map("favorite_cottages") @db.Uuid
   password         String?      @map("password") @db.VarChar()
   username         String?      @map("username") @db.VarChar()
-  userDevices       UserDevice[]
+  userDevices      UserDevice[]
 
   @@id([id])
   @@map("user")

@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import {
-  // CreateNotificationRequest,
+  CreateNotificationRequest,
+  GetNotificationListRequest,
+  UpdateNotificationRequest,
 } from './interfaces';
-import { Region } from '@prisma/client';
+import { Notification } from '@prisma/client';
 
 @Injectable()
 export class NotificationService {
@@ -13,32 +15,58 @@ export class NotificationService {
     this.#_prisma = prisma;
   }
 
-  // async createNotification(payload: CreateNotificationRequest): Promise<void> {
-  //   await this.#_prisma.notification.create({
-  //     data: {
-  //       message: payload.message,
-  //       userId: payload.userId,
-  //       status: payload.status,
-  //       type: payload.type,
-  //       created_by: payload.createdBy,
-  //     },
-  //   });
-  // }
+  async createNotification(payload: CreateNotificationRequest): Promise<void> {
+    await this.#_prisma.notification.create({
+      data: {
+        message: payload.message,
+        userId: payload.userId,
+        type: payload.type,
+        createdBy: payload.createdBy,
+      },
+    });
+  }
 
-  async getRegionList(): Promise<Region[]> {
-    const data = await this.#_prisma.region.findMany();
+  async getNotificationList(
+    payload: GetNotificationListRequest,
+  ): Promise<Notification[]> {
+    const data = await this.#_prisma.notification.findMany({
+      where: { userId: payload.userId, type: 'public' },
+    });
 
     return data;
   }
 
-  async updateRegion(payload): Promise<void> {
-    await this.#_prisma.region.update({
+  async updateNotification(payload: UpdateNotificationRequest): Promise<null> {
+    const notification = await this.#_prisma.notification.findFirst({
       where: { id: payload.id },
-      data: { name: payload.name },
     });
+
+    if (
+      payload.userId == notification.userId &&
+      notification.type == 'personal'
+    ) {
+      await this.#_prisma.notification.update({
+        where: { id: payload.id },
+        data: { status: payload.status },
+      });
+      return null;
+    }
+
+    await this.#_prisma.notification.update({
+      where: { id: payload.id },
+      data: {
+        watchedUsers: {
+          push: payload.watchedUserId,
+        },
+      },
+    });
+    return null;
   }
 
-  async deleteRegion(id: string): Promise<void> {
-    await this.#_prisma.region.delete({ where: { id } });
+  async deleteNotification(id: string): Promise<void> {
+    await this.#_prisma.notification.update({
+      where: { id },
+      data: { status: 'seen' },
+    });
   }
 }
