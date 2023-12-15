@@ -3,6 +3,7 @@ import {
   IsEnum,
   IsNumber,
   IsPositive,
+  IsString,
   IsUUID,
   Max,
 } from 'class-validator';
@@ -15,12 +16,9 @@ export class CreateCottageDto implements CreateCottageRequest {
   })
   comforts: string[];
 
-  @IsEnum($Enums.CottageType, {
-    each: true,
-  })
-  cottageType: $Enums.CottageType[];
+  cottageType: string[];
 
-  @IsUUID(4)
+  @IsString()
   description: string;
 
   @IsBase64({

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { databaseConfig, minioConfigs } from 'config';
-import { ComfortModule, CottageModule, LanguageModule, PlaceModule, RegionModule, TranslateModule } from 'modules';
+import { ComfortModule, CottageModule, CottageTypeModule, LanguageModule, NotificationModule, PlaceModule, RegionModule, TranslateModule } from 'modules';
 import { PrismaModule } from '@prisma';
 import { MinioModule } from 'client';
 
@@ -19,6 +19,8 @@ import { MinioModule } from 'client';
     PlaceModule,
     ComfortModule,
     CottageModule,
+    NotificationModule,
+    CottageTypeModule,
   ],
 })
 export class AppModule {}
