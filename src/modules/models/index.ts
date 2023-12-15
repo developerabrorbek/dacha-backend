@@ -1,0 +1,5 @@
+export * from './interfaces'
+export * from './dtos'
+export * from './model.service'
+export * from './model.controller'
+export * from './model.module'
