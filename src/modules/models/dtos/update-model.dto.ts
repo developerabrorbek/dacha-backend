@@ -1,7 +1,7 @@
 import { IsUUID } from 'class-validator';
-import { UpdateRegionRequest } from '../interfaces';
+import { UpdateModelRequest } from '../interfaces';
 
-export class UpdateRegionDto implements Omit<UpdateRegionRequest, 'id'> {
+export class UpdateModelDto implements Omit<UpdateModelRequest, 'id'> {
   @IsUUID(4)
   name: string;
 }

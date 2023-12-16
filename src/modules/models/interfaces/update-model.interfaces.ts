@@ -1,4 +1,4 @@
-export declare interface UpdateRegionRequest {
+export declare interface UpdateModelRequest {
   id: string;
   name: string;
 }

@@ -1,11 +1,10 @@
 import { Module } from '@nestjs/common';
-import { RegionController } from './model.controller';
+import { ModelsController } from './model.controller';
 import { PrismaService } from 'prisma/prisma.service';
-import { RegionService } from './model.service';
-import { TranslateService } from 'modules/translate';
+import { Modelservice } from './model.service';
 
 @Module({
-  controllers: [RegionController],
-  providers: [PrismaService, TranslateService,RegionService],
+  controllers: [ModelsController],
+  providers: [PrismaService, ,Modelservice],
 })
-export class RegionModule {}
+export class ModelsModule {}

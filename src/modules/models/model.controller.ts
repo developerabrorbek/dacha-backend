@@ -3,47 +3,44 @@ import {
   Controller,
   Delete,
   Get,
-  Headers,
   Param,
   Patch,
   Post,
 } from '@nestjs/common';
-import { RegionService } from './model.service';
-import { Region } from '@prisma/client';
-import { CreateRegionDto, UpdateRegionDto } from './dtos';
+import { Modelservice } from './model.service';
+import { Models } from '@prisma/client';
+import { CreateModelDto, UpdateModelDto } from './dtos';
 import { ApiTags } from '@nestjs/swagger';
 
-@ApiTags('Region')
-@Controller('region')
-export class RegionController {
-  #_service: RegionService;
+@ApiTags('Models')
+@Controller('models')
+export class ModelsController {
+  #_service: Modelservice;
 
-  constructor(service: RegionService) {
+  constructor(service: Modelservice) {
     this.#_service = service;
   }
 
   @Get()
-  async getRegionList(
-    @Headers('accept-language') languageCode: string,
-  ): Promise<Region[]> {
-    return await this.#_service.getRegionList(languageCode);
+  async getModelsList(): Promise<Models[]> {
+    return await this.#_service.getModelsList();
   }
 
   @Post('/add')
-  async createRegion(@Body() payload: CreateRegionDto): Promise<void> {
-    await this.#_service.createRegion(payload);
+  async createModel(@Body() payload: CreateModelDto): Promise<void> {
+    await this.#_service.createModel(payload);
   }
 
   @Patch('/edit/:id')
-  async updateRegion(
-    @Param('id') regionId: string,
-    @Body() paylaod: UpdateRegionDto,
+  async updateModel(
+    @Param('id') modelId: string,
+    @Body() paylaod: UpdateModelDto,
   ): Promise<void> {
-    await this.#_service.updateRegion({ id: regionId, name: paylaod.name });
+    await this.#_service.updateModel({ id: modelId, name: paylaod.name });
   }
 
-  @Delete("/delete/:id")
-  async deleteRegion(@Param('id') id: string): Promise<void> {
-    await this.#_service.deleteRegion(id);
+  @Delete('/delete/:id')
+  async deleteModel(@Param('id') id: string): Promise<void> {
+    await this.#_service.deleteModel(id);
   }
 }

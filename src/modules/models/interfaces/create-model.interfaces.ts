@@ -1,3 +1,3 @@
-export declare interface CreateRegionRequest {
+export declare interface CreateModelRequest {
   name: string;
 }

@@ -1,43 +1,33 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
-import { CreateRegionRequest, UpdateRegionRequest } from './interfaces';
-import { Region } from '@prisma/client';
-import { TranslateService } from 'modules/translate';
+import { CreateModelRequest, UpdateModelRequest } from './interfaces';
+import { Models } from '@prisma/client';
 
 @Injectable()
-export class RegionService {
+export class Modelservice {
   #_prisma: PrismaService;
-  #_translate: TranslateService;
 
-  constructor(prisma: PrismaService, translate: TranslateService) {
+  constructor(prisma: PrismaService) {
     this.#_prisma = prisma;
-    this.#_translate = translate;
   }
 
-  async createRegion(payload: CreateRegionRequest): Promise<void> {
-    await this.#_prisma.region.create({ data: { name: payload.name } });
+  async createModel(payload: CreateModelRequest): Promise<void> {
+    await this.#_prisma.models.create({ data: { name: payload.name } });
   }
 
-  async getRegionList(languageCode: string): Promise<Region[]> {
-    const data = await this.#_prisma.region.findMany();
-    for (const el of data) {
-      const res = await this.#_translate.getSingleTranslate({
-        languageCode,
-        translateId: el.name,
-      });
-      el.name = res.value;
-    }
+  async getModelsList(): Promise<Models[]> {
+    const data = await this.#_prisma.models.findMany();
     return data;
   }
 
-  async updateRegion(payload: UpdateRegionRequest): Promise<void> {
-    await this.#_prisma.region.update({
+  async updateModel(payload: UpdateModelRequest): Promise<void> {
+    await this.#_prisma.models.update({
       where: { id: payload.id },
       data: { name: payload.name },
     });
   }
 
-  async deleteRegion(id: string): Promise<void> {
-    await this.#_prisma.region.delete({ where: { id } });
+  async deleteModel(id: string): Promise<void> {
+    await this.#_prisma.models.delete({ where: { id } });
   }
 }

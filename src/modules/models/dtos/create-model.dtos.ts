@@ -1,7 +1,7 @@
 import { IsUUID } from "class-validator";
-import { CreateRegionRequest } from "../interfaces";
+import { CreateModelRequest } from "../interfaces";
 
-export class CreateRegionDto implements CreateRegionRequest {
+export class CreateModelDto implements CreateModelRequest {
   @IsUUID(4)
   name: string;
 }
