@@ -11,6 +11,7 @@ import {
   PermissionModule,
   PlaceModule,
   RegionModule,
+  RoleModule,
   TranslateModule,
 } from 'modules';
 import { PrismaModule } from '@prisma';
@@ -34,6 +35,7 @@ import { MinioModule } from 'client';
     CottageTypeModule,
     ModelsModule,
     PermissionModule,
+    RoleModule,
   ],
 })
 export class AppModule {}
