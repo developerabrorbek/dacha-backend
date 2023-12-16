@@ -1,0 +1,5 @@
+export * from './interfaces'
+export * from './dtos'
+export * from './permission.service'
+export * from './permission.controller'
+export * from './permission.module'

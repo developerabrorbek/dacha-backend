@@ -5,6 +5,6 @@ import { Modelservice } from './model.service';
 
 @Module({
   controllers: [ModelsController],
-  providers: [PrismaService, ,Modelservice],
+  providers: [PrismaService,Modelservice],
 })
 export class ModelsModule {}

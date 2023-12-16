@@ -1,7 +1,18 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { databaseConfig, minioConfigs } from 'config';
-import { ComfortModule, CottageModule, CottageTypeModule, LanguageModule, NotificationModule, PlaceModule, RegionModule, TranslateModule } from 'modules';
+import {
+  ComfortModule,
+  CottageModule,
+  CottageTypeModule,
+  LanguageModule,
+  ModelsModule,
+  NotificationModule,
+  PermissionModule,
+  PlaceModule,
+  RegionModule,
+  TranslateModule,
+} from 'modules';
 import { PrismaModule } from '@prisma';
 import { MinioModule } from 'client';
 
@@ -9,7 +20,7 @@ import { MinioModule } from 'client';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [databaseConfig, minioConfigs]
+      load: [databaseConfig, minioConfigs],
     }),
     MinioModule,
     PrismaModule,
@@ -21,6 +32,8 @@ import { MinioModule } from 'client';
     CottageModule,
     NotificationModule,
     CottageTypeModule,
+    ModelsModule,
+    PermissionModule,
   ],
 })
 export class AppModule {}

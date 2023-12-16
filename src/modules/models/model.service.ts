@@ -12,11 +12,17 @@ export class Modelservice {
   }
 
   async createModel(payload: CreateModelRequest): Promise<void> {
-    await this.#_prisma.models.create({ data: { name: payload.name } });
+    await this.#_prisma.models.create({
+      data: { name: payload.name },
+    });
   }
 
   async getModelsList(): Promise<Models[]> {
-    const data = await this.#_prisma.models.findMany();
+    const data = await this.#_prisma.models.findMany({
+      include: {
+        permission: true,
+      },
+    });
     return data;
   }
 
