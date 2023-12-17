@@ -1,6 +1,7 @@
 import {
   IsBase64,
-  IsEnum,
+  IsLatitude,
+  IsLongitude,
   IsNumber,
   IsPositive,
   IsString,
@@ -8,14 +9,16 @@ import {
   Max,
 } from 'class-validator';
 import { CreateCottageRequest } from '../interfaces';
-import { $Enums } from '@prisma/client';
 
-export class CreateCottageDto implements CreateCottageRequest {
+export class CreateCottageDto implements Omit<CreateCottageRequest, "createdBy"> {
   @IsUUID(4, {
     each: true,
   })
   comforts: string[];
 
+  @IsUUID(4, {
+    each: true,
+  })
   cottageType: string[];
 
   @IsString()
@@ -47,4 +50,10 @@ export class CreateCottageDto implements CreateCottageRequest {
 
   @IsUUID(4)
   regionId: string;
+
+  @IsLatitude()
+  lattitude: string;
+
+  @IsLongitude()
+  longitude: string;
 }

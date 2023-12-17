@@ -43,12 +43,6 @@ export class CottageService {
       });
     }
 
-    const comfortsConnectArr = payload.comforts.map((e) => {
-      return {
-        id: e,
-      };
-    });
-
     await this.#_prisma.cottage.create({
       data: {
         name: payload.name,
@@ -56,15 +50,16 @@ export class CottageService {
         price: payload.price,
         priceWeekend: payload.priceWeekend,
         rating: payload.rating,
-        comforts: {
-          connect: comfortsConnectArr,
-        },
+        comforts: payload.comforts,
         cottageType: payload.cottageType,
         images: {
           create: cottageImagesCreateArr,
         },
         placeId: payload.placeId,
         regionId: payload.regionId,
+        createdBy: payload.createdBy,
+        lattitude: payload.lattitude,
+        longitude: payload.longitude,
       },
     });
   }
@@ -94,12 +89,6 @@ export class CottageService {
       newImage.id = data.id;
     }
 
-    const addComfortArr = payload.comforts.map((e) => {
-      return {
-        id: e,
-      };
-    });
-
     await this.#_prisma.cottage.update({
       where: { id: payload.id },
       data: {
@@ -113,9 +102,7 @@ export class CottageService {
         },
         rating: payload.rating,
         cottageType: payload.cottageType,
-        comforts: {
-          connect: addComfortArr,
-        },
+        comforts: payload.comforts,
         name: payload.name,
         description: payload.description,
         price: payload.price,

@@ -1,4 +1,4 @@
-import { CottageStatus, CottageType, Status } from '@prisma/client';
+import { CottageStatus, Status } from '@prisma/client';
 
 export declare interface UpdateCottageRequest {
   id: string;
@@ -6,10 +6,12 @@ export declare interface UpdateCottageRequest {
   image?: string;
   description?: string;
   rating?: number;
-  cottageType?: CottageType[];
+  cottageType?: string[];
   price?: number;
   priceWeekend?: number;
   comforts?: string[];
   status?: Status;
+  latitude?: string;
+  longitude?: string;
   cottageStatus?: CottageStatus
 }

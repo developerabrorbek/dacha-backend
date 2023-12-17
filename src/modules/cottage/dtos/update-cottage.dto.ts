@@ -1,6 +1,8 @@
 import {
   IsBase64,
   IsEnum,
+  IsLatitude,
+  IsLongitude,
   IsNumber,
   IsOptional,
   IsPositive,
@@ -21,11 +23,11 @@ export class UpdateCottageDto implements Omit<UpdateCottageRequest, 'id'> {
   @IsOptional()
   cottageStatus?: $Enums.CottageStatus;
 
-  @IsEnum($Enums.CottageType, {
+  @IsUUID(4, {
     each: true,
   })
   @IsOptional()
-  cottageType?: $Enums.CottageType[];
+  cottageType?: string[];
 
   @IsUUID(4)
   @IsOptional()
@@ -58,4 +60,12 @@ export class UpdateCottageDto implements Omit<UpdateCottageRequest, 'id'> {
   @IsEnum($Enums.Status)
   @IsOptional()
   status?: $Enums.Status;
+
+  @IsLatitude()
+  @IsOptional()
+  latitude?: string;
+
+  @IsLongitude()
+  @IsOptional()
+  longitude?: string;
 }

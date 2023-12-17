@@ -2,8 +2,9 @@ import { Body, Controller, Delete, Get, Headers, Param, Patch, Post } from '@nes
 import { NotificationService } from './notification.service';
 import { Notification } from '@prisma/client';
 import { CreateNotificationDto, UpdateNotificationDto } from './dtos';
-import { ApiBody, ApiHeader, ApiParam } from '@nestjs/swagger';
+import { ApiBody, ApiHeader, ApiParam, ApiTags } from '@nestjs/swagger';
 
+@ApiTags("Notification")
 @Controller('notification')
 export class NotificationController {
   #_service: NotificationService;

@@ -35,7 +35,7 @@ export class CottageController {
 
   @Post('/add')
   async createCottage(@Body() payload: CreateCottageDto): Promise<void> {
-    await this.#_service.createCottage(payload);
+    await this.#_service.createCottage({...payload, createdBy: "kimdir"});
   }
 
   @Patch('/edit/:id')
