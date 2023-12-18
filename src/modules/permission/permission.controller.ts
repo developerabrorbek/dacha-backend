@@ -10,7 +10,7 @@ import {
 import { Permissionservice } from './permission.service';
 import { Permission } from '@prisma/client';
 import { CreatePermissionDto, UpdatePermissionDto } from './dtos';
-import { ApiBody, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Permission')
 @Controller('permission')
@@ -31,9 +31,6 @@ export class PermissionController {
     await this.#_service.createPermission(payload);
   }
 
-  @ApiBody({
-    type: UpdatePermissionDto,
-  })
   @Patch('/edit/:id')
   async updatePermission(
     @Param('id') permissionId: string,

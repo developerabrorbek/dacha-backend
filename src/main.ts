@@ -23,7 +23,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
 
   const config = new DocumentBuilder()
-    .setTitle('Dacha example')
+    .setTitle('Dacha API Documentation')
     .setDescription('The dacha site API description')
     .setVersion('1.0')
     .build();
