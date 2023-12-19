@@ -14,6 +14,7 @@ import {
   RegionModule,
   RoleModule,
   TranslateModule,
+  UserModule,
 } from '@modules';
 import { PrismaModule } from '@prisma';
 import { MinioModule } from '@client';
@@ -38,6 +39,7 @@ import { MinioModule } from '@client';
     PermissionModule,
     RoleModule,
     AuthModule,
+    UserModule,
   ],
 })
 export class AppModule {}
