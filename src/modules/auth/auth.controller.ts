@@ -1,33 +1,53 @@
-import { Controller, Delete, Post } from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
-import { AuthService } from "./auth.service";
+import {
+  Body,
+  Controller,
+  Headers,
+  Post,
+} from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { AuthService } from './auth.service';
+import { LoginDto, LoginForAdminDto, LoginGetSMSDto } from './dtos';
+import {
+  LoginForAdminResponse,
+  LoginGetSMSCodeResponse,
+  LoginResponse,
+} from './interfaces';
 
-@ApiTags("Auth")
-@Controller("auth")
+@ApiTags('Auth')
+@Controller('auth')
 export class AuthController {
   #_service: AuthService;
 
-  constructor(service: AuthService){
+  constructor(service: AuthService) {
     this.#_service = service;
   }
 
-  @Post("/login")
-  async login(): Promise<void>{
-    await this.#_service.login()
+  @Post('/login')
+  async login(@Body() payload: LoginDto): Promise<LoginResponse> {
+    return await this.#_service.login(payload);
   }
 
-  @Post("/register")
-  async register(): Promise<void>{
-    await this.#_service.register()
+  @Post('/login/sms')
+  async loginSms(
+    @Body() payload: LoginGetSMSDto,
+  ): Promise<LoginGetSMSCodeResponse> {
+    return await this.#_service.loginGetSms(payload);
   }
 
-  @Post("/refresh")
-  async refresh(): Promise<void>{
-    await this.#_service.refresh()
+  @Post('/login/admin')
+  async loginForAdmin(
+    @Body() payload: LoginForAdminDto,
+  ): Promise<LoginForAdminResponse> {
+    return await this.#_service.loginForAdmin(payload);
   }
 
-  @Delete("/logout")
-  async logout(): Promise<void>{
-    await this.#_service.logout()
+  @Post('/refresh')
+  async refresh(@Headers('refreshToken') refreshToken: string): Promise<void> {
+    await this.#_service.refresh(refreshToken);
   }
+
+  // @Delete('/logout')
+  // async logout(): Promise<void> {
+  //   await this.#_service.logout();
+  // }
 }

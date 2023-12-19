@@ -1,0 +1,1 @@
+export const SMS_EXPIRE_TIME = 2 * 60

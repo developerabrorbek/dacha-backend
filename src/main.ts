@@ -11,7 +11,7 @@ async function bootstrap() {
     bodyParser: true,
   });
 
-  app.use(json({ limit: '25mb' }));
+  app.use(json({ limit: '125mb' }));
   app.disable('x-powered-by', 'X-Powered-By', 'etag');
 
   app.enableCors({

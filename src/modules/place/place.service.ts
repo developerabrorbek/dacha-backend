@@ -46,10 +46,14 @@ export class PlaceService {
   }
 
   async updatePlace(payload: UpdatePlaceRequest): Promise<void> {
-    const image = await this.#_minio.uploadImage({
-      bucket: this.#_config.getOrThrow<string>('minio.bucket'),
-      file: payload.image,
-    });
+    let image = null
+
+    if(payload.image){
+      image = await this.#_minio.uploadImage({
+        bucket: this.#_config.getOrThrow<string>('minio.bucket'),
+        file: payload.image,
+      });
+    }
 
     if (!image?.image) {
       throw new ConflictException('Error while uploading image');
@@ -57,7 +61,7 @@ export class PlaceService {
 
     await this.#_prisma.place.update({
       where: { id: payload.id },
-      data: { name: payload.name, image: image.image },
+      data: { name: payload.name, image: image?.image },
     });
   }
 

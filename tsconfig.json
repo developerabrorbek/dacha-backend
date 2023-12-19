@@ -12,6 +12,11 @@
     "baseUrl": "./src",
     "paths": {
       "@prisma" : ["./prisma"],
+      "@constants": ["./constants"],
+      "@config": ["./config"],
+      "@guard": ["./guard"],
+      "@client": ["./client"],
+      "@modules": ["./modules"],
     },
     "incremental": true,
     "skipLibCheck": true,
