@@ -31,6 +31,11 @@ export class TranslateController {
     return await this.#_service.getTranslateList();
   }
 
+  @Get("/unused")
+  async getUnusedTranslateList(): Promise<Translate[]> {
+    return await this.#_service.getUnusedTranslateList();
+  }
+
   @Get(':id')
   async retrieveSingleTranslate(
     @Headers('accept-language') languageCode: string,

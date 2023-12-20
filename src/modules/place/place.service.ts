@@ -1,27 +1,40 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { Place } from '@prisma/client';
 import { CreatePlaceRequest, UpdatePlaceRequest } from './interfaces';
 import { MinioService } from 'client';
 import { ConfigService } from '@nestjs/config';
+import { TranslateService } from 'modules/translate';
 
 @Injectable()
 export class PlaceService {
   #_prisma: PrismaService;
   #_minio: MinioService;
+  #_translate: TranslateService;
   #_config: ConfigService;
 
   constructor(
     prisma: PrismaService,
     minio: MinioService,
     config: ConfigService,
+    translate: TranslateService,
   ) {
     this.#_prisma = prisma;
     this.#_minio = minio;
     this.#_config = config;
+    this.#_translate = translate;
   }
 
   async createPlace(payload: CreatePlaceRequest): Promise<void> {
+    await this.#_translate.updateTranslate({
+      id: payload.name,
+      status: 'active',
+    });
+
     const image = await this.#_minio.uploadImage({
       bucket: this.#_config.getOrThrow<string>('minio.bucket'),
       file: payload.image,
@@ -41,14 +54,39 @@ export class PlaceService {
   }
 
   async getPlaceList(languageCode: string): Promise<Place[]> {
-    console.log(languageCode, 'getplaces');
-    return await this.#_prisma.place.findMany();
+    await this.#_checkLanguage(languageCode);
+    const responseData = [];
+    const data = await this.#_prisma.place.findMany();
+    for (const el of data) {
+      const name = await this.#_translate.getSingleTranslate({
+        languageCode,
+        translateId: el.name,
+      });
+      responseData.push({
+        ...el,
+        name: name.value,
+      });
+    }
+    return responseData;
   }
 
   async updatePlace(payload: UpdatePlaceRequest): Promise<void> {
-    let image = null
+    let image = null;
+    const foundedPlace = await this.#_prisma.place.findFirst({ where: { id: payload.id } });
 
-    if(payload.image){
+    if (payload?.name) {
+      await this.#_translate.updateTranslate({
+        id: payload.name,
+        status: 'inactive',
+      });
+    }
+
+    if (payload.image) {
+      await this.#_minio.removeObject({
+        bucket: this.#_config.getOrThrow<string>('minio.bucket'),
+        objectName: foundedPlace.image.split('/')[1],
+      });
+
       image = await this.#_minio.uploadImage({
         bucket: this.#_config.getOrThrow<string>('minio.bucket'),
         file: payload.image,
@@ -66,6 +104,24 @@ export class PlaceService {
   }
 
   async deletePlace(id: string): Promise<void> {
-    await this.#_prisma.place.delete({ where: { id } });
+    const foundedPlace = await this.#_prisma.place.findFirst({ where: { id } });
+    await this.#_translate.updateTranslate({
+      id: foundedPlace.name,
+      status: 'inactive',
+    });
+    await this.#_minio.removeObject({
+      bucket: this.#_config.getOrThrow<string>('minio.bucket'),
+      objectName: foundedPlace.image.split('/')[1],
+    });
+    await this.#_prisma.place.delete({ where: { id: foundedPlace.id } });
+  }
+
+  async #_checkLanguage(languageCode: string): Promise<void> {
+    const foundedLang = await this.#_prisma.language.findFirst({
+      where: { code: languageCode },
+    });
+    if (!foundedLang) {
+      throw new NotFoundException(`Language ${languageCode} not found`);
+    }
   }
 }

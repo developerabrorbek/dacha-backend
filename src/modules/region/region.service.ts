@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateRegionRequest, UpdateRegionRequest } from './interfaces';
 import { Region } from '@prisma/client';
@@ -15,6 +15,10 @@ export class RegionService {
   }
 
   async createRegion(payload: CreateRegionRequest): Promise<void> {
+    await this.#_translate.updateTranslate({
+      id: payload.name,
+      status: 'active',
+    });
     await this.#_prisma.region.create({ data: { name: payload.name } });
   }
 
@@ -31,6 +35,24 @@ export class RegionService {
   }
 
   async updateRegion(payload: UpdateRegionRequest): Promise<void> {
+    const foundedRegion = await this.#_prisma.region.findFirst({
+      where: { id: payload.id },
+    });
+
+    if (!foundedRegion) {
+      throw new NotFoundException('Region not found');
+    }
+
+    await this.#_translate.updateTranslate({
+      id: foundedRegion.name,
+      status: 'inactive',
+    });
+
+    await this.#_translate.updateTranslate({
+      id: payload.name,
+      status: 'active',
+    });
+
     await this.#_prisma.region.update({
       where: { id: payload.id },
       data: { name: payload.name },
@@ -38,6 +60,16 @@ export class RegionService {
   }
 
   async deleteRegion(id: string): Promise<void> {
-    await this.#_prisma.region.delete({ where: { id } });
+    const foundedRegion = await this.#_prisma.region.findFirst({
+      where: { id },
+    });
+    if (!foundedRegion) {
+      throw new NotFoundException('Region not found');
+    }
+    await this.#_translate.updateTranslate({
+      id: foundedRegion.name,
+      status: 'inactive',
+    });
+    await this.#_prisma.region.delete({ where: { id: foundedRegion.id } });
   }
 }

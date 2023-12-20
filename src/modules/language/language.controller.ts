@@ -1,6 +1,6 @@
 import { Language } from '@prisma/client';
 import { LanguageService } from './language.service';
-import { Body, Controller, Delete, Get, Param, Patch, Post, SetMetadata } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateLanguageDto, UpdateLanguageDto } from './dtos';
 
@@ -16,7 +16,6 @@ export class LanguageController {
     this.#_service = service;
   }
 
-  @SetMetadata("roles", "all")
   @Get()
   async getLanguageList(): Promise<Language[]> {
     return await this.#_service.getLanguageList();

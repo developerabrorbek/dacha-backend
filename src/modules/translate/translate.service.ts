@@ -23,7 +23,40 @@ export class TranslateService {
   }
 
   async getTranslateList(): Promise<Translate[]> {
-    return await this.#_prisma.translate.findMany();
+    return await this.#_prisma.translate.findMany({
+      include: {
+        definition: {
+          select: {
+            value: true,
+            language: {
+              select: {
+                code: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  async getUnusedTranslateList(): Promise<Translate[]> {
+    return await this.#_prisma.translate.findMany({
+      where: {
+        status: 'inactive',
+      },
+      include: {
+        definition: {
+          select: {
+            value: true,
+            language: {
+              select: {
+                code: true,
+              },
+            },
+          },
+        },
+      },
+    });
   }
 
   async createTranslate(payload: CreateTranslateInterface): Promise<void> {
@@ -65,11 +98,6 @@ export class TranslateService {
       },
     });
 
-    await this.#_prisma.translate.update({
-      where: { id: payload.translateId },
-      data: { status: 'active' },
-    });
-
     const translate = await this.#_prisma.translate.findFirst({
       where: { id: payload.translateId },
       select: {
@@ -88,23 +116,27 @@ export class TranslateService {
     });
 
     return {
-      value: definition.value,
+      value: definition?.value,
     };
   }
 
   async updateTranslate(payload: UpdateTranslateRequest): Promise<void> {
     await this.#_checkTranslate(payload.id);
-    await this.#_checkActiveTranslate(payload.id);
     await this.#_prisma.translate.update({
       where: { id: payload.id },
       data: { status: payload.status },
     });
   }
-
+  
   async deleteTranslate(id: string) {
     await this.#_checkUUID(id);
 
-    await this.#_prisma.translate.delete({ where: { id } });
+    await this.#_prisma.translate.delete({
+      where: { id },
+      include: {
+        definition: true,
+      },
+    });
   }
 
   async #_checkLanguage(code: string): Promise<void> {
@@ -133,14 +165,6 @@ export class TranslateService {
       throw new BadRequestException(`Translate ${code} is already available`);
   }
 
-  async #_checkActiveTranslate(id: string): Promise<void> {
-    const translate = await this.#_prisma.translate.findFirst({
-      where: { id },
-    });
-
-    if (translate.status == 'active')
-      throw new ConflictException(`Translate is already in use`);
-  }
 
   async #_checkUUID(id: string): Promise<void> {
     if (!isUUID(id, 4))
