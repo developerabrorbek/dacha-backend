@@ -18,6 +18,10 @@ export class CottageTypeService {
   }
 
   async createCottageType(payload: CreateCottageTypeRequest): Promise<void> {
+    await this.#_translate.updateTranslate({
+      id: payload.name,
+      status: 'active',
+    });
     await this.#_prisma.cottageType.create({ data: { name: payload.name } });
   }
 
@@ -34,6 +38,18 @@ export class CottageTypeService {
   }
 
   async updateCottageType(payload: UpdateCottageTypeRequest): Promise<void> {
+    const foundedCottageType = await this.#_prisma.cottageType.findFirst({
+      where: { id: payload.id },
+    });
+    await this.#_translate.updateTranslate({
+      id: foundedCottageType.name,
+      status: 'inactive',
+    });
+    await this.#_translate.updateTranslate({
+      id: payload.name,
+      status: 'active',
+    });
+
     await this.#_prisma.cottageType.update({
       where: { id: payload.id },
       data: { name: payload.name },
@@ -41,6 +57,13 @@ export class CottageTypeService {
   }
 
   async deleteCottageType(id: string): Promise<void> {
+    const foundedCottageType = await this.#_prisma.cottageType.findFirst({
+      where: { id: id },
+    });
+    await this.#_translate.updateTranslate({
+      id: foundedCottageType.name,
+      status: 'inactive',
+    });
     await this.#_prisma.cottageType.delete({ where: { id } });
   }
 }
