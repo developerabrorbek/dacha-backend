@@ -11,6 +11,7 @@ import { ConfigService } from '@nestjs/config';
 import { TranslateService } from 'modules/translate';
 
 @Injectable()
+
 export class PlaceService {
   #_prisma: PrismaService;
   #_minio: MinioService;
@@ -81,7 +82,7 @@ export class PlaceService {
       });
     }
 
-    if (payload.image) {
+    if (payload?.image) {
       await this.#_minio.removeObject({
         bucket: this.#_config.getOrThrow<string>('minio.bucket'),
         objectName: foundedPlace.image.split('/')[1],
@@ -91,10 +92,6 @@ export class PlaceService {
         bucket: this.#_config.getOrThrow<string>('minio.bucket'),
         file: payload.image,
       });
-    }
-
-    if (!image?.image) {
-      throw new ConflictException('Error while uploading image');
     }
 
     await this.#_prisma.place.update({

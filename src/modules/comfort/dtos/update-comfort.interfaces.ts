@@ -4,8 +4,8 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateComfortDto implements Omit<UpdateComfortRequest, 'id'> {
   @ApiProperty()
-  @IsOptional()
   @IsBase64()
+  @IsOptional()
   image?: string;
 
   @ApiProperty()

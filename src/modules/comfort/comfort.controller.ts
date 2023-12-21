@@ -36,10 +36,10 @@ export class ComfortController {
 
   @Patch('/edit/:id')
   async updateComfort(
-    @Param('id') placeId: string,
-    @Body() paylaod: UpdateComfortDto,
+    @Param('id') comfortId: string,
+    @Body() payload: UpdateComfortDto,
   ): Promise<void> {
-    await this.#_service.updateComfort({ id: placeId, name: paylaod.name });
+    await this.#_service.updateComfort({ ...payload, id: comfortId });
   }
 
   @Delete('/delete/:id')

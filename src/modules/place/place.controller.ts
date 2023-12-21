@@ -39,7 +39,7 @@ export class PlaceController {
     @Param('id') placeId: string,
     @Body() paylaod: UpdatePlaceDto,
   ): Promise<void> {
-    await this.#_service.updatePlace({ id: placeId, name: paylaod.name });
+    await this.#_service.updatePlace({ id: placeId, name: paylaod.name, image: paylaod.image });
   }
 
   @Delete('/delete/:id')
