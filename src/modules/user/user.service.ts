@@ -34,6 +34,7 @@ export class UserService {
         phone: payload.phone,
         username: payload.username,
         password: payload.password,
+        name: payload.name,
       },
       select: {
         id: true,
@@ -65,25 +66,49 @@ export class UserService {
     await this.#_checkRoles(payload.roles);
     await this.#_checkCottages(payload.favoriteCottages);
 
-    const newImage = await this.#_minio.uploadImage({
-      bucket: this.#_config.getOrThrow<string>('minio.bucket'),
-      file: payload.image,
+    const foundedUser = await this.#_prisma.user.findFirst({
+      where: { id: payload.id },
     });
 
-    for (const role of payload.roles) {
+    if (!foundedUser) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (payload?.image) {
+      if (foundedUser.image) {
+        await this.#_minio.removeObject({
+          bucket: this.#_config.getOrThrow<string>('minio.bucket'),
+          objectName: foundedUser.image.split('/')[1],
+        });
+      }
+
+      const newImage = await this.#_minio.uploadImage({
+        bucket: this.#_config.getOrThrow<string>('minio.bucket'),
+        file: payload.image,
+      });
+
       await this.#_prisma.user.update({
-        where: { id: payload.id },
-        data: {
-          roles: {
-            connect: {
-              userId_roleId: {
-                roleId: role,
-                userId: payload.id,
+        where: { id: foundedUser.id },
+        data: { image: newImage.image },
+      });
+    }
+
+    if (payload?.roles) {
+      for (const role of payload.roles) {
+        await this.#_prisma.user.update({
+          where: { id: payload.id },
+          data: {
+            roles: {
+              connect: {
+                userId_roleId: {
+                  roleId: role,
+                  userId: payload.id,
+                },
               },
             },
           },
-        },
-      });
+        });
+      }
     }
 
     await this.#_prisma.user.update({
@@ -95,12 +120,24 @@ export class UserService {
         password: payload.password,
         phone: payload.phone,
         username: payload.username,
-        image: newImage.image,
       },
     });
   }
 
   async deleteUser(userId: string): Promise<void> {
+    const foundedUser = await this.#_prisma.user.findFirst({
+      where: { id: userId },
+    });
+    if (!foundedUser) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (foundedUser?.image) {
+      await this.#_minio.removeObject({
+        bucket: this.#_config.getOrThrow<string>('minio.bucket'),
+        objectName: foundedUser.image.split('/')[1],
+      });
+    }
     await this.#_prisma.user.delete({ where: { id: userId } });
   }
 

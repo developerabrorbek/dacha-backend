@@ -10,4 +10,8 @@ export class CreatePermissionDto implements CreatePermissionRequest {
   @ApiProperty()
   @IsUUID(4)
   modelId: string;
+
+  @ApiProperty()
+  @IsString()
+  code: string;
 }

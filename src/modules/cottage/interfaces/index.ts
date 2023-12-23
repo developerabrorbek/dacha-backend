@@ -1,3 +1,7 @@
 export * from './create-cottage.interfaces'
 export * from './update-cottage.interfaces'
 export * from './update-cottage-image.interfaces'
+export * from './get-comforts.interfaces'
+export * from './get-cottage-types.interfaces'
+export * from './get-cottage-list.interfaces'
+export * from './add-cottage-image.interfaces'

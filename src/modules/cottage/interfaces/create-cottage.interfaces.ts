@@ -1,15 +1,19 @@
+export declare interface ImageRequest {
+  image: string;
+  isMain: boolean;
+}
+
 export declare interface CreateCottageRequest {
   name: string;
-  images: string[];
+  images: ImageRequest[];
   description: string;
-  rating: number;
   cottageType: string[];
   price: number;
   priceWeekend: number;
   comforts: string[];
   placeId: string;
   regionId: string;
-  longitude: string;
-  lattitude: string;
+  longitude?: string;
+  latitude?: string;
   createdBy: string;
 }

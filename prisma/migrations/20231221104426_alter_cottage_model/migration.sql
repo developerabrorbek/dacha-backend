@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "cottage" ALTER COLUMN "name" SET DATA TYPE VARCHAR,
+ALTER COLUMN "description" SET DATA TYPE VARCHAR;

@@ -9,13 +9,14 @@ import {
   Post,
 } from '@nestjs/common';
 import { CottageService } from './cottage.service';
-import { Cottage } from '@prisma/client';
 import { ApiTags } from '@nestjs/swagger';
 import {
+  AddCottageImageDto,
   CreateCottageDto,
   UpdateCottageDto,
   UpdateCottageImageDto,
 } from './dtos';
+import { GetCottageListResponse } from './interfaces';
 
 @ApiTags('Cottage')
 @Controller('cottage')
@@ -29,13 +30,13 @@ export class CottageController {
   @Get()
   async getCottageList(
     @Headers('accept-language') languageCode: string,
-  ): Promise<Cottage[]> {
+  ): Promise<GetCottageListResponse[]> {
     return await this.#_service.getCottageList(languageCode);
   }
 
   @Post('/add')
   async createCottage(@Body() payload: CreateCottageDto): Promise<void> {
-    await this.#_service.createCottage({...payload, createdBy: "kimdir"});
+    await this.#_service.createCottage({ ...payload, createdBy: 'kimdir' });
   }
 
   @Patch('/edit/:id')
@@ -51,7 +52,12 @@ export class CottageController {
     await this.#_service.deleteCottage(id);
   }
 
-  @Patch('/image/:id')
+  @Post('/image/add')
+  async addCottageImage(@Body() payload: AddCottageImageDto): Promise<void> {
+    await this.#_service.addCottageImage(payload);
+  }
+
+  @Patch('/image/edit/:id')
   async updateCottageImage(
     @Param('id') id: string,
     @Body() payload: UpdateCottageImageDto,
@@ -59,7 +65,7 @@ export class CottageController {
     await this.#_service.updateCottageImage({ id, ...payload });
   }
 
-  @Delete('/image/:id')
+  @Delete('/image/delete/:id')
   async deleteCottageImage(@Param('id') id: string): Promise<void> {
     await this.#_service.deleteCottageImage(id);
   }

@@ -1,15 +1,15 @@
 import { $Enums } from '@prisma/client';
 import { UpdateCottageImageRequest } from '../interfaces';
-import { IsEnum, IsOptional } from 'class-validator';
+import { IsBase64, IsEnum, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateCottageImageDto
   implements Omit<UpdateCottageImageRequest, 'id'>
 {
   @ApiProperty()
-  @IsEnum($Enums.MainImage)
+  @IsBase64()
   @IsOptional()
-  mainImage?: $Enums.MainImage;
+  image?: string;
 
   @ApiProperty()
   @IsEnum($Enums.Status)

@@ -102,10 +102,14 @@ export class PlaceService {
 
   async deletePlace(id: string): Promise<void> {
     const foundedPlace = await this.#_prisma.place.findFirst({ where: { id } });
+    if(!foundedPlace){
+      throw new NotFoundException("Place not found")
+    }
     await this.#_translate.updateTranslate({
       id: foundedPlace.name,
       status: 'inactive',
     });
+    console.log(foundedPlace)
     await this.#_minio.removeObject({
       bucket: this.#_config.getOrThrow<string>('minio.bucket'),
       objectName: foundedPlace.image.split('/')[1],

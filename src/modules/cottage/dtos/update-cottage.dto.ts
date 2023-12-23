@@ -1,11 +1,11 @@
 import {
-  IsBase64,
   IsEnum,
   IsLatitude,
   IsLongitude,
   IsNumber,
   IsOptional,
   IsPositive,
+  IsString,
   IsUUID,
   Max,
 } from 'class-validator';
@@ -34,17 +34,12 @@ export class UpdateCottageDto implements Omit<UpdateCottageRequest, 'id'> {
   cottageType?: string[];
 
   @ApiProperty()
-  @IsUUID(4)
+  @IsString()
   @IsOptional()
   description?: string;
 
   @ApiProperty()
-  @IsBase64()
-  @IsOptional()
-  image?: string;
-
-  @ApiProperty()
-  @IsUUID(4)
+  @IsString()
   @IsOptional()
   name?: string;
 
@@ -71,6 +66,13 @@ export class UpdateCottageDto implements Omit<UpdateCottageRequest, 'id'> {
   @IsEnum($Enums.Status)
   @IsOptional()
   status?: $Enums.Status;
+
+  @ApiProperty()
+  @IsString({
+    each: true
+  })
+  @IsOptional()
+  bookedTime?: string[];
 
   @ApiProperty()
   @IsLatitude()

@@ -19,11 +19,6 @@ enum Status {
   inactive @map("inactive")
 }
 
-enum MainImage {
-  true
-  false
-}
-
 enum NotificationStatus {
   new
   seen
@@ -117,13 +112,13 @@ model Comfort {
 }
 
 model CottageImage {
-  id          String    @default(dbgenerated("GEN_RANDOM_UUID()")) @map("id") @db.Uuid
-  image       String    @map("image") @db.VarChar()
-  status      Status    @default(active) @map("status")
-  isMainImage MainImage @default(false) @map("main_image")
-  cottage     Cottage?  @relation(fields: [cottageId], references: [id])
-  cottageId   String    @map("cottage_id") @db.Uuid
-  created_at  DateTime  @default(now()) @map("created_at") @db.Timestamp()
+  id          String   @default(dbgenerated("GEN_RANDOM_UUID()")) @map("id") @db.Uuid
+  image       String   @map("image") @db.VarChar()
+  status      Status   @default(active) @map("status")
+  isMainImage Boolean  @default(false) @map("main_image")
+  cottage     Cottage? @relation(fields: [cottageId], references: [id])
+  cottageId   String   @map("cottage_id") @db.Uuid
+  created_at  DateTime @default(now()) @map("created_at") @db.Timestamp()
 
   @@id([id])
   @@map("cottage_image")
@@ -131,9 +126,9 @@ model CottageImage {
 
 model Cottage {
   id            String        @default(dbgenerated("GEN_RANDOM_UUID()")) @map("id") @db.Uuid
-  name          String        @map("name") @db.Uuid
+  name          String        @map("name") @db.VarChar()
   rating        Float         @map("rating") @db.Real
-  description   String        @map("description") @db.Uuid
+  description   String        @map("description") @db.VarChar()
   cottageType   String[]      @map("cottage_type")
   cottageStatus CottageStatus @default(progress) @map("cottage_status")
   price         Float         @map("price") @db.Real
@@ -142,8 +137,8 @@ model Cottage {
   comforts      String[]      @map("comforts") @db.Uuid
   regionId      String        @map("region_id") @db.Uuid
   placeId       String        @map("place_id") @db.Uuid
-  longitude     String        @map("longitude") @db.VarChar()
-  lattitude     String        @map("lattitude") @db.VarChar()
+  longitude     String?       @map("longitude") @db.VarChar()
+  latitude      String?       @map("lattitude") @db.VarChar()
   bookedTime    String[]      @map("booked_time") @db.VarChar()
   createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamp()
   createdBy     String        @map("user_id") @db.Uuid
@@ -186,8 +181,8 @@ model User {
   roles            UserOnRole[]
 
   @@id([id])
-  @@map("user")
   @@unique([phone])
+  @@map("user")
 }
 
 model UserDevice {
@@ -215,12 +210,14 @@ model Models {
 
 model Permission {
   id      String @default(dbgenerated("GEN_RANDOM_UUID()")) @map("id") @db.Uuid
+  code    String @map("code") @db.VarChar()
   name    String @map("name") @db.VarChar()
   modelId String @map("model_id") @db.Uuid
 
   model Models @relation(fields: [modelId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@id([id])
+  @@unique([code])
   @@map("permission")
 }
 

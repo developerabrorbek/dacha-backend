@@ -13,7 +13,7 @@ export class Permissionservice {
 
   async createPermission(payload: CreatePermissionRequest): Promise<void> {
     await this.#_prisma.permission.create({
-      data: { name: payload.name, modelId: payload.name },
+      data: { name: payload.name, modelId: payload.modelId, code: payload.code },
     });
   }
 

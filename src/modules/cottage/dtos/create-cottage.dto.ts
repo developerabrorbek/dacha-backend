@@ -1,15 +1,29 @@
 import {
+  IsArray,
   IsBase64,
+  IsBoolean,
   IsLatitude,
   IsLongitude,
   IsNumber,
+  IsOptional,
   IsPositive,
   IsString,
   IsUUID,
-  Max,
+  ValidateNested,
 } from 'class-validator';
-import { CreateCottageRequest } from '../interfaces';
+import { Type } from "class-transformer"
+import { CreateCottageRequest, ImageRequest } from '../interfaces';
 import { ApiProperty } from '@nestjs/swagger';
+
+class ImageCreateDto {
+  @ApiProperty()
+  @IsBase64()
+  image: string;
+
+  @ApiProperty()
+  @IsBoolean()
+  isMain: boolean
+}
 
 export class CreateCottageDto implements Omit<CreateCottageRequest, "createdBy"> {
   @ApiProperty()
@@ -29,13 +43,13 @@ export class CreateCottageDto implements Omit<CreateCottageRequest, "createdBy">
   description: string;
 
   @ApiProperty()
-  @IsBase64({
-    each: true,
-  })
-  images: string[];
+  @IsArray()
+  @ValidateNested({each: true})
+  @Type(() => ImageCreateDto)
+  images: ImageRequest[];
 
   @ApiProperty()
-  @IsUUID()
+  @IsString()
   name: string;
 
   @ApiProperty()
@@ -53,20 +67,16 @@ export class CreateCottageDto implements Omit<CreateCottageRequest, "createdBy">
   priceWeekend: number;
 
   @ApiProperty()
-  @IsNumber()
-  @Max(5)
-  @IsPositive()
-  rating: number;
-
-  @ApiProperty()
   @IsUUID(4)
   regionId: string;
 
   @ApiProperty()
+  @IsOptional()
   @IsLatitude()
-  lattitude: string;
+  latitude?: string;
 
   @ApiProperty()
+  @IsOptional()
   @IsLongitude()
-  longitude: string;
+  longitude?: string;
 }

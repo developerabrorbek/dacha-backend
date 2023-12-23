@@ -1,4 +1,4 @@
-import { IsString, IsUUID, Matches } from "class-validator";
+import { IsOptional, IsString, IsUUID, Matches } from "class-validator";
 import { CreateUserRequest } from "../interfaces";
 import { ApiProperty } from "@nestjs/swagger";
 
@@ -21,4 +21,9 @@ export class CreateUserDto implements CreateUserRequest {
   @ApiProperty()
   @IsString()
   username: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  name?: string;
 }
