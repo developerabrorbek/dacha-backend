@@ -15,10 +15,18 @@ export class NotificationController {
     this.#_service = service;
   }
 
-  @CheckAuth(false)
+  @CheckAuth(true)
   @Permission(PERMISSIONS.notification.get_all_notification)
-  @Get(':id')
+  @Get('all')
   async getNotificationList(
+  ): Promise<Notification[]> {
+    return await this.#_service.getAllNotifications();
+  }
+
+  @CheckAuth(false)
+  @Permission(PERMISSIONS.notification.get_user_notification)
+  @Get(':id')
+  async getUserNotificationList(
     @Param('id') userId: string,
   ): Promise<Notification[]> {
     return await this.#_service.getNotificationList({ userId });

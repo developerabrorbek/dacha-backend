@@ -1,6 +1,6 @@
 import {
-  ConflictException,
   ForbiddenException,
+  HttpException,
   Injectable,
   NotFoundException,
   UnprocessableEntityException,
@@ -14,6 +14,7 @@ import {
   LoginGetSMSCodeResponse,
   LoginRequest,
   LoginResponse,
+  RefreshRequest,
   SendSMSRequest,
 } from './interfaces';
 import {
@@ -210,21 +211,47 @@ export class AuthService {
     };
   }
 
-  async refresh(refreshToken: string): Promise<void> {
-    if (!isJWT(refreshToken)) {
-      throw new UnprocessableEntityException('Invalid token');
-    }
-    this.#_jwt
-      .verifyAsync(refreshToken, {
+  async refresh(payload: RefreshRequest): Promise<LoginResponse> {
+    try {
+      if (!isJWT(payload.refreshToken)) {
+        throw new UnprocessableEntityException('Invalid token');
+      }
+
+      const data = await this.#_jwt.verifyAsync(payload.refreshToken, {
         secret: this.#_config.getOrThrow<string>('jwt.refreshKey'),
-      })
-      .then((data) => console.log(data, "data"))
-      .catch((err) => {
-        if (err instanceof TokenExpiredError) {
-          throw new ForbiddenException('Token already expired');
-        }
-        throw new ConflictException(err.message)
       });
+
+      const userDevice = await this.#_prisma.userDevice.findFirst({
+        where: { ip: payload.ip, userAgent: payload.userAgent },
+      });
+
+      const accessToken = this.#_jwt.sign(
+        { id: data.id },
+        { secret: this.#_config.getOrThrow<string>('jwt.accessKey') },
+      );
+      const refreshToken = this.#_jwt.sign(
+        { id: data.id },
+        { secret: this.#_config.getOrThrow<string>('jwt.refreshKey') },
+      );
+
+      await this.#_prisma.userDevice.update({
+        where: { id: userDevice.id },
+        data: {
+          accessToken,
+          refreshToken,
+        },
+      });
+
+      return {
+        accessToken,
+        refreshToken,
+      };
+    } catch (err) {
+      if (err instanceof TokenExpiredError) {
+        throw new ForbiddenException('Token already expired');
+      }
+      throw new HttpException(err.message, err.status || 455);
+    }
   }
 
   async #_sendSms(payload: SendSMSRequest): Promise<any> {

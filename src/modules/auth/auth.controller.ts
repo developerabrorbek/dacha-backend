@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { LoginDto, LoginForAdminDto, LoginGetSMSDto } from './dtos';
+import { LoginDto, LoginForAdminDto, LoginGetSMSDto, RefreshDto } from './dtos';
 import {
   LoginForAdminResponse,
   LoginGetSMSCodeResponse,
@@ -42,8 +42,8 @@ export class AuthController {
   }
 
   @Post('/refresh')
-  async refresh(@Headers('refreshToken') refreshToken: string): Promise<void> {
-    await this.#_service.refresh(refreshToken);
+  async refresh(@Headers('refreshToken') refreshToken: string, @Body() payload: RefreshDto): Promise<LoginResponse> {
+    return await this.#_service.refresh({refreshToken, ...payload});
   }
 
   // @Delete('/logout')

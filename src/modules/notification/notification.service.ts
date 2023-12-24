@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import {
   CreateNotificationRequest,
@@ -6,6 +6,7 @@ import {
   UpdateNotificationRequest,
 } from './interfaces';
 import { Notification } from '@prisma/client';
+import { isUUID } from 'class-validator';
 
 @Injectable()
 export class NotificationService {
@@ -29,11 +30,18 @@ export class NotificationService {
   async getNotificationList(
     payload: GetNotificationListRequest,
   ): Promise<Notification[]> {
+    if (!isUUID(payload.userId, 4)) {
+      throw new ConflictException('Give valid ID');
+    }
     const data = await this.#_prisma.notification.findMany({
       where: { userId: payload.userId, type: 'public' },
     });
 
     return data;
+  }
+
+  async getAllNotifications(): Promise<Notification[]> {
+    return await this.#_prisma.notification.findMany();
   }
 
   async updateNotification(payload: UpdateNotificationRequest): Promise<null> {

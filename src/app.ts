@@ -18,8 +18,10 @@ import {
 } from '@modules';
 import { PrismaModule } from '@prisma';
 import { MinioModule } from '@client';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { AuthGuard, PermissionGuard } from '@guard';
+import { JwtModule } from '@nestjs/jwt';
+import { HttpExceptionFilter } from '@filters';
 
 @Module({
   imports: [
@@ -27,6 +29,7 @@ import { AuthGuard, PermissionGuard } from '@guard';
       isGlobal: true,
       load: [databaseConfig, minioConfigs, jwtConfig],
     }),
+    JwtModule,
     MinioModule,
     PrismaModule,
     LanguageModule,
@@ -51,7 +54,11 @@ import { AuthGuard, PermissionGuard } from '@guard';
     {
       provide: APP_GUARD,
       useClass: PermissionGuard,
-    }
-  ]
+    },
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
+  ],
 })
 export class AppModule {}
