@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
-import { User, UserDevice } from '@prisma/client';
+import { UserDevice } from '@prisma/client';
 import { CreateUserDto, UpdateUserDto } from './dtos';
 import { CheckAuth, Permission } from '@decorators';
 import { PERMISSIONS } from '@constants';
@@ -26,7 +26,7 @@ export class UserController {
   @CheckAuth(true)
   @Permission(PERMISSIONS.user.get_all_users)
   @Get('/all')
-  async getUserList(): Promise<User[]> {
+  async getUserList(): Promise<any[]> {
     return await this.#_service.getUserList();
   }
 

@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateUserRequest, UpdateUserRequest } from './interfaces';
-import { User, UserDevice } from '@prisma/client';
+import { UserDevice } from '@prisma/client';
 import { MinioService } from '@client';
 import { ConfigService } from '@nestjs/config';
 
@@ -42,29 +42,54 @@ export class UserService {
     });
 
     for (const role of payload.roles) {
-      await this.#_prisma.user.update({
-        where: { id: newUser.id },
+      await this.#_prisma.userOnRole.create({
         data: {
-          roles: {
-            connect: {
-              userId_roleId: {
-                roleId: role,
-                userId: newUser.id,
-              },
-            },
-          },
+          assignedBy: '2c0d844f-5c16-4c90-ac5d-c469a142db5f',
+          roleId: role,
+          userId: newUser.id,
         },
       });
     }
   }
 
-  async getUserList(): Promise<User[]> {
-    return await this.#_prisma.user.findMany();
+  async getUserList(): Promise<any[]> {
+    const response = [];
+    const data = await this.#_prisma.user.findMany();
+    for (const user of data) {
+      const roles = await this.#_prisma.userOnRole.findMany({
+        where: {
+          userId: user.id,
+        },
+        select: {
+          role: true,
+        },
+      });
+
+      const devices = await this.#_prisma.userDevice.findMany({
+        where: {
+          userId: user.id,
+        },
+        select: {
+          id: true,
+          ip: true,
+          userAgent: true,
+        },
+      });
+
+      response.push({
+        ...user,
+        roles,
+        devices,
+      });
+    }
+    return response;
   }
 
   async updateUser(payload: UpdateUserRequest): Promise<void> {
-    await this.#_checkRoles(payload.roles);
-    await this.#_checkCottages(payload.favoriteCottages);
+    
+    if(payload?.favoriteCottages?.length){
+      await this.#_checkCottages(payload.favoriteCottages);
+    }
 
     const foundedUser = await this.#_prisma.user.findFirst({
       where: { id: payload.id },
@@ -94,18 +119,16 @@ export class UserService {
     }
 
     if (payload?.roles) {
+      await this.#_checkRoles(payload.roles);
+      await this.#_prisma.userOnRole.deleteMany({
+        where: { userId: foundedUser.id },
+      });
       for (const role of payload.roles) {
-        await this.#_prisma.user.update({
-          where: { id: payload.id },
+        await this.#_prisma.userOnRole.create({
           data: {
-            roles: {
-              connect: {
-                userId_roleId: {
-                  roleId: role,
-                  userId: payload.id,
-                },
-              },
-            },
+            assignedBy: '2c0d844f-5c16-4c90-ac5d-c469a142db5f',
+            roleId: role,
+            userId: foundedUser.id,
           },
         });
       }
@@ -138,6 +161,13 @@ export class UserService {
         objectName: foundedUser.image.split('/')[1],
       });
     }
+
+    await this.#_prisma.userOnRole.deleteMany({
+      where: { userId: foundedUser.id },
+    });
+    await this.#_prisma.userDevice.deleteMany({
+      where: { userId: foundedUser.id },
+    });
     await this.#_prisma.user.delete({ where: { id: userId } });
   }
 
