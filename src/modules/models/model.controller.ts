@@ -11,6 +11,8 @@ import { Modelservice } from './model.service';
 import { Models } from '@prisma/client';
 import { CreateModelDto, UpdateModelDto } from './dtos';
 import { ApiTags } from '@nestjs/swagger';
+import { CheckAuth, Permission } from '@decorators';
+import { PERMISSIONS } from '@constants';
 
 @ApiTags('Models')
 @Controller('models')
@@ -21,16 +23,22 @@ export class ModelsController {
     this.#_service = service;
   }
 
+  @CheckAuth(true)
+  @Permission(PERMISSIONS.models.get_all_models)
   @Get()
   async getModelsList(): Promise<Models[]> {
     return await this.#_service.getModelsList();
   }
 
+  @CheckAuth(true)
+  @Permission(PERMISSIONS.models.create_models)
   @Post('/add')
   async createModel(@Body() payload: CreateModelDto): Promise<void> {
     await this.#_service.createModel(payload);
   }
 
+  @CheckAuth(true)
+  @Permission(PERMISSIONS.models.edit_models)
   @Patch('/edit/:id')
   async updateModel(
     @Param('id') modelId: string,
@@ -39,6 +47,8 @@ export class ModelsController {
     await this.#_service.updateModel({ id: modelId, name: paylaod.name });
   }
 
+  @CheckAuth(true)
+  @Permission(PERMISSIONS.models.delete_models)
   @Delete('/delete/:id')
   async deleteModel(@Param('id') id: string): Promise<void> {
     await this.#_service.deleteModel(id);

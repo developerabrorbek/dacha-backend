@@ -18,6 +18,8 @@ import {
 } from '@modules';
 import { PrismaModule } from '@prisma';
 import { MinioModule } from '@client';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard, PermissionGuard } from '@guard';
 
 @Module({
   imports: [
@@ -41,5 +43,15 @@ import { MinioModule } from '@client';
     AuthModule,
     UserModule,
   ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: PermissionGuard,
+    }
+  ]
 })
 export class AppModule {}

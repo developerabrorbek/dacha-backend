@@ -11,6 +11,8 @@ import { ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { User, UserDevice } from '@prisma/client';
 import { CreateUserDto, UpdateUserDto } from './dtos';
+import { CheckAuth, Permission } from '@decorators';
+import { PERMISSIONS } from '@constants';
 
 @ApiTags('User')
 @Controller('user')
@@ -21,21 +23,29 @@ export class UserController {
     this.#_service = service;
   }
 
+  @CheckAuth(true)
+  @Permission(PERMISSIONS.user.get_all_users)
   @Get('/all')
   async getUserList(): Promise<User[]> {
     return await this.#_service.getUserList();
   }
 
+  @CheckAuth(true)
+  @Permission(PERMISSIONS.user.get_all_user_device)
   @Get('/user-device/:userId')
   async getUserDevices(@Param('userId') userId: string): Promise<UserDevice[]> {
     return await this.#_service.getUserDevices(userId);
   }
 
+  @CheckAuth(true)
+  @Permission(PERMISSIONS.user.create_users)
   @Post('add')
   async createUser(@Body() payload: CreateUserDto): Promise<void> {
     await this.#_service.createUser(payload);
   }
 
+  @CheckAuth(true)
+  @Permission(PERMISSIONS.user.edit_user)
   @Patch('/edit/:id')
   async updateUser(
     @Param('id') userId: string,
@@ -47,6 +57,8 @@ export class UserController {
     });
   }
 
+  @CheckAuth(true)
+  @Permission(PERMISSIONS.user.delete_user)
   @Delete('/delete/:id')
   async deleteUser(@Param('id') userId: string): Promise<void> {
     await this.#_service.deleteUser(userId);

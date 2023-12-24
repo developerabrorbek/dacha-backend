@@ -1,10 +1,10 @@
-import { IsUUID } from "class-validator";
+import { IsString, IsUUID } from "class-validator";
 import { CreateRoleRequest } from "../interfaces";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class CreateRoleDto implements CreateRoleRequest {
   @ApiProperty()
-  @IsUUID(4)
+  @IsString()
   name: string;
 
   @ApiProperty()

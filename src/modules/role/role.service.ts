@@ -24,22 +24,82 @@ export class Roleservice {
   }
 
   async getRoleList(): Promise<Role[]> {
-    const data = await this.#_prisma.role.findMany({
-      include: {
-        users: true,
-      },
-    });
-    return data;
+    const response = [];
+    const data = await this.#_prisma.role.findMany();
+    for (const el of data) {
+      const permissions = [];
+      const models = [];
+      for (const p of el.permissions) {
+        const permission = await this.#_prisma.permission.findFirst({
+          where: { id: p },
+          include: {
+            model: true,
+          },
+        });
+        if (permission) {
+          if (!models.includes(permission.modelId))
+            models.push(permission.modelId);
+          permissions.push(permission);
+        }
+      }
+
+      const roleModels = [];
+
+      for (const m of models) {
+        const model = await this.#_prisma.models.findFirst({
+          where: { id: m },
+        });
+        if (model) {
+          roleModels.push({
+            id: model.id,
+            name: model.name,
+            permissions: [],
+          });
+        }
+      }
+
+      for (const p of permissions) {
+        const foundedModel = roleModels.find((e) => e.id == p.modelId);
+        if (foundedModel) {
+          foundedModel.permissions.push({
+            id: p.id,
+            name: p.name,
+          });
+        }
+      }
+
+      response.push({
+        id: el.id,
+        name: el.name,
+        permissions: roleModels,
+      });
+    }
+
+    return response;
   }
 
   async updateRole(payload: UpdateRoleRequest): Promise<void> {
+    const foundedRole = await this.#_prisma.role.findFirst({where: {id: payload.id}})
+
+    if(!foundedRole){
+      throw new NotFoundException("Role not found")
+    }
+    if (payload?.permissions?.length) {
+      await this.#_checkPermissions(payload.permissions);
+
+      await this.#_prisma.role.update({
+        where: { id: payload.id },
+        data: {
+          permissions: {
+            set: payload.permissions,
+          },
+        },
+      });
+    }
     await this.#_prisma.role.update({
       where: { id: payload.id },
       data: {
         name: payload.name,
-        permissions: {
-          set: payload.permissions,
-        },
       },
     });
   }

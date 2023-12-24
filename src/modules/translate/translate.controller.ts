@@ -13,6 +13,8 @@ import { ApiTags } from '@nestjs/swagger';
 import { CreateTranslateDto, UpdateTranslateDto } from './dtos';
 import { Translate } from '@prisma/client';
 import { GetSingleTranslateResponse } from './interfaces';
+import { CheckAuth, Permission } from '@decorators';
+import { PERMISSIONS } from '@constants';
 
 @ApiTags('Translate')
 @Controller({
@@ -26,16 +28,22 @@ export class TranslateController {
     this.#_service = service;
   }
 
+  @CheckAuth(true)
+  @Permission(PERMISSIONS.translate.get_all_translate)
   @Get()
   async getTranslateList(): Promise<Translate[]> {
     return await this.#_service.getTranslateList();
   }
 
-  @Get("/unused")
+  @CheckAuth(true)
+  @Permission(PERMISSIONS.translate.get_unused_translate)
+  @Get('/unused')
   async getUnusedTranslateList(): Promise<Translate[]> {
     return await this.#_service.getUnusedTranslateList();
   }
 
+  @CheckAuth(true)
+  @Permission(PERMISSIONS.translate.get_translate)
   @Get(':id')
   async retrieveSingleTranslate(
     @Headers('accept-language') languageCode: string,
@@ -47,11 +55,15 @@ export class TranslateController {
     });
   }
 
+  @CheckAuth(true)
+  @Permission(PERMISSIONS.translate.create_translate)
   @Post()
   async createTranslate(@Body() payload: CreateTranslateDto): Promise<void> {
     await this.#_service.createTranslate(payload);
   }
 
+  @CheckAuth(true)
+  @Permission(PERMISSIONS.translate.edit_translate)
   @Patch(':id')
   async updateTranslate(
     @Param('id') translateId: string,
@@ -60,6 +72,8 @@ export class TranslateController {
     await this.#_service.updateTranslate({ ...payload, id: translateId });
   }
 
+  @CheckAuth(true)
+  @Permission(PERMISSIONS.translate.delete_translate)
   @Delete(':id')
   async deleteTranslate(@Param('id') translateId: string): Promise<void> {
     await this.#_service.deleteTranslate(translateId);

@@ -12,6 +12,8 @@ import { RegionService } from './region.service';
 import { Region } from '@prisma/client';
 import { CreateRegionDto, UpdateRegionDto } from './dtos';
 import { ApiTags } from '@nestjs/swagger';
+import { CheckAuth, Permission } from '@decorators';
+import { PERMISSIONS } from '@constants';
 
 @ApiTags('Region')
 @Controller('region')
@@ -22,6 +24,8 @@ export class RegionController {
     this.#_service = service;
   }
 
+  @CheckAuth(false)
+  @Permission(PERMISSIONS.region.get_all_region)
   @Get()
   async getRegionList(
     @Headers('accept-language') languageCode: string,
@@ -29,11 +33,15 @@ export class RegionController {
     return await this.#_service.getRegionList(languageCode);
   }
 
+  @CheckAuth(true)
+  @Permission(PERMISSIONS.region.create_region)
   @Post('/add')
   async createRegion(@Body() payload: CreateRegionDto): Promise<void> {
     await this.#_service.createRegion(payload);
   }
 
+  @CheckAuth(true)
+  @Permission(PERMISSIONS.region.edit_region)
   @Patch('/edit/:id')
   async updateRegion(
     @Param('id') regionId: string,
@@ -42,6 +50,8 @@ export class RegionController {
     await this.#_service.updateRegion({ id: regionId, name: paylaod.name });
   }
 
+  @CheckAuth(true)
+  @Permission(PERMISSIONS.region.delete_region)
   @Delete("/delete/:id")
   async deleteRegion(@Param('id') id: string): Promise<void> {
     await this.#_service.deleteRegion(id);

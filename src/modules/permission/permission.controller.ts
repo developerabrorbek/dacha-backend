@@ -8,9 +8,11 @@ import {
   Post,
 } from '@nestjs/common';
 import { Permissionservice } from './permission.service';
-import { Permission } from '@prisma/client';
+import * as types from '@prisma/client';
 import { CreatePermissionDto, UpdatePermissionDto } from './dtos';
 import { ApiTags } from '@nestjs/swagger';
+import { CheckAuth, Permission } from '@decorators';
+import { PERMISSIONS } from '@constants';
 
 @ApiTags('Permission')
 @Controller('permission')
@@ -21,24 +23,35 @@ export class PermissionController {
     this.#_service = service;
   }
 
+  @CheckAuth(true)
+  @Permission(PERMISSIONS.permission.get_all_permission)
   @Get()
-  async getPermissionList(): Promise<Permission[]> {
+  async getPermissionList(): Promise<types.Permission[]> {
     return await this.#_service.getPermissionList();
   }
 
+  @CheckAuth(true)
+  @Permission(PERMISSIONS.permission.create_permission)
   @Post('/add')
   async createPermission(@Body() payload: CreatePermissionDto): Promise<void> {
     await this.#_service.createPermission(payload);
   }
 
+  @CheckAuth(true)
+  @Permission(PERMISSIONS.permission.edit_permission)
   @Patch('/edit/:id')
   async updatePermission(
     @Param('id') permissionId: string,
     @Body() payload: UpdatePermissionDto,
   ): Promise<void> {
-    await this.#_service.updatePermission({ id: permissionId, name: payload.name });
+    await this.#_service.updatePermission({
+      id: permissionId,
+      name: payload.name,
+    });
   }
 
+  @CheckAuth(true)
+  @Permission(PERMISSIONS.permission.delete_permission)
   @Delete('/delete/:id')
   async deletePermission(@Param('id') id: string): Promise<void> {
     await this.#_service.deletePermission(id);

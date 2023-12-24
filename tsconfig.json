@@ -17,6 +17,7 @@
       "@guard": ["./guard"],
       "@client": ["./client"],
       "@modules": ["./modules"],
+      "@decorators": ["./decorators"]
     },
     "incremental": true,
     "skipLibCheck": true,
