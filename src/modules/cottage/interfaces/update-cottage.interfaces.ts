@@ -13,5 +13,6 @@ export declare interface UpdateCottageRequest {
   latitude?: string;
   longitude?: string;
   bookedTime?: string[]
-  cottageStatus?: CottageStatus
+  cottageStatus?: CottageStatus;
+  isTop? : boolean
 }

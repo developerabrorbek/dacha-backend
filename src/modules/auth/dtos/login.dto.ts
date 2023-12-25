@@ -1,10 +1,11 @@
-import { IsString, IsUUID } from 'class-validator';
+import { IsOptional, IsString, IsUUID } from 'class-validator';
 import { LoginRequest } from '../interfaces';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class LoginDto implements LoginRequest {
   @ApiProperty()
   @IsString()
+  @IsOptional()
   ip?: string;
 
   @ApiProperty()
@@ -12,6 +13,7 @@ export class LoginDto implements LoginRequest {
   smsCode: string;
 
   @ApiProperty()
+  @IsOptional()
   @IsString()
   userAgent?: string;
 

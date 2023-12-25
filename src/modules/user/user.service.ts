@@ -25,9 +25,19 @@ export class UserService {
     this.#_config = config;
   }
 
-  async createUser(payload: CreateUserRequest): Promise<void> {
+  async createUser(payload: CreateUserRequest, userId): Promise<void> {
     await this.#_checkExistingUser(payload.phone);
     await this.#_checkRoles(payload.roles);
+
+    if(payload?.phone){
+      const foundedPhone = await this.#_prisma.user.findFirst({where: {phone: payload.phone}})
+      if(foundedPhone) throw new ConflictException(`User with this ${payload.phone} phone already exists`)
+    }
+
+    if(payload?.username){
+      const foundedUsername = await this.#_prisma.user.findFirst({where: {username: payload.username}})
+      if(foundedUsername) throw new ConflictException(`User with this ${payload.username} username already exists`)
+    }
 
     const newUser = await this.#_prisma.user.create({
       data: {
@@ -44,7 +54,7 @@ export class UserService {
     for (const role of payload.roles) {
       await this.#_prisma.userOnRole.create({
         data: {
-          assignedBy: '2c0d844f-5c16-4c90-ac5d-c469a142db5f',
+          assignedBy: userId,
           roleId: role,
           userId: newUser.id,
         },
@@ -85,7 +95,7 @@ export class UserService {
     return response;
   }
 
-  async updateUser(payload: UpdateUserRequest): Promise<void> {
+  async updateUser(payload: UpdateUserRequest, userId: string): Promise<void> {
     
     if(payload?.favoriteCottages?.length){
       await this.#_checkCottages(payload.favoriteCottages);
@@ -126,12 +136,22 @@ export class UserService {
       for (const role of payload.roles) {
         await this.#_prisma.userOnRole.create({
           data: {
-            assignedBy: '2c0d844f-5c16-4c90-ac5d-c469a142db5f',
+            assignedBy: userId,
             roleId: role,
             userId: foundedUser.id,
           },
         });
       }
+    }
+
+    if(payload?.phone){
+      const foundedPhone = await this.#_prisma.user.findFirst({where: {phone: payload.phone}})
+      if(foundedPhone) throw new ConflictException(`User with this ${payload.phone} phone already exists`)
+    }
+
+    if(payload?.username){
+      const foundedUsername = await this.#_prisma.user.findFirst({where: {username: payload.username}})
+      if(foundedUsername) throw new ConflictException(`User with this ${payload.username} username already exists`)
     }
 
     await this.#_prisma.user.update({

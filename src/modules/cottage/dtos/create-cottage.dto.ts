@@ -2,6 +2,7 @@ import {
   IsArray,
   IsBase64,
   IsBoolean,
+  IsEnum,
   IsLatitude,
   IsLongitude,
   IsNumber,
@@ -14,6 +15,7 @@ import {
 import { Type } from "class-transformer"
 import { CreateCottageRequest, ImageRequest } from '../interfaces';
 import { ApiProperty } from '@nestjs/swagger';
+import { $Enums } from '@prisma/client';
 
 class ImageCreateDto {
   @ApiProperty()
@@ -79,4 +81,10 @@ export class CreateCottageDto implements Omit<CreateCottageRequest, "createdBy">
   @IsOptional()
   @IsLongitude()
   longitude?: string;
+
+
+  @ApiProperty()
+  @IsEnum($Enums.CottageStatus)
+  @IsOptional()
+  cottageStatus?: $Enums.CottageStatus;
 }

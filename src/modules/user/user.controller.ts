@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Req,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
@@ -40,8 +41,8 @@ export class UserController {
   @CheckAuth(true)
   @Permission(PERMISSIONS.user.create_users)
   @Post('add')
-  async createUser(@Body() payload: CreateUserDto): Promise<void> {
-    await this.#_service.createUser(payload);
+  async createUser(@Body() payload: CreateUserDto, @Req() req: any): Promise<void> {
+    await this.#_service.createUser(payload, req.userId);
   }
 
   @CheckAuth(true)
@@ -50,11 +51,12 @@ export class UserController {
   async updateUser(
     @Param('id') userId: string,
     @Body() payload: UpdateUserDto,
+    @Req() req: any
   ): Promise<void> {
     await this.#_service.updateUser({
       id: userId,
       ...payload,
-    });
+    }, req.userId);
   }
 
   @CheckAuth(true)

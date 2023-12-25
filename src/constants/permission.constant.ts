@@ -33,6 +33,11 @@ export const PERMISSIONS = {
   },
   cottage: {
     get_all_cottage: "get_all_cottage",
+    get_all_cottages_by_cottage_type: "get_all_cottages_by_cottage_type",
+    get_all_cottages_by_place: "get_all_cottages_by_place",
+    get_all_cottages_by_user: "get_all_cottages_by_user",
+    get_all_filtered_cottages: "get_all_filtered_cottages",
+    get_all_cottages_on_top: "get_all_cottages_on_top",
     create_cottage: "create_cottage",
     edit_cottage_image: "edit_cottage_image",
     delete_cottage_image: "delete_cottage_image",

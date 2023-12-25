@@ -7,6 +7,8 @@ import {
   Param,
   Patch,
   Post,
+  Query,
+  Req,
 } from '@nestjs/common';
 import { CottageService } from './cottage.service';
 import { ApiTags } from '@nestjs/swagger';
@@ -38,11 +40,70 @@ export class CottageController {
     return await this.#_service.getCottageList(languageCode);
   }
 
+  @CheckAuth(false)
+  @Permission(PERMISSIONS.cottage.get_all_cottages_on_top)
+  @Get("top")
+  async getTopCottageList(
+    @Headers('accept-language') languageCode: string,
+  ): Promise<GetCottageListResponse[]> {
+    return await this.#_service.getTopCottageList(languageCode);
+  }
+
+  @CheckAuth(false)
+  @Permission(PERMISSIONS.cottage.get_all_cottages_by_cottage_type)
+  @Get('cottage-type/:cottageTypeId')
+  async getCottageListByCottageType(
+    @Headers('accept-language') languageCode: string,
+    @Param('cottageTypeId') id: string,
+  ): Promise<GetCottageListResponse[]> {
+    return await this.#_service.getCottageListByCottageType(languageCode, id);
+  }
+
+  @CheckAuth(false)
+  @Permission(PERMISSIONS.cottage.get_all_cottages_by_place)
+  @Get('place/:placeId')
+  async getCottageListByPlace(
+    @Headers('accept-language') languageCode: string,
+    @Param('placeId') id: string,
+  ): Promise<GetCottageListResponse[]> {
+    return await this.#_service.getCottageListByPlace(languageCode, id);
+  }
+
+  @CheckAuth(true)
+  @Permission(PERMISSIONS.cottage.get_all_cottages_by_user)
+  @Get('user')
+  async getCottageListByUser(
+    @Headers('accept-language') languageCode: string,
+    @Req() req: any,
+  ): Promise<GetCottageListResponse[]> {
+    return await this.#_service.getCottageListByUser(languageCode, req.userId);
+  }
+
+  @CheckAuth(false)
+  @Permission(PERMISSIONS.cottage.get_all_filtered_cottages)
+  @Get('filter/?')
+  async getFilteredCottageList(
+    @Headers('accept-language') languageCode: string,
+    @Query('type') cottageType?: string,
+    @Query('region') regionId?: string,
+    @Query('price') price?: string,
+  ): Promise<GetCottageListResponse[]> {
+    return await this.#_service.getFilteredCottageList({
+      languageCode,
+      cottageType,
+      price: Number(price) || 10000,
+      regionId,
+    });
+  }
+
   @CheckAuth(true)
   @Permission(PERMISSIONS.cottage.create_cottage)
   @Post('/add')
-  async createCottage(@Body() payload: CreateCottageDto): Promise<void> {
-    await this.#_service.createCottage({ ...payload, createdBy: 'kimdir' });
+  async createCottage(
+    @Body() payload: CreateCottageDto,
+    @Req() req: any,
+  ): Promise<void> {
+    await this.#_service.createCottage({ ...payload }, req.userId);
   }
 
   @CheckAuth(true)

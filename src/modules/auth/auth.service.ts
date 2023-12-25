@@ -248,9 +248,9 @@ export class AuthService {
       };
     } catch (err) {
       if (err instanceof TokenExpiredError) {
-        throw new ForbiddenException('Token already expired');
+        throw new HttpException(err.message, 455);
       }
-      throw new HttpException(err.message, err.status || 455);
+      throw new ForbiddenException('Refresh token error');
     }
   }
 

@@ -27,4 +27,6 @@ export declare interface GetCottageListResponse {
   };
   longitude?: string;
   latitude?: string;
+  cottageStatus?: string;
+  isTop? :boolean;
 }

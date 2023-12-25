@@ -10,7 +10,6 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { CHECK_AUTH_KEY } from '@decorators';
-import { Request } from 'express';
 import { Observable } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
 import { JsonWebTokenError, JwtService, TokenExpiredError } from '@nestjs/jwt';
@@ -30,12 +29,13 @@ export class AuthGuard implements CanActivate {
       context.getClass(),
     ]);
 
+
     if (!isAuth) {
       return true;
     }
 
 
-    const request = context.switchToHttp().getRequest<Request>();
+    const request = context.switchToHttp().getRequest<any>();
 
     const token = request.headers.authorization;
 
@@ -52,11 +52,11 @@ export class AuthGuard implements CanActivate {
     if (!accessToken) {
       throw new ConflictException('Please provide a bearer token');
     }
-
     try {
-      this.jwt.verify(accessToken, {
+      const data = this.jwt.verify(accessToken, {
         secret: this.config.getOrThrow<string>('jwt.accessKey'),
       });
+      request.userId = data.id
       return true;
     } catch (err) {
       if (err instanceof TokenExpiredError) {

@@ -122,12 +122,20 @@ export class TranslateService {
 
   async updateTranslate(payload: UpdateTranslateRequest): Promise<void> {
     await this.#_checkTranslate(payload.id);
+    const foundedTranslate = await this.#_prisma.translate.findFirst({
+      where: { id: payload.id },
+    });
+
+    if (payload.status == 'active' && foundedTranslate.status == 'active') {
+      throw new ConflictException('Translate is already in use');
+    }
+
     await this.#_prisma.translate.update({
       where: { id: payload.id },
       data: { status: payload.status },
     });
   }
-  
+
   async deleteTranslate(id: string) {
     await this.#_checkUUID(id);
 
@@ -164,7 +172,6 @@ export class TranslateService {
     if (translate)
       throw new BadRequestException(`Translate ${code} is already available`);
   }
-
 
   async #_checkUUID(id: string): Promise<void> {
     if (!isUUID(id, 4))

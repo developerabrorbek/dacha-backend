@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsEnum,
   IsLatitude,
   IsLongitude,
@@ -83,4 +84,9 @@ export class UpdateCottageDto implements Omit<UpdateCottageRequest, 'id'> {
   @IsLongitude()
   @IsOptional()
   longitude?: string;
+
+  @ApiProperty()
+  @IsBoolean()
+  @IsOptional()
+  isTop?: boolean;
 }

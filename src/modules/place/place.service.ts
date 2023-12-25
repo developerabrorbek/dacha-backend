@@ -11,7 +11,6 @@ import { ConfigService } from '@nestjs/config';
 import { TranslateService } from 'modules/translate';
 
 @Injectable()
-
 export class PlaceService {
   #_prisma: PrismaService;
   #_minio: MinioService;
@@ -72,15 +71,9 @@ export class PlaceService {
   }
 
   async updatePlace(payload: UpdatePlaceRequest): Promise<void> {
-    let image = null;
-    const foundedPlace = await this.#_prisma.place.findFirst({ where: { id: payload.id } });
-
-    if (payload?.name) {
-      await this.#_translate.updateTranslate({
-        id: payload.name,
-        status: 'inactive',
-      });
-    }
+    const foundedPlace = await this.#_prisma.place.findFirst({
+      where: { id: payload.id },
+    });
 
     if (payload?.image) {
       await this.#_minio.removeObject({
@@ -88,32 +81,48 @@ export class PlaceService {
         objectName: foundedPlace.image.split('/')[1],
       });
 
-      image = await this.#_minio.uploadImage({
+      const image = await this.#_minio.uploadImage({
         bucket: this.#_config.getOrThrow<string>('minio.bucket'),
         file: payload.image,
       });
+
+      await this.#_prisma.place.update({
+        where: { id: payload.id },
+        data: { image: image?.image },
+      });
     }
 
-    await this.#_prisma.place.update({
-      where: { id: payload.id },
-      data: { name: payload.name, image: image?.image },
-    });
+    if (payload?.name) {
+      await this.#_translate.updateTranslate({
+        id: foundedPlace.name,
+        status: 'inactive',
+      });
+      await this.#_translate.updateTranslate({
+        id: payload.name,
+        status: 'active',
+      });
+
+      await this.#_prisma.place.update({
+        where: { id: payload.id },
+        data: { name: payload.name },
+      });
+    }
   }
 
   async deletePlace(id: string): Promise<void> {
     const foundedPlace = await this.#_prisma.place.findFirst({ where: { id } });
-    if(!foundedPlace){
-      throw new NotFoundException("Place not found")
+    if (!foundedPlace) {
+      throw new NotFoundException('Place not found');
     }
     await this.#_translate.updateTranslate({
       id: foundedPlace.name,
       status: 'inactive',
     });
-    console.log(foundedPlace)
     await this.#_minio.removeObject({
       bucket: this.#_config.getOrThrow<string>('minio.bucket'),
       objectName: foundedPlace.image.split('/')[1],
     });
+
     await this.#_prisma.place.delete({ where: { id: foundedPlace.id } });
   }
 
