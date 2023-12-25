@@ -23,7 +23,9 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: 22
         script: |
-          cd /backEnd/dacha-backend/
+          cd /backEnd/dacha-backend
+          pnpm i
           git pull origin main
-          git status
-          pnpm install
+          pnpm i
+          pm2 start "pnpm run start:dev" --name "dacha-back"
+          
