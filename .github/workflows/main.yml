@@ -26,4 +26,4 @@ jobs:
           cd /backEnd/dacha-backend/
           git pull origin main
           git status
-          pnpm install --only=prod
+          pnpm install
