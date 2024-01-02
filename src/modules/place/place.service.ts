@@ -30,11 +30,6 @@ export class PlaceService {
   }
 
   async createPlace(payload: CreatePlaceRequest): Promise<void> {
-    await this.#_translate.updateTranslate({
-      id: payload.name,
-      status: 'active',
-    });
-
     const image = await this.#_minio.uploadImage({
       bucket: this.#_config.getOrThrow<string>('minio.bucket'),
       file: payload.image,
@@ -43,6 +38,12 @@ export class PlaceService {
     if (!image?.image) {
       throw new ConflictException('Error while uploading image');
     }
+    
+    await this.#_translate.updateTranslate({
+      id: payload.name,
+      status: 'active',
+    });
+
 
     await this.#_prisma.place.create({
       data: {

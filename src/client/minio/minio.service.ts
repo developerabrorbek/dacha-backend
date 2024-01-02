@@ -21,7 +21,7 @@ export class MinioService {
       endPoint: config.getOrThrow<string>('minio.endPoint'),
       accessKey: config.getOrThrow<string>('minio.accessKey'),
       secretKey: config.getOrThrow<string>('minio.secretKey'),
-      useSSL: false,
+      useSSL: true,
       port: config.getOrThrow<number>('minio.port'),
     });
   }
@@ -43,6 +43,7 @@ export class MinioService {
         image: `/${objectName}.${format}`,
       };
     } catch (error) {
+      console.log(error)
       throw new ConflictException('Error on uploading image');
     }
   }
