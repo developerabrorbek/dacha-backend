@@ -20,7 +20,9 @@ async function bootstrap() {
     origin: '*',
   });
 
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({
+    transform: true,
+  }));
 
   const config = new DocumentBuilder()
     .setTitle('Dacha API Documentation')

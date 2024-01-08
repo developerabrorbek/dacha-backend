@@ -11,6 +11,7 @@ import {
 
 import { ApiProperty } from '@nestjs/swagger';
 import { $Enums } from '@prisma/client';
+import { Transform } from 'class-transformer';
 
 export class CreateCottageDto {
   @ApiProperty()
@@ -38,11 +39,13 @@ export class CreateCottageDto {
   placeId: string;
 
   @ApiProperty()
+  @Transform(({ value }) => Number(value))
   @IsNumber()
   @IsPositive()
   price: number;
 
   @ApiProperty()
+  @Transform(({ value }) => Number(value))
   @IsNumber()
   @IsPositive()
   priceWeekend: number;

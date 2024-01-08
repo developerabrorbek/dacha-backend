@@ -29,7 +29,6 @@ export class AuthGuard implements CanActivate {
       context.getClass(),
     ]);
 
-    return true;
     if (!isAuth) {
       return true;
     }

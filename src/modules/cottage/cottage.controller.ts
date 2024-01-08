@@ -107,7 +107,7 @@ export class CottageController {
   @UseInterceptors(
     FilesInterceptor('images', 10, {
       storage: diskStorage({
-        destination: './uploads',
+        destination: './uploads/images',
         filename: (req, file, cb) => {
           const randomName = Array(32)
             .fill(null)
@@ -149,7 +149,7 @@ export class CottageController {
   @UseInterceptors(
     FileInterceptor('image', {
       storage: diskStorage({
-        destination: './uploads',
+        destination: './uploads/images',
         filename: (req, file, cb) => {
           const randomName = Array(32)
             .fill(null)
@@ -173,7 +173,7 @@ export class CottageController {
   @UseInterceptors(
     FileInterceptor('image', {
       storage: diskStorage({
-        destination: './uploads',
+        destination: './uploads/images',
         filename: (req, file, cb) => {
           const randomName = Array(32)
             .fill(null)

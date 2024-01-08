@@ -42,6 +42,8 @@ export class CottageService {
     for (const e of payload.images) {
       const imagePath = e.path.replace('\\', '/');
 
+      console.log(imagePath.replace('\\', '/'))
+
       cottageImages.push({
         image: imagePath.replace('\\', '/'),
         isMainImage: false,
@@ -52,8 +54,8 @@ export class CottageService {
       data: {
         name: payload.name,
         description: payload.description,
-        price: payload.price,
-        priceWeekend: payload.priceWeekend,
+        price: Number(payload.price),
+        priceWeekend: Number(payload.priceWeekend),
         comforts: payload.comforts,
         rating: 1,
         cottageType: payload.cottageType,
