@@ -6,49 +6,36 @@ import {
 import { PrismaService } from 'prisma/prisma.service';
 import { Place } from '@prisma/client';
 import { CreatePlaceRequest, UpdatePlaceRequest } from './interfaces';
-import { MinioService } from 'client';
-import { ConfigService } from '@nestjs/config';
 import { TranslateService } from 'modules/translate';
+import { join } from 'path';
+import * as fs from 'fs';
 
 @Injectable()
 export class PlaceService {
   #_prisma: PrismaService;
-  #_minio: MinioService;
   #_translate: TranslateService;
-  #_config: ConfigService;
 
-  constructor(
-    prisma: PrismaService,
-    minio: MinioService,
-    config: ConfigService,
-    translate: TranslateService,
-  ) {
+  constructor(prisma: PrismaService, translate: TranslateService) {
     this.#_prisma = prisma;
-    this.#_minio = minio;
-    this.#_config = config;
     this.#_translate = translate;
   }
 
   async createPlace(payload: CreatePlaceRequest): Promise<void> {
-    const image = await this.#_minio.uploadImage({
-      bucket: this.#_config.getOrThrow<string>('minio.bucket'),
-      file: payload.image,
-    });
-
-    if (!image?.image) {
+    if (!payload.image?.path) {
       throw new ConflictException('Error while uploading image');
     }
-    
+
+    const imagePath = payload.image.path.replace('\\', '/');
+
     await this.#_translate.updateTranslate({
       id: payload.name,
       status: 'active',
     });
 
-
     await this.#_prisma.place.create({
       data: {
         name: payload.name,
-        image: image.image,
+        image: imagePath.replace('\\', '/'),
         regionId: payload.regionId,
       },
     });
@@ -76,20 +63,22 @@ export class PlaceService {
       where: { id: payload.id },
     });
 
-    if (payload?.image) {
-      await this.#_minio.removeObject({
-        bucket: this.#_config.getOrThrow<string>('minio.bucket'),
-        objectName: foundedPlace.image.split('/')[1],
-      });
+    if (!foundedPlace) {
+      throw new NotFoundException('Place not found');
+    }
 
-      const image = await this.#_minio.uploadImage({
-        bucket: this.#_config.getOrThrow<string>('minio.bucket'),
-        file: payload.image,
-      });
+    if (payload?.image?.path) {
+      fs.unlink(join(process.cwd(), foundedPlace.image), () =>
+        console.log("err"),
+      );
+
+      const imagePath = payload.image.path.replace('\\', '/');
+
+      const image = imagePath.replace('\\', '/');
 
       await this.#_prisma.place.update({
         where: { id: payload.id },
-        data: { image: image?.image },
+        data: { image: image },
       });
     }
 
@@ -119,10 +108,10 @@ export class PlaceService {
       id: foundedPlace.name,
       status: 'inactive',
     });
-    await this.#_minio.removeObject({
-      bucket: this.#_config.getOrThrow<string>('minio.bucket'),
-      objectName: foundedPlace.image.split('/')[1],
-    });
+
+    fs.unlink(join(process.cwd(), foundedPlace.image), () =>
+      console.log("err"),
+    );
 
     await this.#_prisma.place.delete({ where: { id: foundedPlace.id } });
   }

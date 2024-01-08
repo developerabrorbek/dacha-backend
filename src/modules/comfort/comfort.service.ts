@@ -1,49 +1,48 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { Comfort } from '@prisma/client';
 import { CreateComfortRequest, UpdateComfortRequest } from './interfaces';
-import { MinioService } from 'client';
 import { ConfigService } from '@nestjs/config';
+import * as fs from 'node:fs';
 import { TranslateService } from 'modules/translate';
+import { join } from 'node:path';
 
 @Injectable()
 export class ComfortService {
   #_prisma: PrismaService;
-  #_minio: MinioService;
   #_config: ConfigService;
   #_translate: TranslateService;
 
   constructor(
     prisma: PrismaService,
-    minio: MinioService,
     config: ConfigService,
     translate: TranslateService,
   ) {
     this.#_prisma = prisma;
-    this.#_minio = minio;
     this.#_config = config;
     this.#_translate = translate;
   }
 
   async createComfort(payload: CreateComfortRequest): Promise<void> {
+    if (!payload.image?.path) {
+      throw new ConflictException('Error while uploading image');
+    }
+
+    const imagePath = payload.image.path.replace('\\', '/');
+
     await this.#_translate.updateTranslate({
       id: payload.name,
       status: 'active',
     });
 
-    const image = await this.#_minio.uploadImage({
-      bucket: this.#_config.getOrThrow<string>('minio.bucket'),
-      file: payload.image,
-    });
-
-    if (!image?.image) {
-      throw new ConflictException('Error while uploading image');
-    }
-
     await this.#_prisma.comfort.create({
       data: {
         name: payload.name,
-        image: image.image,
+        image: imagePath.replace('\\', '/'),
       },
     });
   }
@@ -65,8 +64,9 @@ export class ComfortService {
       where: { id: payload.id },
     });
 
-    if(!foundedComfort){
-      throw new NotFoundException("Comfort not found")
+
+    if (!foundedComfort) {
+      throw new NotFoundException('Comfort not found');
     }
     let image = null;
 
@@ -79,33 +79,38 @@ export class ComfortService {
         id: payload.name,
         status: 'active',
       });
-    }
 
-    if (payload.image) {
-      await this.#_minio.removeObject({
-        bucket: this.#_config.getOrThrow<string>('minio.bucket'),
-        objectName: foundedComfort.image.split('/')[1],
-      });
-      image = await this.#_minio.uploadImage({
-        bucket: this.#_config.getOrThrow<string>('minio.bucket'),
-        file: payload.image,
+      await this.#_prisma.comfort.update({
+        where: { id: payload.id },
+        data: { name: payload?.name },
       });
     }
 
-    await this.#_prisma.comfort.update({
-      where: { id: payload.id },
-      data: { name: payload?.name, image: image?.image },
-    });
+    if (payload.image?.path) {
+      fs.unlink(join(process.cwd(), foundedComfort.image), () =>
+        console.log("err"),
+      );
+
+      const imagePath = payload.image.path.replace('\\', '/');
+
+      image = imagePath.replace('\\', '/');
+
+      await this.#_prisma.comfort.update({
+        where: { id: payload.id },
+        data: { image: image },
+      });
+    }
   }
 
   async deleteComfort(id: string): Promise<void> {
     const foundedComfort = await this.#_prisma.comfort.findFirst({
       where: { id: id },
     });
-    await this.#_minio.removeObject({
-      bucket: this.#_config.getOrThrow<string>('minio.bucket'),
-      objectName: foundedComfort.image.split('/')[1],
-    });
+
+    fs.unlink(join(process.cwd(), foundedComfort.image), () =>
+      console.log("err"),
+    );
+
     await this.#_translate.updateTranslate({
       id: foundedComfort.name,
       status: 'inactive',

@@ -1,7 +1,7 @@
 export class UpdateUserRequest {
   id: string;
   name?: string;
-  image?: string;
+  image?: any;
   roles?: string[];
   phone?: string;
   favoriteCottages?: string[];

@@ -7,6 +7,8 @@ import {
   Param,
   Patch,
   Post,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { PlaceService } from './place.service';
 import { Place } from '@prisma/client';
@@ -14,6 +16,9 @@ import { ApiTags } from '@nestjs/swagger';
 import { CreatePlaceDto, UpdatePlaceDto } from './dtos';
 import { CheckAuth, Permission } from '@decorators';
 import { PERMISSIONS } from '@constants';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 
 @ApiTags('Place')
 @Controller('place')
@@ -36,18 +41,54 @@ export class PlaceController {
   @CheckAuth(true)
   @Permission(PERMISSIONS.place.create_place)
   @Post('/add')
-  async createPlace(@Body() payload: CreatePlaceDto): Promise<void> {
-    await this.#_service.createPlace(payload);
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: diskStorage({
+        destination: './uploads/images',
+        filename: (req, file, cb) => {
+          const randomName = Array(32)
+            .fill(null)
+            .map(() => Math.round(Math.random() * 16).toString(16))
+            .join('');
+          cb(null, `${randomName}${extname(file.originalname)}`);
+        },
+      }),
+    }),
+  )
+  async createPlace(
+    @Body() payload: CreatePlaceDto,
+    @UploadedFile() image: Express.Multer.File,
+  ): Promise<void> {
+    await this.#_service.createPlace({ ...payload, image });
   }
 
   @CheckAuth(true)
   @Permission(PERMISSIONS.place.edit_place)
   @Patch('/edit/:id')
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: diskStorage({
+        destination: './uploads/images',
+        filename: (req, file, cb) => {
+          const randomName = Array(32)
+            .fill(null)
+            .map(() => Math.round(Math.random() * 16).toString(16))
+            .join('');
+          cb(null, `${randomName}${extname(file.originalname)}`);
+        },
+      }),
+    }),
+  )
   async updatePlace(
     @Param('id') placeId: string,
     @Body() paylaod: UpdatePlaceDto,
+    @UploadedFile() image: Express.Multer.File,
   ): Promise<void> {
-    await this.#_service.updatePlace({ id: placeId, name: paylaod.name, image: paylaod.image });
+    await this.#_service.updatePlace({
+      id: placeId,
+      name: paylaod.name,
+      image,
+    });
   }
 
   @CheckAuth(true)

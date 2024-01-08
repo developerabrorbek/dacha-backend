@@ -1,4 +1,4 @@
 export declare interface AddCottageImageRequest {
-  image: string;
+  image: any;
   cottageId: string;
 }

@@ -14,27 +14,21 @@ import {
   UpdateCottageImageRequest,
   UpdateCottageRequest,
 } from './interfaces';
-import { MinioService } from 'client';
-import { ConfigService } from '@nestjs/config';
+import * as fs from 'fs';
 import { TranslateService } from 'modules/translate';
+import { join } from 'path';
 
 @Injectable()
 export class CottageService {
   #_prisma: PrismaService;
-  #_minio: MinioService;
-  #_config: ConfigService;
   #_translate: TranslateService;
 
   constructor(
     prisma: PrismaService,
-    minio: MinioService,
-    config: ConfigService,
     translate: TranslateService,
   ) {
     this.#_prisma = prisma;
-    this.#_minio = minio;
     this.#_translate = translate;
-    this.#_config = config;
   }
 
   async createCottage(
@@ -46,18 +40,11 @@ export class CottageService {
     const cottageImages = [];
 
     for (const e of payload.images) {
-      const image = await this.#_minio.uploadImage({
-        bucket: this.#_config.getOrThrow<string>('minio.bucket'),
-        file: e.image,
-      });
-
-      if (!image?.image) {
-        throw new ConflictException('Error while uploading image');
-      }
+      const imagePath = e.path.replace('\\', '/');
 
       cottageImages.push({
-        image: image.image,
-        isMainImage: e.isMain,
+        image: imagePath.replace('\\', '/'),
+        isMainImage: false,
       });
     }
 
@@ -388,7 +375,9 @@ export class CottageService {
     languageCode: string,
   ): Promise<GetCottageListResponse[]> {
     const response = [];
-    const data = await this.#_prisma.cottage.findMany({where: {isTop: true}});
+    const data = await this.#_prisma.cottage.findMany({
+      where: { isTop: true },
+    });
     for (const cottage of data) {
       const comforts = await this.#_getComforts(cottage.comforts, languageCode);
       const cottageTypes = await this.#_getCottageTypes(
@@ -474,10 +463,7 @@ export class CottageService {
     });
 
     for (const image of images) {
-      await this.#_minio.removeObject({
-        bucket: this.#_config.getOrThrow<string>('minio.bucket'),
-        objectName: image.image.split('/')[1],
-      });
+      fs.unlink(join(process.cwd(), image.image), () => console.log('err'));
 
       await this.#_prisma.cottageImage.delete({ where: { id: image.id } });
     }
@@ -486,14 +472,14 @@ export class CottageService {
   }
 
   async addCottageImage(payload: AddCottageImageRequest): Promise<void> {
-    const image = await this.#_minio.uploadImage({
-      bucket: this.#_config.getOrThrow<string>('minio.bucket'),
-      file: payload.image,
-    });
+    if (!payload.image?.path) {
+      throw new ConflictException('Error on upload image');
+    }
+    const imagePath = payload.image.path.replace('\\', '/');
     await this.#_prisma.cottageImage.create({
       data: {
         cottageId: payload.cottageId,
-        image: image.image,
+        image: imagePath.replace('\\', '/'),
       },
     });
   }
@@ -503,26 +489,27 @@ export class CottageService {
       where: { id: payload.id },
     });
 
-    let newImage = null;
-
     if (!foundedImage) {
       throw new NotFoundException('Image not found');
     }
 
-    if (payload.image) {
-      await this.#_minio.removeObject({
-        bucket: this.#_config.getOrThrow<string>('minio.bucket'),
-        objectName: foundedImage.image.split('/')[1],
-      });
-      newImage = await this.#_minio.uploadImage({
-        bucket: this.#_config.getOrThrow<string>('minio.bucket'),
-        file: payload.image,
+    if (payload.image?.path) {
+      fs.unlink(join(process.cwd(), foundedImage.image), () =>
+        console.log('err'),
+      );
+      const imagePath = payload.image.path.replace('\\', '/');
+
+      const newImage = imagePath.replace('\\', '/');
+
+      await this.#_prisma.cottageImage.update({
+        where: { id: payload.id },
+        data: { image: newImage },
       });
     }
 
     await this.#_prisma.cottageImage.update({
       where: { id: payload.id },
-      data: { image: newImage?.image, status: payload.status },
+      data: { status: payload.status },
     });
   }
 
@@ -531,10 +518,9 @@ export class CottageService {
       where: { id },
     });
 
-    await this.#_minio.removeObject({
-      bucket: this.#_config.getOrThrow<string>('minio.bucket'),
-      objectName: foundedImage.image.split('/')[1],
-    });
+    fs.unlink(join(process.cwd(), foundedImage.image), () =>
+        console.log('err'),
+      );
 
     await this.#_prisma.cottageImage.delete({ where: { id } });
   }

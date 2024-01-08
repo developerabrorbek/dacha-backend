@@ -1,5 +1,5 @@
 export declare interface UpdatePlaceRequest {
   id: string;
   name?: string;
-  image?: string;
+  image?: any;
 }

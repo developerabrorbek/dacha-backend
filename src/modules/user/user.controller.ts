@@ -7,6 +7,8 @@ import {
   Patch,
   Post,
   Req,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
@@ -14,6 +16,10 @@ import { UserDevice } from '@prisma/client';
 import { CreateUserDto, UpdateUserDto } from './dtos';
 import { CheckAuth, Permission } from '@decorators';
 import { PERMISSIONS } from '@constants';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+import { Express } from 'express';
 
 @ApiTags('User')
 @Controller('user')
@@ -47,15 +53,31 @@ export class UserController {
 
   @CheckAuth(true)
   @Permission(PERMISSIONS.user.edit_user)
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: diskStorage({
+        destination: './uploads/images',
+        filename: (req, file, cb) => {
+          const randomName = Array(32)
+            .fill(null)
+            .map(() => Math.round(Math.random() * 16).toString(16))
+            .join('');
+          cb(null, `${randomName}${extname(file.originalname)}`);
+        },
+      }),
+    }),
+  )
   @Patch('/edit/:id')
   async updateUser(
     @Param('id') userId: string,
     @Body() payload: UpdateUserDto,
-    @Req() req: any
+    @Req() req: any,
+    @UploadedFile() image: Express.Multer.File,
   ): Promise<void> {
     await this.#_service.updateUser({
       id: userId,
       ...payload,
+      image,
     }, req.userId);
   }
 

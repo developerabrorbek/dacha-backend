@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { databaseConfig, jwtConfig, minioConfigs } from '@config';
+import { databaseConfig, jwtConfig } from '@config';
 import {
   AuthModule,
   ComfortModule,
@@ -17,20 +17,24 @@ import {
   UserModule,
 } from '@modules';
 import { PrismaModule } from '@prisma';
-import { MinioModule } from '@client';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { AuthGuard, PermissionGuard } from '@guard';
 import { JwtModule } from '@nestjs/jwt';
 import { HttpExceptionFilter } from '@filters';
+import {ServeStaticModule } from "@nestjs/serve-static"
+import { join } from 'path';
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, "..", "uploads"),
+      serveRoot: "/uploads/",
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [databaseConfig, minioConfigs, jwtConfig],
+      load: [databaseConfig, jwtConfig],
     }),
     JwtModule,
-    MinioModule,
     PrismaModule,
     LanguageModule,
     TranslateModule,

@@ -9,6 +9,9 @@ import {
   Post,
   Query,
   Req,
+  UploadedFile,
+  UploadedFiles,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CottageService } from './cottage.service';
 import { ApiTags } from '@nestjs/swagger';
@@ -21,6 +24,9 @@ import {
 import { GetCottageListResponse } from './interfaces';
 import { CheckAuth, Permission } from '@decorators';
 import { PERMISSIONS } from '@constants';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 
 @ApiTags('Cottage')
 @Controller('cottage')
@@ -42,7 +48,7 @@ export class CottageController {
 
   @CheckAuth(false)
   @Permission(PERMISSIONS.cottage.get_all_cottages_on_top)
-  @Get("top")
+  @Get('top')
   async getTopCottageList(
     @Headers('accept-language') languageCode: string,
   ): Promise<GetCottageListResponse[]> {
@@ -98,12 +104,27 @@ export class CottageController {
 
   @CheckAuth(true)
   @Permission(PERMISSIONS.cottage.create_cottage)
+  @UseInterceptors(
+    FilesInterceptor('images', 10, {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, cb) => {
+          const randomName = Array(32)
+            .fill(null)
+            .map(() => Math.round(Math.random() * 16).toString(16))
+            .join('');
+          cb(null, `${randomName}${extname(file.originalname)}`);
+        },
+      }),
+    }),
+  )
   @Post('/add')
   async createCottage(
     @Body() payload: CreateCottageDto,
     @Req() req: any,
+    @UploadedFiles() images: Array<Express.Multer.File>,
   ): Promise<void> {
-    await this.#_service.createCottage({ ...payload }, req.userId);
+    await this.#_service.createCottage({ ...payload, images }, req.userId);
   }
 
   @CheckAuth(true)
@@ -125,19 +146,51 @@ export class CottageController {
 
   @CheckAuth(true)
   @Permission(PERMISSIONS.cottage.create_cottage_image)
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, cb) => {
+          const randomName = Array(32)
+            .fill(null)
+            .map(() => Math.round(Math.random() * 16).toString(16))
+            .join('');
+          cb(null, `${randomName}${extname(file.originalname)}`);
+        },
+      }),
+    }),
+  )
   @Post('/image/add')
-  async addCottageImage(@Body() payload: AddCottageImageDto): Promise<void> {
-    await this.#_service.addCottageImage(payload);
+  async addCottageImage(
+    @Body() payload: AddCottageImageDto,
+    @UploadedFile() image: Express.Multer.File,
+  ): Promise<void> {
+    await this.#_service.addCottageImage({ ...payload, image });
   }
 
   @CheckAuth(true)
   @Permission(PERMISSIONS.cottage.edit_cottage_image)
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, cb) => {
+          const randomName = Array(32)
+            .fill(null)
+            .map(() => Math.round(Math.random() * 16).toString(16))
+            .join('');
+          cb(null, `${randomName}${extname(file.originalname)}`);
+        },
+      }),
+    }),
+  )
   @Patch('/image/edit/:id')
   async updateCottageImage(
     @Param('id') id: string,
     @Body() payload: UpdateCottageImageDto,
+    @UploadedFile() image?: Express.Multer.File,
   ): Promise<void> {
-    await this.#_service.updateCottageImage({ id, ...payload });
+    await this.#_service.updateCottageImage({ id, ...payload, image });
   }
 
   @CheckAuth(true)

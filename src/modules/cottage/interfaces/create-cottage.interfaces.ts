@@ -1,13 +1,8 @@
 import { CottageStatus } from "@prisma/client";
 
-export declare interface ImageRequest {
-  image: string;
-  isMain: boolean;
-}
-
 export declare interface CreateCottageRequest {
   name: string;
-  images: ImageRequest[];
+  images: any[];
   description: string;
   cottageType: string[];
   price: number;

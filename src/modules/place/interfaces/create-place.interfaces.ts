@@ -1,5 +1,5 @@
 export declare interface CreatePlaceRequest {
   name: string;
-  image: string;
+  image: any;
   regionId: string;
 }

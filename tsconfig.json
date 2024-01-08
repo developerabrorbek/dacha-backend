@@ -15,7 +15,6 @@
       "@constants": ["./constants"],
       "@config": ["./config"],
       "@guard": ["./guard"],
-      "@client": ["./client"],
       "@modules": ["./modules"],
       "@decorators": ["./decorators"],
       "@filters": ["./filters"],

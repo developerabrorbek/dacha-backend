@@ -1,13 +1,7 @@
-import { IsBase64, IsOptional, IsUUID } from 'class-validator';
-import { UpdateComfortRequest } from '../interfaces';
+import { IsOptional, IsUUID } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class UpdateComfortDto implements Omit<UpdateComfortRequest, 'id'> {
-  @ApiProperty()
-  @IsBase64()
-  @IsOptional()
-  image?: string;
-
+export class UpdateComfortDto {
   @ApiProperty()
   @IsOptional()
   @IsUUID(4)

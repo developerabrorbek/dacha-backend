@@ -1,15 +1,13 @@
 import {
-  IsBase64,
   IsEmail,
   IsOptional,
   IsString,
   IsUUID,
   Matches,
 } from 'class-validator';
-import { UpdateUserRequest } from '../interfaces';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class UpdateUserDto implements Omit<UpdateUserRequest, 'id'> {
+export class UpdateUserDto  {
   @ApiProperty()
   @IsOptional()
   @IsEmail()
@@ -21,11 +19,6 @@ export class UpdateUserDto implements Omit<UpdateUserRequest, 'id'> {
     each: true,
   })
   favoriteCottages?: string[];
-
-  @ApiProperty()
-  @IsOptional()
-  @IsBase64()
-  image?: string;
 
   @ApiProperty()
   @IsOptional()

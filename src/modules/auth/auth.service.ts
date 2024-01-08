@@ -150,6 +150,7 @@ export class AuthService {
   async loginForAdmin(
     payload: LoginForAdminRequest,
   ): Promise<LoginForAdminResponse> {
+    console.log(payload)
     const foundedUser = await this.#_prisma.user.findFirst({
       where: { password: payload.password, username: payload.username },
     });

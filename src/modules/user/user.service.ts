@@ -6,37 +6,39 @@ import {
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateUserRequest, UpdateUserRequest } from './interfaces';
 import { UserDevice } from '@prisma/client';
-import { MinioService } from '@client';
-import { ConfigService } from '@nestjs/config';
+import { join } from 'path';
+import * as fs from 'fs';
 
 @Injectable()
 export class UserService {
   #_prisma: PrismaService;
-  #_minio: MinioService;
-  #_config: ConfigService;
 
-  constructor(
-    prisma: PrismaService,
-    minio: MinioService,
-    config: ConfigService,
-  ) {
+  constructor(prisma: PrismaService) {
     this.#_prisma = prisma;
-    this.#_minio = minio;
-    this.#_config = config;
   }
 
   async createUser(payload: CreateUserRequest, userId): Promise<void> {
     await this.#_checkExistingUser(payload.phone);
     await this.#_checkRoles(payload.roles);
 
-    if(payload?.phone){
-      const foundedPhone = await this.#_prisma.user.findFirst({where: {phone: payload.phone}})
-      if(foundedPhone) throw new ConflictException(`User with this ${payload.phone} phone already exists`)
+    if (payload?.phone) {
+      const foundedPhone = await this.#_prisma.user.findFirst({
+        where: { phone: payload.phone },
+      });
+      if (foundedPhone)
+        throw new ConflictException(
+          `User with this ${payload.phone} phone already exists`,
+        );
     }
 
-    if(payload?.username){
-      const foundedUsername = await this.#_prisma.user.findFirst({where: {username: payload.username}})
-      if(foundedUsername) throw new ConflictException(`User with this ${payload.username} username already exists`)
+    if (payload?.username) {
+      const foundedUsername = await this.#_prisma.user.findFirst({
+        where: { username: payload.username },
+      });
+      if (foundedUsername)
+        throw new ConflictException(
+          `User with this ${payload.username} username already exists`,
+        );
     }
 
     const newUser = await this.#_prisma.user.create({
@@ -96,8 +98,7 @@ export class UserService {
   }
 
   async updateUser(payload: UpdateUserRequest, userId: string): Promise<void> {
-    
-    if(payload?.favoriteCottages?.length){
+    if (payload?.favoriteCottages?.length) {
       await this.#_checkCottages(payload.favoriteCottages);
     }
 
@@ -111,20 +112,18 @@ export class UserService {
 
     if (payload?.image) {
       if (foundedUser.image) {
-        await this.#_minio.removeObject({
-          bucket: this.#_config.getOrThrow<string>('minio.bucket'),
-          objectName: foundedUser.image.split('/')[1],
-        });
+        fs.unlink(join(process.cwd(), foundedUser.image), () =>
+          console.log('err'),
+        );
       }
 
-      const newImage = await this.#_minio.uploadImage({
-        bucket: this.#_config.getOrThrow<string>('minio.bucket'),
-        file: payload.image,
-      });
+      const imagePath = payload.image.path.replace('\\', '/');
+
+      const image = imagePath.replace('\\', '/');
 
       await this.#_prisma.user.update({
         where: { id: foundedUser.id },
-        data: { image: newImage.image },
+        data: { image: image },
       });
     }
 
@@ -144,14 +143,24 @@ export class UserService {
       }
     }
 
-    if(payload?.phone){
-      const foundedPhone = await this.#_prisma.user.findFirst({where: {phone: payload.phone}})
-      if(foundedPhone) throw new ConflictException(`User with this ${payload.phone} phone already exists`)
+    if (payload?.phone) {
+      const foundedPhone = await this.#_prisma.user.findFirst({
+        where: { phone: payload.phone },
+      });
+      if (foundedPhone)
+        throw new ConflictException(
+          `User with this ${payload.phone} phone already exists`,
+        );
     }
 
-    if(payload?.username){
-      const foundedUsername = await this.#_prisma.user.findFirst({where: {username: payload.username}})
-      if(foundedUsername) throw new ConflictException(`User with this ${payload.username} username already exists`)
+    if (payload?.username) {
+      const foundedUsername = await this.#_prisma.user.findFirst({
+        where: { username: payload.username },
+      });
+      if (foundedUsername)
+        throw new ConflictException(
+          `User with this ${payload.username} username already exists`,
+        );
     }
 
     await this.#_prisma.user.update({
@@ -176,10 +185,9 @@ export class UserService {
     }
 
     if (foundedUser?.image) {
-      await this.#_minio.removeObject({
-        bucket: this.#_config.getOrThrow<string>('minio.bucket'),
-        objectName: foundedUser.image.split('/')[1],
-      });
+      fs.unlink(join(process.cwd(), foundedUser.image), () =>
+        console.log('err'),
+      );
     }
 
     await this.#_prisma.userOnRole.deleteMany({
