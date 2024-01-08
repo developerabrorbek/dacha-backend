@@ -23,10 +23,7 @@ export class CottageService {
   #_prisma: PrismaService;
   #_translate: TranslateService;
 
-  constructor(
-    prisma: PrismaService,
-    translate: TranslateService,
-  ) {
+  constructor(prisma: PrismaService, translate: TranslateService) {
     this.#_prisma = prisma;
     this.#_translate = translate;
   }
@@ -42,7 +39,7 @@ export class CottageService {
     for (const e of payload.images) {
       const imagePath = e.path.replace('\\', '/');
 
-      console.log(imagePath.replace('\\', '/'))
+      console.log(imagePath.replace('\\', '/'));
 
       cottageImages.push({
         image: imagePath.replace('\\', '/'),
@@ -482,6 +479,7 @@ export class CottageService {
       data: {
         cottageId: payload.cottageId,
         image: imagePath.replace('\\', '/'),
+        isMainImage: payload.isMainImage || false,
       },
     });
   }
@@ -521,8 +519,8 @@ export class CottageService {
     });
 
     fs.unlink(join(process.cwd(), foundedImage.image), () =>
-        console.log('err'),
-      );
+      console.log('err'),
+    );
 
     await this.#_prisma.cottageImage.delete({ where: { id } });
   }
