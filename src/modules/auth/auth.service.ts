@@ -57,7 +57,7 @@ export class AuthService {
       userId = newUser.id;
     }
 
-    const smsCode = String(Math.round(Math.random() * 100000));
+    const smsCode = String(Math.floor(Math.random() * 90000) + 10000);
 
     await this.#_sendSms({ phone: payload.phone, smsCode });
 
