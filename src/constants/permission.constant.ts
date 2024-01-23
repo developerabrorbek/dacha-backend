@@ -32,7 +32,7 @@ export const PERMISSIONS = {
     delete_comfort: "delete_comfort"
   },
   cottage: {
-    get_all_cottage: "get_all_cottage",
+    get_all_cottage: "get_all_cottage", 
     get_all_cottages_by_cottage_type: "get_all_cottages_by_cottage_type",
     get_all_cottages_by_place: "get_all_cottages_by_place",
     get_all_cottages_by_user: "get_all_cottages_by_user",
@@ -72,6 +72,7 @@ export const PERMISSIONS = {
   },
   user: {
     get_all_users: "get_all_users",
+    get_single_user: "get_single_user",
     create_users: "create_users",
     get_all_user_device: "get_all_user-device",
     edit_user: "edit_user",

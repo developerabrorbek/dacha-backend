@@ -97,6 +97,36 @@ export class UserService {
     return response;
   }
 
+  async getSingleUser(id: string): Promise<any> {
+    const user = await this.#_prisma.user.findFirst({ where: { id: id } });
+
+    const roles = await this.#_prisma.userOnRole.findMany({
+      where: {
+        userId: user.id,
+      },
+      select: {
+        role: true,
+      },
+    });
+
+    const devices = await this.#_prisma.userDevice.findMany({
+      where: {
+        userId: user.id,
+      },
+      select: {
+        id: true,
+        ip: true,
+        userAgent: true,
+      },
+    });
+
+    return {
+      ...user,
+      roles,
+      devices,
+    };
+  }
+
   async updateUser(payload: UpdateUserRequest, userId: string): Promise<void> {
     if (payload?.favoriteCottages?.length) {
       await this.#_checkCottages(payload.favoriteCottages);

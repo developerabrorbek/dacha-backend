@@ -17,6 +17,7 @@ import {
 import * as fs from 'fs';
 import { TranslateService } from 'modules/translate';
 import { join } from 'path';
+import { isArray } from 'class-validator';
 
 @Injectable()
 export class CottageService {
@@ -32,8 +33,22 @@ export class CottageService {
     payload: Omit<CreateCottageRequest, 'createdBy'>,
     userId: string,
   ): Promise<void> {
-    await this.#_checkComforts(payload.comforts);
-    await this.#_checkCottageTypes(payload.cottageType);
+    const comforts = [];
+    if (isArray(payload.comforts)) {
+      await this.#_checkComforts(payload.comforts);
+      comforts.push(...payload.comforts);
+    } else {
+      comforts.push(payload.comforts);
+    }
+
+    const cottageType = [];
+    if (isArray(payload.cottageType)) {
+      await this.#_checkCottageTypes(payload.cottageType);
+      cottageType.push(...payload.cottageType);
+    }else {
+      cottageType.push(payload.cottageType);
+    }
+    
     const cottageImages = [];
 
     for (const e of payload.images) {

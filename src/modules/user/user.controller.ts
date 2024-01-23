@@ -38,6 +38,13 @@ export class UserController {
   }
 
   @CheckAuth(true)
+  @Permission(PERMISSIONS.user.get_all_users)
+  @Get('/single')
+  async getSingleUser(@Req() req: any): Promise<any> {
+    return await this.#_service.getSingleUser(req.userId);
+  }
+
+  @CheckAuth(true)
   @Permission(PERMISSIONS.user.get_all_user_device)
   @Get('/user-device/:userId')
   async getUserDevices(@Param('userId') userId: string): Promise<UserDevice[]> {
