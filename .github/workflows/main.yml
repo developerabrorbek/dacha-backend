@@ -25,4 +25,4 @@ jobs:
           script: |
             cd /backEnd/dacha-backend
             git pull origin main
-            pm2 restart "dacha-back"
+            sudo pm2 restart "dacha-back"
