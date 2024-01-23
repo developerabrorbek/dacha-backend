@@ -38,7 +38,7 @@ export class UserController {
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.user.get_all_users)
+  @Permission(PERMISSIONS.user.get_single_user)
   @Get('/single')
   async getSingleUser(@Req() req: any): Promise<any> {
     return await this.#_service.getSingleUser(req.userId);

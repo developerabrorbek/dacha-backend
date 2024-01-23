@@ -33,6 +33,10 @@ export class CottageService {
     payload: Omit<CreateCottageRequest, 'createdBy'>,
     userId: string,
   ): Promise<void> {
+    if (!payload.mainImage) {
+      throw new ConflictException('Please provide a main image');
+    }
+
     const comforts = [];
     if (isArray(payload.comforts)) {
       await this.#_checkComforts(payload.comforts);
@@ -45,22 +49,25 @@ export class CottageService {
     if (isArray(payload.cottageType)) {
       await this.#_checkCottageTypes(payload.cottageType);
       cottageType.push(...payload.cottageType);
-    }else {
+    } else {
       cottageType.push(payload.cottageType);
     }
-    
+
     const cottageImages = [];
 
     for (const e of payload.images) {
       const imagePath = e.path.replace('\\', '/');
-
-      console.log(imagePath.replace('\\', '/'));
 
       cottageImages.push({
         image: imagePath.replace('\\', '/'),
         isMainImage: false,
       });
     }
+
+    cottageImages.push({
+      image: payload.mainImage.path.replace('\\', '/').replace('\\', '/'),
+      isMainImage: true,
+    });
 
     await this.#_prisma.cottage.create({
       data: {

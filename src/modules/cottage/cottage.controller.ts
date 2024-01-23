@@ -105,6 +105,20 @@ export class CottageController {
   @CheckAuth(true)
   @Permission(PERMISSIONS.cottage.create_cottage)
   @UseInterceptors(
+    FileInterceptor('mainImage', {
+      storage: diskStorage({
+        destination: './uploads/images',
+        filename: (req, file, cb) => {
+          const randomName = Array(32)
+            .fill(null)
+            .map(() => Math.round(Math.random() * 16).toString(16))
+            .join('');
+          cb(null, `${randomName}${extname(file.originalname)}`);
+        },
+      }),
+    }),
+  )
+  @UseInterceptors(
     FilesInterceptor('images', 10, {
       storage: diskStorage({
         destination: './uploads/images',
@@ -123,8 +137,9 @@ export class CottageController {
     @Body() payload: CreateCottageDto,
     @Req() req: any,
     @UploadedFiles() images: Array<Express.Multer.File>,
+    @UploadedFile() mainImage: Express.Multer.File,
   ): Promise<void> {
-    await this.#_service.createCottage({ ...payload, images }, req.userId);
+    await this.#_service.createCottage({ ...payload, images, mainImage }, req.userId);
   }
 
   @CheckAuth(true)
