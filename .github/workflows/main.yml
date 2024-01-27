@@ -24,7 +24,6 @@ jobs:
           port: 22
           script: |
             cd /backEnd/dacha-backend
-            pnpm i
             git pull origin main
             pnpm i
             pm2 delete "dacha-back" && pm2 save
