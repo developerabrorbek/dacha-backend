@@ -72,9 +72,8 @@ export class NotificationService {
   }
 
   async deleteNotification(id: string): Promise<void> {
-    await this.#_prisma.notification.update({
+    await this.#_prisma.notification.delete({
       where: { id },
-      data: { status: 'seen' },
     });
   }
 }

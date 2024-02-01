@@ -2,6 +2,7 @@ import { $Enums } from "@prisma/client";
 import { CreateNotificationRequest } from "../interfaces";
 import { ApiProperty } from "@nestjs/swagger";
 import { IsEnum, IsOptional, IsString, IsUUID } from "class-validator";
+import { Transform } from "class-transformer";
 
 export class CreateNotificationDto implements Omit<CreateNotificationRequest,"createdBy"> {
   @ApiProperty({
@@ -15,9 +16,11 @@ export class CreateNotificationDto implements Omit<CreateNotificationRequest,"cr
     nullable: true,
   })
   @IsEnum($Enums.NotificationType)
-  @IsOptional()
   type?: $Enums.NotificationType;
 
+  @Transform(({value}) => {
+    if(!value) return undefined
+  } )
   @ApiProperty({
     nullable: true,
   })
