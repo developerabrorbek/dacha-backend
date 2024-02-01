@@ -6,7 +6,6 @@ import {
 import { PrismaService } from 'prisma/prisma.service';
 import { Comfort } from '@prisma/client';
 import { CreateComfortRequest, UpdateComfortRequest } from './interfaces';
-import { ConfigService } from '@nestjs/config';
 import * as fs from 'node:fs';
 import { TranslateService } from 'modules/translate';
 import { join } from 'node:path';
@@ -14,16 +13,13 @@ import { join } from 'node:path';
 @Injectable()
 export class ComfortService {
   #_prisma: PrismaService;
-  #_config: ConfigService;
   #_translate: TranslateService;
 
   constructor(
     prisma: PrismaService,
-    config: ConfigService,
     translate: TranslateService,
   ) {
     this.#_prisma = prisma;
-    this.#_config = config;
     this.#_translate = translate;
   }
 
@@ -64,13 +60,12 @@ export class ComfortService {
       where: { id: payload.id },
     });
 
-
     if (!foundedComfort) {
       throw new NotFoundException('Comfort not found');
     }
     let image = null;
 
-    if (payload.name) {
+    if (payload?.name) {
       await this.#_translate.updateTranslate({
         id: foundedComfort.name,
         status: 'inactive',
@@ -86,9 +81,10 @@ export class ComfortService {
       });
     }
 
-    if (payload.image?.path) {
-      fs.unlink(join(process.cwd(), foundedComfort.image), () =>
-        console.log("err"),
+    if (payload?.image?.path) {
+      fs.unlink(
+        join(process.cwd(), foundedComfort.image),
+        (): unknown => undefined,
       );
 
       const imagePath = payload.image.path.replace('\\', '/');
@@ -107,8 +103,9 @@ export class ComfortService {
       where: { id: id },
     });
 
-    fs.unlink(join(process.cwd(), foundedComfort.image), () =>
-      console.log("err"),
+    fs.unlink(
+      join(process.cwd(), foundedComfort.image),
+      (): unknown => undefined,
     );
 
     await this.#_translate.updateTranslate({

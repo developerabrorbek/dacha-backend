@@ -24,7 +24,10 @@ import {
 import { GetCottageListResponse } from './interfaces';
 import { CheckAuth, Permission } from '@decorators';
 import { PERMISSIONS } from '@constants';
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import {
+  FileFieldsInterceptor,
+  FileInterceptor,
+} from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 
@@ -105,41 +108,42 @@ export class CottageController {
   @CheckAuth(true)
   @Permission(PERMISSIONS.cottage.create_cottage)
   @UseInterceptors(
-    FileInterceptor('mainImage', {
-      storage: diskStorage({
-        destination: './uploads/images',
-        filename: (req, file, cb) => {
-          const randomName = Array(32)
-            .fill(null)
-            .map(() => Math.round(Math.random() * 16).toString(16))
-            .join('');
-          cb(null, `${randomName}${extname(file.originalname)}`);
+    FileFieldsInterceptor(
+      [
+        {
+          name: 'mainImage',
+          maxCount: 1,
         },
-      }),
-    }),
-  )
-  @UseInterceptors(
-    FilesInterceptor('images', 10, {
-      storage: diskStorage({
-        destination: './uploads/images',
-        filename: (req, file, cb) => {
-          const randomName = Array(32)
-            .fill(null)
-            .map(() => Math.round(Math.random() * 16).toString(16))
-            .join('');
-          cb(null, `${randomName}${extname(file.originalname)}`);
+        {
+          name: 'images',
+          maxCount: 15,
         },
-      }),
-    }),
+      ],
+      {
+        storage: diskStorage({
+          destination: './uploads/images',
+          filename: (req, file, cb) => {
+            const randomName = Array(32)
+              .fill(null)
+              .map(() => Math.round(Math.random() * 16).toString(16))
+              .join('');
+            cb(null, `${randomName}${extname(file.originalname)}`);
+          },
+        }),
+      },
+    ),
   )
   @Post('/add')
   async createCottage(
     @Body() payload: CreateCottageDto,
     @Req() req: any,
-    @UploadedFiles() images: Array<Express.Multer.File>,
-    @UploadedFile() mainImage: Express.Multer.File,
+    @UploadedFiles()
+    files: {
+      mainImage: Array<Express.Multer.File>;
+      images: Array<Express.Multer.File>;
+    },
   ): Promise<void> {
-    await this.#_service.createCottage({ ...payload, images, mainImage }, req.userId);
+    await this.#_service.createCottage({ ...payload, files }, req.userId);
   }
 
   @CheckAuth(true)

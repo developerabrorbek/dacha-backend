@@ -1,9 +1,8 @@
-import { CottageStatus } from "@prisma/client";
+import { CottageStatus } from '@prisma/client';
 
 export declare interface CreateCottageRequest {
   name: string;
-  images: any[];
-  mainImage: any;
+  files: any;
   description: string;
   cottageType: string[];
   price: number;

@@ -68,8 +68,9 @@ export class PlaceService {
     }
 
     if (payload?.image?.path) {
-      fs.unlink(join(process.cwd(), foundedPlace.image), () =>
-        console.log("err"),
+      fs.unlink(
+        join(process.cwd(), foundedPlace.image),
+        (): unknown => undefined,
       );
 
       const imagePath = payload.image.path.replace('\\', '/');
@@ -109,8 +110,9 @@ export class PlaceService {
       status: 'inactive',
     });
 
-    fs.unlink(join(process.cwd(), foundedPlace.image), () =>
-      console.log("err"),
+    fs.unlink(
+      join(process.cwd(), foundedPlace.image),
+      (): unknown => undefined,
     );
 
     await this.#_prisma.place.delete({ where: { id: foundedPlace.id } });

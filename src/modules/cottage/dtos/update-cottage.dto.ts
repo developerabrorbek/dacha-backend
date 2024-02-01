@@ -13,6 +13,7 @@ import {
 import { UpdateCottageRequest } from '../interfaces';
 import { $Enums } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 
 export class UpdateCottageDto implements Omit<UpdateCottageRequest, 'id'> {
   @ApiProperty()
@@ -34,28 +35,43 @@ export class UpdateCottageDto implements Omit<UpdateCottageRequest, 'id'> {
   @IsOptional()
   cottageType?: string[];
 
+  @Transform(({value}) => {
+    if(!value) return undefined
+  } )
   @ApiProperty()
   @IsString()
   @IsOptional()
   description?: string;
 
+  @Transform(({value}) => {
+    if(!value) return undefined
+  } )
   @ApiProperty()
   @IsString()
   @IsOptional()
   name?: string;
 
+  @Transform(({value}) => {
+    if(!value) return undefined
+  } )
   @ApiProperty()
   @IsNumber()
   @IsPositive()
   @IsOptional()
   price?: number;
 
+  @Transform(({value}) => {
+    if(!value) return undefined
+  } )
   @ApiProperty()
   @IsNumber()
   @IsPositive()
   @IsOptional()
   priceWeekend?: number;
 
+  @Transform(({value}) => {
+    if(!value) return undefined
+  } )
   @ApiProperty()
   @IsNumber()
   @IsPositive()
@@ -63,6 +79,9 @@ export class UpdateCottageDto implements Omit<UpdateCottageRequest, 'id'> {
   @IsOptional()
   rating?: number;
 
+  @Transform(({value}) => {
+    if(!value) return undefined
+  } )
   @ApiProperty()
   @IsEnum($Enums.Status)
   @IsOptional()
@@ -75,16 +94,25 @@ export class UpdateCottageDto implements Omit<UpdateCottageRequest, 'id'> {
   @IsOptional()
   bookedTime?: string[];
 
+  @Transform(({value}) => {
+    if(!value) return undefined
+  } )
   @ApiProperty()
   @IsLatitude()
   @IsOptional()
   latitude?: string;
 
+  @Transform(({value}) => {
+    if(!value) return undefined
+  } )
   @ApiProperty()
   @IsLongitude()
   @IsOptional()
   longitude?: string;
 
+  @Transform(({value}) => {
+    if(!value) return undefined
+  } )
   @ApiProperty()
   @IsBoolean()
   @IsOptional()

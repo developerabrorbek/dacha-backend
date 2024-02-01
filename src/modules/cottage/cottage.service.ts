@@ -33,8 +33,12 @@ export class CottageService {
     payload: Omit<CreateCottageRequest, 'createdBy'>,
     userId: string,
   ): Promise<void> {
-    if (!payload.mainImage) {
+    if (!payload.files?.mainImage?.length) {
       throw new ConflictException('Please provide a main image');
+    }
+
+    if (!userId) {
+      throw new ConflictException('Please provide Bearer token');
     }
 
     const comforts = [];
@@ -55,7 +59,7 @@ export class CottageService {
 
     const cottageImages = [];
 
-    for (const e of payload.images) {
+    for (const e of payload.files?.images) {
       const imagePath = e.path.replace('\\', '/');
 
       cottageImages.push({
@@ -65,7 +69,9 @@ export class CottageService {
     }
 
     cottageImages.push({
-      image: payload.mainImage.path.replace('\\', '/').replace('\\', '/'),
+      image: payload.files?.mainImage[0].path
+        .replace('\\', '/')
+        .replace('\\', '/'),
       isMainImage: true,
     });
 

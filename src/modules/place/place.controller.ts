@@ -86,7 +86,7 @@ export class PlaceController {
   ): Promise<void> {
     await this.#_service.updatePlace({
       id: placeId,
-      name: paylaod.name,
+      name: paylaod?.name,
       image,
     });
   }

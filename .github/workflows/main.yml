@@ -26,6 +26,5 @@ jobs:
             cd /backEnd/dacha-backend
             git pull origin main
             pnpm i
-            pm2 delete "dacha-back" && pm2 save
-            pm2 start "pnpm run start:dev" --name "dacha-back" && pm2 save
+            pm2 restart "dacha-back"
             

@@ -54,11 +54,17 @@ export class CreateCottageDto {
   @IsUUID(4)
   regionId: string;
 
+  @Transform((val) => {
+    if (!val) return undefined;
+  })
   @ApiProperty()
   @IsOptional()
   @IsLatitude()
   latitude?: string;
 
+  @Transform((val) => {
+    if (!val) return undefined;
+  })
   @ApiProperty()
   @IsOptional()
   @IsLongitude()
