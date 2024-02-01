@@ -8,6 +8,7 @@ import { CreateUserRequest, UpdateUserRequest } from './interfaces';
 import { UserDevice } from '@prisma/client';
 import { join } from 'path';
 import * as fs from 'fs';
+import { isArray } from 'class-validator';
 
 @Injectable()
 export class UserService {
@@ -132,6 +133,20 @@ export class UserService {
       await this.#_checkCottages(payload.favoriteCottages);
     }
 
+    if (!userId) {
+      throw new ConflictException('Please provide Bearer token');
+    }
+
+    const userRoles = [];
+
+    if (!isArray(payload.roles) && payload?.roles) {
+      userRoles.push(payload.roles);
+    }
+
+    if (isArray(payload?.roles)) {
+      userRoles.push(...payload.roles);
+    }
+
     const foundedUser = await this.#_prisma.user.findFirst({
       where: { id: payload.id },
     });
@@ -142,8 +157,9 @@ export class UserService {
 
     if (payload?.image) {
       if (foundedUser.image) {
-        fs.unlink(join(process.cwd(), foundedUser.image), () =>
-          console.log('err'),
+        fs.unlink(
+          join(process.cwd(), foundedUser.image),
+          (): unknown => undefined,
         );
       }
 
@@ -157,12 +173,12 @@ export class UserService {
       });
     }
 
-    if (payload?.roles) {
-      await this.#_checkRoles(payload.roles);
+    if (userRoles.length) {
+      await this.#_checkRoles(userRoles);
       await this.#_prisma.userOnRole.deleteMany({
         where: { userId: foundedUser.id },
       });
-      for (const role of payload.roles) {
+      for (const role of userRoles) {
         await this.#_prisma.userOnRole.create({
           data: {
             assignedBy: userId,
@@ -215,9 +231,7 @@ export class UserService {
     }
 
     if (foundedUser?.image) {
-      fs.unlink(join(process.cwd(), foundedUser.image), () =>
-        console.log('err'),
-      );
+      fs.unlink(join(process.cwd(), foundedUser.image), (): unknown =>undefined);
     }
 
     await this.#_prisma.userOnRole.deleteMany({

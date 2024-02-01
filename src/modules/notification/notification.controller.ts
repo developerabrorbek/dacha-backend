@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Headers, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Req } from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { Notification } from '@prisma/client';
 import { CreateNotificationDto, UpdateNotificationDto } from './dtos';
@@ -37,19 +37,19 @@ export class NotificationController {
   @Post("add")
   async createNotification(
     @Body() payload: CreateNotificationDto,
-    @Headers('access-token') accessToken: string,
+    @Req() request: any,
   ): Promise<void> {
     await this.#_service.createNotification({
       ...payload,
-      createdBy: accessToken,
+      createdBy: request.userId,
     });
   }
 
   @CheckAuth(true)
   @Permission(PERMISSIONS.notification.edit_notification)
   @Patch("/update/:id")
-  async updateNotification(@Body() payload: UpdateNotificationDto,@Param("id") id: string, @Headers('access-token') accessToken: string): Promise<void>{
-    await this.#_service.updateNotification({userId: accessToken, id, ...payload})
+  async updateNotification(@Body() payload: UpdateNotificationDto,@Param("id") id: string, @Req() request: any,): Promise<void>{
+    await this.#_service.updateNotification({userId: request.userId, id, ...payload})
   }
 
 

@@ -81,9 +81,9 @@ export class CottageService {
         description: payload.description,
         price: Number(payload.price),
         priceWeekend: Number(payload.priceWeekend),
-        comforts: payload.comforts,
+        comforts: comforts,
         rating: 1,
-        cottageType: payload.cottageType,
+        cottageType: cottageType,
         placeId: payload.placeId,
         regionId: payload.regionId,
         createdBy: userId,
@@ -453,15 +453,31 @@ export class CottageService {
   }
 
   async updateCottage(payload: UpdateCottageRequest): Promise<void> {
-    await this.#_checkComforts(payload.comforts);
-    await this.#_checkCottageTypes(payload.cottageType);
+    const comforts = [];
+    if (isArray(payload.comforts)) {
+      await this.#_checkComforts(payload.comforts);
+      comforts.push(...payload.comforts);
+    } else {
+      comforts.push(payload.comforts);
+    }
+
+    const cottageType = [];
+    if (isArray(payload.cottageType)) {
+      await this.#_checkCottageTypes(payload.cottageType);
+      cottageType.push(...payload.cottageType);
+    } else {
+      cottageType.push(payload.cottageType);
+    }
+
+    await this.#_checkComforts(comforts);
+    await this.#_checkCottageTypes(cottageType);
 
     await this.#_prisma.cottage.update({
       where: { id: payload.id },
       data: {
         rating: payload.rating,
-        cottageType: payload.cottageType,
-        comforts: payload.comforts,
+        cottageType: cottageType,
+        comforts: comforts,
         name: payload.name,
         description: payload.description,
         price: payload.price,

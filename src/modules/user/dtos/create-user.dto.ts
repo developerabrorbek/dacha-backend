@@ -1,6 +1,7 @@
 import { IsOptional, IsString, IsUUID, Matches } from "class-validator";
 import { CreateUserRequest } from "../interfaces";
 import { ApiProperty } from "@nestjs/swagger";
+import { Transform } from "class-transformer";
 
 export class CreateUserDto implements CreateUserRequest {
   @ApiProperty()
@@ -22,6 +23,9 @@ export class CreateUserDto implements CreateUserRequest {
   @IsString()
   username: string;
 
+  @Transform(({value}) => {
+    if(!value) return undefined
+  } )
   @ApiProperty()
   @IsString()
   @IsOptional()

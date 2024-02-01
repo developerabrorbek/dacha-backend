@@ -1,4 +1,9 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { PERMISSION_KEY } from '@decorators';
 import { JwtService } from '@nestjs/jwt';
@@ -25,8 +30,6 @@ export class PermissionGuard implements CanActivate {
       return true;
     }
 
-    return true;
-
     const userRole = await this.prisma.role.findFirst({
       where: { name: 'USER' },
     });
@@ -34,7 +37,13 @@ export class PermissionGuard implements CanActivate {
       where: { code: permission },
     });
 
-    if (userRole?.permissions?.includes(foundedPermission.id)) {
+    if (!foundedPermission) {
+      throw new InternalServerErrorException(
+        'There is no permission like that',
+      );
+    }
+
+    if (userRole?.permissions?.includes(foundedPermission?.id)) {
       return true;
     }
 
