@@ -16,6 +16,10 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 
 export class UpdateCottageDto implements Omit<UpdateCottageRequest, 'id'> {
+  @Transform(({value}) => {
+    if(!value) return undefined
+    else return value
+  } )
   @ApiProperty()
   @IsUUID(4, {
     each: true,
@@ -23,11 +27,19 @@ export class UpdateCottageDto implements Omit<UpdateCottageRequest, 'id'> {
   @IsOptional()
   comforts?: string[];
 
+  @Transform(({value}) => {
+    if(!value) return undefined
+    else return value
+  } )
   @ApiProperty()
   @IsEnum($Enums.CottageStatus)
   @IsOptional()
   cottageStatus?: $Enums.CottageStatus;
 
+  @Transform(({value}) => {
+    if(!value) return undefined
+    else return value
+  } )
   @ApiProperty()
   @IsUUID(4, {
     each: true,
@@ -37,6 +49,7 @@ export class UpdateCottageDto implements Omit<UpdateCottageRequest, 'id'> {
 
   @Transform(({value}) => {
     if(!value) return undefined
+    else return value
   } )
   @ApiProperty()
   @IsString()
@@ -45,6 +58,7 @@ export class UpdateCottageDto implements Omit<UpdateCottageRequest, 'id'> {
 
   @Transform(({value}) => {
     if(!value) return undefined
+    else return value
   } )
   @ApiProperty()
   @IsString()
@@ -53,6 +67,7 @@ export class UpdateCottageDto implements Omit<UpdateCottageRequest, 'id'> {
 
   @Transform(({value}) => {
     if(!value) return undefined
+    else return value
   } )
   @ApiProperty()
   @IsNumber()
@@ -62,6 +77,7 @@ export class UpdateCottageDto implements Omit<UpdateCottageRequest, 'id'> {
 
   @Transform(({value}) => {
     if(!value) return undefined
+    else return value
   } )
   @ApiProperty()
   @IsNumber()
@@ -71,6 +87,7 @@ export class UpdateCottageDto implements Omit<UpdateCottageRequest, 'id'> {
 
   @Transform(({value}) => {
     if(!value) return undefined
+    else return value
   } )
   @ApiProperty()
   @IsNumber()
@@ -79,14 +96,15 @@ export class UpdateCottageDto implements Omit<UpdateCottageRequest, 'id'> {
   @IsOptional()
   rating?: number;
 
-  @Transform(({value}) => {
-    if(!value) return undefined
-  } )
   @ApiProperty()
   @IsEnum($Enums.Status)
   @IsOptional()
   status?: $Enums.Status;
 
+  @Transform(({value}) => {
+    if(!value) return undefined
+    else return value
+  } )
   @ApiProperty()
   @IsString({
     each: true
@@ -96,6 +114,7 @@ export class UpdateCottageDto implements Omit<UpdateCottageRequest, 'id'> {
 
   @Transform(({value}) => {
     if(!value) return undefined
+    else return value
   } )
   @ApiProperty()
   @IsLatitude()
@@ -104,15 +123,13 @@ export class UpdateCottageDto implements Omit<UpdateCottageRequest, 'id'> {
 
   @Transform(({value}) => {
     if(!value) return undefined
+    else return value
   } )
   @ApiProperty()
   @IsLongitude()
   @IsOptional()
   longitude?: string;
 
-  @Transform(({value}) => {
-    if(!value) return undefined
-  } )
   @ApiProperty()
   @IsBoolean()
   @IsOptional()

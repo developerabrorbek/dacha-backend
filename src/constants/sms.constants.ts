@@ -1,1 +1,1 @@
-export const SMS_EXPIRE_TIME = 2 * 60
+export const SMS_EXPIRE_TIME = parseInt(process.env.SMS_EXPIRE_TIME, 10) || 120

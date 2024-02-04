@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreatePermissionRequest, UpdatePermissionRequest } from './interfaces';
 import { Permission } from '@prisma/client';
+import { isUUID } from 'class-validator';
 
 @Injectable()
 export class Permissionservice {
@@ -27,6 +28,7 @@ export class Permissionservice {
   }
 
   async updatePermission(payload: UpdatePermissionRequest): Promise<void> {
+    this.#_checkUUID(payload.id)
     await this.#_prisma.permission.update({
       where: { id: payload.id },
       data: { name: payload.name },
@@ -34,6 +36,13 @@ export class Permissionservice {
   }
 
   async deletePermission(id: string): Promise<void> {
+    this.#_checkUUID(id)
     await this.#_prisma.permission.delete({ where: { id } });
+  }
+
+  #_checkUUID(id: string): void{
+    if(!isUUID(id, 4)){
+      throw new ConflictException("Please provide a valid UUID")
+    }
   }
 }

@@ -5,6 +5,7 @@ import { Transform } from 'class-transformer';
 export class UpdateComfortDto {
   @Transform((val) => {
     if (!val) return undefined;
+    else return val
   })
   @ApiProperty()
   @IsOptional()

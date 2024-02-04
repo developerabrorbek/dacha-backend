@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import {
   CreateCottageTypeRequest,
@@ -6,6 +6,7 @@ import {
 } from './interfaces';
 import { CottageType } from '@prisma/client';
 import { TranslateService } from 'modules/translate';
+import { isUUID } from 'class-validator';
 
 @Injectable()
 export class CottageTypeService {
@@ -38,6 +39,7 @@ export class CottageTypeService {
   }
 
   async updateCottageType(payload: UpdateCottageTypeRequest): Promise<void> {
+    this.#_checkUUID(payload.id)
     const foundedCottageType = await this.#_prisma.cottageType.findFirst({
       where: { id: payload.id },
     });
@@ -57,6 +59,7 @@ export class CottageTypeService {
   }
 
   async deleteCottageType(id: string): Promise<void> {
+    this.#_checkUUID(id)
     const foundedCottageType = await this.#_prisma.cottageType.findFirst({
       where: { id: id },
     });
@@ -65,5 +68,11 @@ export class CottageTypeService {
       status: 'inactive',
     });
     await this.#_prisma.cottageType.delete({ where: { id } });
+  }
+
+  #_checkUUID(id: string): void{
+    if(!isUUID(id, 4)){
+      throw new ConflictException("Please provide a valid UUID")
+    }
   }
 }

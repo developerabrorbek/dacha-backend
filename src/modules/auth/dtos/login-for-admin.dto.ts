@@ -1,8 +1,13 @@
 import { IsOptional, IsString } from 'class-validator';
 import { LoginForAdminRequest } from '../interfaces';
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 
 export class LoginForAdminDto implements LoginForAdminRequest {
+  @Transform(({value}) => {
+    if(!value) return undefined
+    else return value
+  })
   @ApiProperty()
   @IsString()
   @IsOptional()
@@ -12,6 +17,10 @@ export class LoginForAdminDto implements LoginForAdminRequest {
   @IsString()
   password: string;
 
+  @Transform(({value}) => {
+    if(!value) return undefined
+    else return value
+  })
   @ApiProperty()
   @IsString()
   @IsOptional()

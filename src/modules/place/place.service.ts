@@ -9,6 +9,7 @@ import { CreatePlaceRequest, UpdatePlaceRequest } from './interfaces';
 import { TranslateService } from 'modules/translate';
 import { join } from 'path';
 import * as fs from 'fs';
+import { isUUID } from 'class-validator';
 
 @Injectable()
 export class PlaceService {
@@ -59,6 +60,7 @@ export class PlaceService {
   }
 
   async updatePlace(payload: UpdatePlaceRequest): Promise<void> {
+    this.#_checkUUID(payload.id)
     const foundedPlace = await this.#_prisma.place.findFirst({
       where: { id: payload.id },
     });
@@ -101,6 +103,7 @@ export class PlaceService {
   }
 
   async deletePlace(id: string): Promise<void> {
+    this.#_checkUUID(id)
     const foundedPlace = await this.#_prisma.place.findFirst({ where: { id } });
     if (!foundedPlace) {
       throw new NotFoundException('Place not found');
@@ -116,6 +119,12 @@ export class PlaceService {
     );
 
     await this.#_prisma.place.delete({ where: { id: foundedPlace.id } });
+  }
+
+  #_checkUUID(id: string): void{
+    if(!isUUID(id, 4)){
+      throw new ConflictException("Please provide a valid UUID")
+    }
   }
 
   async #_checkLanguage(languageCode: string): Promise<void> {

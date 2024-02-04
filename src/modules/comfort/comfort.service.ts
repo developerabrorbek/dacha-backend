@@ -9,6 +9,7 @@ import { CreateComfortRequest, UpdateComfortRequest } from './interfaces';
 import * as fs from 'node:fs';
 import { TranslateService } from 'modules/translate';
 import { join } from 'node:path';
+import { isUUID } from 'class-validator';
 
 @Injectable()
 export class ComfortService {
@@ -56,6 +57,7 @@ export class ComfortService {
   }
 
   async updateComfort(payload: UpdateComfortRequest): Promise<void> {
+    this.#_checkUUID(payload.id)
     const foundedComfort = await this.#_prisma.comfort.findFirst({
       where: { id: payload.id },
     });
@@ -99,6 +101,7 @@ export class ComfortService {
   }
 
   async deleteComfort(id: string): Promise<void> {
+    this.#_checkUUID(id)
     const foundedComfort = await this.#_prisma.comfort.findFirst({
       where: { id: id },
     });
@@ -113,5 +116,11 @@ export class ComfortService {
       status: 'inactive',
     });
     await this.#_prisma.comfort.delete({ where: { id } });
+  }
+
+  #_checkUUID(id: string): void {
+    if(!isUUID(id,4)){
+      throw new ConflictException("Please provide a valid UUID")
+    }
   }
 }

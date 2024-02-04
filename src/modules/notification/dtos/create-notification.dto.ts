@@ -11,6 +11,10 @@ export class CreateNotificationDto implements Omit<CreateNotificationRequest,"cr
   @IsString()
   message: string;
 
+  @Transform(({value}) => {
+    if(!value) return undefined
+    else return value
+  })
   @ApiProperty({
     enum: $Enums.NotificationType,
     nullable: true,
@@ -20,6 +24,7 @@ export class CreateNotificationDto implements Omit<CreateNotificationRequest,"cr
 
   @Transform(({value}) => {
     if(!value) return undefined
+    else return value
   } )
   @ApiProperty({
     nullable: true,

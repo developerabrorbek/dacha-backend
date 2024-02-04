@@ -56,6 +56,7 @@ export class CreateCottageDto {
 
   @Transform((val) => {
     if (!val) return undefined;
+    else return val
   })
   @ApiProperty()
   @IsOptional()
@@ -64,6 +65,7 @@ export class CreateCottageDto {
 
   @Transform((val) => {
     if (!val) return undefined;
+    else return val
   })
   @ApiProperty()
   @IsOptional()

@@ -2,7 +2,7 @@
 /dist
 /node_modules
 #ignores
-/uploads
+/uploads/images/**
 
 # Logs
 logs

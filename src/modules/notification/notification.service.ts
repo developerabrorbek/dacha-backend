@@ -34,7 +34,7 @@ export class NotificationService {
       throw new ConflictException('Give valid ID');
     }
     const data = await this.#_prisma.notification.findMany({
-      where: { userId: payload.userId, type: 'public' },
+      where: { OR: [{ userId: payload.userId }, { type: 'public' }] },
     });
 
     return data;
@@ -45,6 +45,7 @@ export class NotificationService {
   }
 
   async updateNotification(payload: UpdateNotificationRequest): Promise<null> {
+    this.#_checkUUID(payload.id);
     const notification = await this.#_prisma.notification.findFirst({
       where: { id: payload.id },
     });
@@ -72,8 +73,15 @@ export class NotificationService {
   }
 
   async deleteNotification(id: string): Promise<void> {
+    this.#_checkUUID(id);
     await this.#_prisma.notification.delete({
       where: { id },
     });
+  }
+
+  #_checkUUID(id: string): void {
+    if (!isUUID(id, 4)) {
+      throw new ConflictException('Please provide a valid UUID');
+    }
   }
 }

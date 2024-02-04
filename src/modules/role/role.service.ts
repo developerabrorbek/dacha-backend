@@ -1,7 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateRoleRequest, UpdateRoleRequest } from './interfaces';
 import { Role } from '@prisma/client';
+import { isUUID } from 'class-validator';
 
 @Injectable()
 export class Roleservice {
@@ -79,6 +80,7 @@ export class Roleservice {
   }
 
   async updateRole(payload: UpdateRoleRequest): Promise<void> {
+    this.#_checkUUID(payload.id)
     const foundedRole = await this.#_prisma.role.findFirst({where: {id: payload.id}})
 
     if(!foundedRole){
@@ -105,7 +107,14 @@ export class Roleservice {
   }
 
   async deleteRole(id: string): Promise<void> {
+    this.#_checkUUID(id)
     await this.#_prisma.role.delete({ where: { id } });
+  }
+
+  #_checkUUID(id: string): void{
+    if(!isUUID(id, 4)){
+      throw new ConflictException("Please provide a valid UUID")
+    }
   }
 
   async #_checkPermissions(payload: string[]): Promise<void> {

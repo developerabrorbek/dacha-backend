@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateModelRequest, UpdateModelRequest } from './interfaces';
 import { Models } from '@prisma/client';
+import { isUUID } from 'class-validator';
 
 @Injectable()
 export class Modelservice {
@@ -27,6 +28,7 @@ export class Modelservice {
   }
 
   async updateModel(payload: UpdateModelRequest): Promise<void> {
+    this.#_checkUUID(payload.id)
     await this.#_prisma.models.update({
       where: { id: payload.id },
       data: { name: payload.name },
@@ -34,6 +36,13 @@ export class Modelservice {
   }
 
   async deleteModel(id: string): Promise<void> {
+    this.#_checkUUID(id)
     await this.#_prisma.models.delete({ where: { id } });
+  }
+
+  #_checkUUID(id: string): void{
+    if(!isUUID(id, 4)){
+      throw new ConflictException("Please provide a valid UUID")
+    }
   }
 }

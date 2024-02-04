@@ -25,6 +25,7 @@ export class CreateUserDto implements CreateUserRequest {
 
   @Transform(({value}) => {
     if(!value) return undefined
+    else return value
   } )
   @ApiProperty()
   @IsString()

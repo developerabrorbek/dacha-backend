@@ -8,7 +8,7 @@ import { CreateUserRequest, UpdateUserRequest } from './interfaces';
 import { UserDevice } from '@prisma/client';
 import { join } from 'path';
 import * as fs from 'fs';
-import { isArray } from 'class-validator';
+import { isArray, isUUID } from 'class-validator';
 
 @Injectable()
 export class UserService {
@@ -18,7 +18,8 @@ export class UserService {
     this.#_prisma = prisma;
   }
 
-  async createUser(payload: CreateUserRequest, userId): Promise<void> {
+  async createUser(payload: CreateUserRequest, userId: string): Promise<void> {
+    this.#_checkUUID(userId)
     await this.#_checkExistingUser(payload.phone);
     await this.#_checkRoles(payload.roles);
 
@@ -99,7 +100,10 @@ export class UserService {
   }
 
   async getSingleUser(id: string): Promise<any> {
+    this.#_checkUUID(id)
     const user = await this.#_prisma.user.findFirst({ where: { id: id } });
+
+    if(!user) throw new NotFoundException("User not found")
 
     const roles = await this.#_prisma.userOnRole.findMany({
       where: {
@@ -129,6 +133,7 @@ export class UserService {
   }
 
   async updateUser(payload: UpdateUserRequest, userId: string): Promise<void> {
+    this.#_checkUUID(userId)
     if (payload?.favoriteCottages?.length) {
       await this.#_checkCottages(payload.favoriteCottages);
     }
@@ -214,7 +219,7 @@ export class UserService {
       data: {
         name: payload.name,
         email: payload.email,
-        favoriteCottages: payload.favoriteCottages,
+        favoriteCottages: payload.favoriteCottages || [],
         password: payload.password,
         phone: payload.phone,
         username: payload.username,
@@ -223,6 +228,7 @@ export class UserService {
   }
 
   async deleteUser(userId: string): Promise<void> {
+    this.#_checkUUID(userId)
     const foundedUser = await this.#_prisma.user.findFirst({
       where: { id: userId },
     });
@@ -231,7 +237,10 @@ export class UserService {
     }
 
     if (foundedUser?.image) {
-      fs.unlink(join(process.cwd(), foundedUser.image), (): unknown =>undefined);
+      fs.unlink(
+        join(process.cwd(), foundedUser.image),
+        (): unknown => undefined,
+      );
     }
 
     await this.#_prisma.userOnRole.deleteMany({
@@ -244,7 +253,14 @@ export class UserService {
   }
 
   async getUserDevices(userId: string): Promise<UserDevice[]> {
+    this.#_checkUUID(userId)
     return await this.#_prisma.userDevice.findMany({ where: { userId } });
+  }
+
+  #_checkUUID(id: string): void {
+    if(!isUUID(id, 4)){
+      throw new ConflictException("Please provide a valid UUID")
+    }
   }
 
   async #_checkExistingUser(phone: string): Promise<void> {

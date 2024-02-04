@@ -1,8 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateRegionRequest, UpdateRegionRequest } from './interfaces';
 import { Region } from '@prisma/client';
 import { TranslateService } from 'modules/translate';
+import { isUUID } from 'class-validator';
 
 @Injectable()
 export class RegionService {
@@ -35,6 +36,7 @@ export class RegionService {
   }
 
   async updateRegion(payload: UpdateRegionRequest): Promise<void> {
+    this.#_checkUUID(payload.id)
     const foundedRegion = await this.#_prisma.region.findFirst({
       where: { id: payload.id },
     });
@@ -60,6 +62,7 @@ export class RegionService {
   }
 
   async deleteRegion(id: string): Promise<void> {
+    this.#_checkUUID(id)
     const foundedRegion = await this.#_prisma.region.findFirst({
       where: { id },
     });
@@ -71,5 +74,11 @@ export class RegionService {
       status: 'inactive',
     });
     await this.#_prisma.region.delete({ where: { id: foundedRegion.id } });
+  }
+
+  #_checkUUID(id: string): void{
+    if(!isUUID(id, 4)){
+      throw new ConflictException("Please provide a valid UUID")
+    }
   }
 }
