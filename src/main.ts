@@ -25,6 +25,7 @@ async function bootstrap() {
     transform: true,
   }));
 
+
   const config = new DocumentBuilder()
     .setTitle('Dacha API Documentation')
     .setDescription('The dacha site API description')

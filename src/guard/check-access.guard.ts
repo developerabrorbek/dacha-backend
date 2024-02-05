@@ -3,10 +3,9 @@ import {
   CanActivate,
   ExecutionContext,
   ConflictException,
-  HttpException,
-  HttpStatus,
   BadRequestException,
   UnprocessableEntityException,
+  NotAcceptableException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { CHECK_AUTH_KEY } from '@decorators';
@@ -37,12 +36,8 @@ export class AuthGuard implements CanActivate {
 
     const token = request.headers.authorization;
 
-    if (!token) {
-      throw new UnprocessableEntityException('Please provide a token');
-    }
-
-    if (!token.includes('Bearer ')) {
-      throw new UnprocessableEntityException('Please provide a bearer token');
+    if (!token || !token.startsWith('Bearer ')) {
+      throw new UnprocessableEntityException('Please provide a Bearer token');
     }
 
     const accessToken = token.replace('Bearer ', '');
@@ -58,10 +53,7 @@ export class AuthGuard implements CanActivate {
       return true;
     } catch (err) {
       if (err instanceof TokenExpiredError) {
-        throw new HttpException(
-          'Token already expired',
-          HttpStatus.NOT_ACCEPTABLE,
-        );
+        throw new NotAcceptableException('Token already expired')
       }
 
       if (err instanceof JsonWebTokenError) {

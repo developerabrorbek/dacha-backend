@@ -3,6 +3,8 @@ import {
   CanActivate,
   ExecutionContext,
   InternalServerErrorException,
+  UnprocessableEntityException,
+  ConflictException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { PERMISSION_KEY } from '@decorators';
@@ -49,7 +51,13 @@ export class PermissionGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest<Request>();
 
-    const accessToken = request.headers.authorization.replace('Bearer ', '');
+    const token = request.headers.authorization;
+
+    if (!token || !token.startsWith('Bearer ')) {
+      throw new UnprocessableEntityException('Please provide a token');
+    }
+
+    const accessToken = token.replace('Bearer ', '');
 
     const userData = this.jwt.verify(accessToken, {
       secret: this.config.getOrThrow<string>('jwt.accessKey'),
@@ -59,16 +67,22 @@ export class PermissionGuard implements CanActivate {
       where: { userId: userData?.id },
     });
 
+    let isHavePermission = false
+
     for (const role of userRoles) {
       const foundedRole = await this.prisma.role.findFirst({
         where: { id: role.roleId },
       });
 
       if (foundedRole?.permissions?.includes(foundedPermission.id)) {
-        return true;
+        isHavePermission = true
       }
     }
 
-    return false;
+    if(!isHavePermission){
+      throw new ConflictException("User has no permission to do that")
+    }
+
+    return isHavePermission;
   }
 }

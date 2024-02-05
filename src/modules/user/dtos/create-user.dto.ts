@@ -3,6 +3,7 @@ import { CreateUserRequest } from "../interfaces";
 import { ApiProperty } from "@nestjs/swagger";
 import { Transform } from "class-transformer";
 
+
 export class CreateUserDto implements CreateUserRequest {
   @ApiProperty()
   @IsString()
@@ -32,3 +33,4 @@ export class CreateUserDto implements CreateUserRequest {
   @IsOptional()
   name?: string;
 }
+
