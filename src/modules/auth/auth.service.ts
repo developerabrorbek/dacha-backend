@@ -15,6 +15,7 @@ import {
   LoginRequest,
   LoginResponse,
   RefreshRequest,
+  RefreshResponse,
   SendSMSRequest,
 } from './interfaces';
 import {
@@ -128,6 +129,7 @@ export class AuthService {
       return {
         accessToken,
         refreshToken,
+        user: foundedUser,
       };
     }
 
@@ -144,6 +146,7 @@ export class AuthService {
     return {
       accessToken,
       refreshToken,
+      user: foundedUser,
     };
   }
 
@@ -211,7 +214,7 @@ export class AuthService {
     };
   }
 
-  async refresh(payload: RefreshRequest): Promise<LoginResponse> {
+  async refresh(payload: RefreshRequest): Promise<RefreshResponse> {
     try {
       if (!isJWT(payload.refreshToken)) {
         throw new UnprocessableEntityException('Invalid token');

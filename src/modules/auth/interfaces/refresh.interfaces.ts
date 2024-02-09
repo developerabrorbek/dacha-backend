@@ -3,3 +3,8 @@ export declare interface RefreshRequest {
   ip?: string;
   userAgent?: string;
 }
+
+export declare interface RefreshResponse {
+  accessToken: string;
+  refreshToken: string;
+}

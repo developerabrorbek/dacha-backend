@@ -29,7 +29,7 @@ export class NotificationService {
 
   async getNotificationList(
     payload: GetNotificationListRequest,
-  ): Promise<Notification[]> {
+  ): Promise<Notification[]> { 
     if (!isUUID(payload.userId, 4)) {
       throw new ConflictException('Give valid ID');
     }

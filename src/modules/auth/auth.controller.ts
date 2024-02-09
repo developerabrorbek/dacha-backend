@@ -11,6 +11,7 @@ import {
   LoginForAdminResponse,
   LoginGetSMSCodeResponse,
   LoginResponse,
+  RefreshResponse,
 } from './interfaces';
 
 @ApiTags('Auth')
@@ -42,7 +43,7 @@ export class AuthController {
   }
 
   @Post('/refresh')
-  async refresh(@Headers('refreshToken') refreshToken: string, @Body() payload: RefreshDto): Promise<LoginResponse> {
+  async refresh(@Headers('refreshToken') refreshToken: string, @Body() payload: RefreshDto): Promise<RefreshResponse> {
     return await this.#_service.refresh({refreshToken, ...payload});
   }
 

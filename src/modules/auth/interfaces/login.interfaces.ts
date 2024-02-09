@@ -1,3 +1,5 @@
+import { User } from '@prisma/client';
+
 export declare interface LoginGetSMSCodeRequest {
   phone: string;
 }
@@ -15,9 +17,10 @@ export declare interface LoginRequest {
   userId: string;
 }
 
-export declare interface LoginResponse{
+export declare interface LoginResponse {
   accessToken: string;
-  refreshToken: string; 
+  refreshToken: string;
+  user: User
 }
 
 export declare interface LoginForAdminRequest {

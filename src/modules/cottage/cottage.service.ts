@@ -115,19 +115,27 @@ export class CottageService {
     payload: GetFilteredCottagesRequest,
   ): Promise<GetCottageListResponse[]> {
     const response = [];
+    if (!payload.cottageType || payload.cottageType == 'undefined') {
+      payload.cottageType = '';
+    }
+
+    if (!payload.regionId || payload.regionId == 'undefined') {
+      payload.regionId = undefined;
+    }
+
     const data = await this.#_prisma.cottage.findMany({
       where: {
         OR: [
           {
             cottageType: {
-              has: payload.cottageType,
+              hasSome: [payload.cottageType],
             },
             price: {
               lte: payload.price,
             },
+            placeId: payload.regionId
           },
         ],
-        regionId: payload.regionId,
         cottageStatus: 'confirmed',
       },
     });
@@ -142,6 +150,7 @@ export class CottageService {
     languageCode: string,
     cottageTypeId: string,
   ): Promise<GetCottageListResponse[]> {
+    this.#_checkUUID(cottageTypeId)
     const response = [];
     const data = await this.#_prisma.cottage.findMany({
       where: {
@@ -330,7 +339,7 @@ export class CottageService {
   }
 
   #_checkUUID(id: string): void {
-    if (!isUUID(id,4)) {
+    if (!isUUID(id, 4)) {
       throw new ConflictException('Provide a valid UUID');
     }
   }

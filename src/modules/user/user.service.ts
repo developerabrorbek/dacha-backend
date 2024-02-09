@@ -19,7 +19,7 @@ export class UserService {
   }
 
   async createUser(payload: CreateUserRequest, userId: string): Promise<void> {
-    this.#_checkUUID(userId)
+    this.#_checkUUID(userId);
     await this.#_checkExistingUser(payload.phone);
     await this.#_checkRoles(payload.roles);
 
@@ -100,10 +100,10 @@ export class UserService {
   }
 
   async getSingleUser(id: string): Promise<any> {
-    this.#_checkUUID(id)
+    this.#_checkUUID(id);
     const user = await this.#_prisma.user.findFirst({ where: { id: id } });
 
-    if(!user) throw new NotFoundException("User not found")
+    if (!user) throw new NotFoundException('User not found');
 
     const roles = await this.#_prisma.userOnRole.findMany({
       where: {
@@ -133,9 +133,19 @@ export class UserService {
   }
 
   async updateUser(payload: UpdateUserRequest, userId: string): Promise<void> {
-    this.#_checkUUID(userId)
+    this.#_checkUUID(userId);
+    const favoriteCottages = [];
+
+    if (!isArray(payload.favoriteCottages) && payload.favoriteCottages) {
+      favoriteCottages.push(payload.favoriteCottages);
+    }
+
+    if (isArray(payload.favoriteCottages)) {
+      favoriteCottages.push(...payload.favoriteCottages);
+    }
+
     if (payload?.favoriteCottages?.length) {
-      await this.#_checkCottages(payload.favoriteCottages);
+      await this.#_checkCottages(favoriteCottages);
     }
 
     if (!userId) {
@@ -219,7 +229,7 @@ export class UserService {
       data: {
         name: payload.name,
         email: payload.email,
-        favoriteCottages: payload.favoriteCottages || [],
+        favoriteCottages: favoriteCottages || [],
         password: payload.password,
         phone: payload.phone,
         username: payload.username,
@@ -228,7 +238,7 @@ export class UserService {
   }
 
   async deleteUser(userId: string): Promise<void> {
-    this.#_checkUUID(userId)
+    this.#_checkUUID(userId);
     const foundedUser = await this.#_prisma.user.findFirst({
       where: { id: userId },
     });
@@ -253,13 +263,13 @@ export class UserService {
   }
 
   async getUserDevices(userId: string): Promise<UserDevice[]> {
-    this.#_checkUUID(userId)
+    this.#_checkUUID(userId);
     return await this.#_prisma.userDevice.findMany({ where: { userId } });
   }
 
   #_checkUUID(id: string): void {
-    if(!isUUID(id, 4)){
-      throw new ConflictException("Please provide a valid UUID")
+    if (!isUUID(id, 4)) {
+      throw new ConflictException('Please provide a valid UUID');
     }
   }
 
