@@ -116,7 +116,7 @@ export class TranslateService {
     });
 
     return {
-      value: definition?.value || "Deleted translate",
+      value: definition?.value || '',
     };
   }
 
@@ -126,14 +126,34 @@ export class TranslateService {
       where: { id: payload.id },
     });
 
-    if (payload.status == 'active' && foundedTranslate.status == 'active') {
-      throw new ConflictException('Translate is already in use');
+    if (payload?.status) {
+      if (payload.status == 'active' && foundedTranslate.status == 'active') {
+        throw new ConflictException('Translate is already in use');
+      }
+
+      await this.#_prisma.translate.update({
+        where: { id: payload.id },
+        data: { status: payload.status },
+      });
     }
 
-    await this.#_prisma.translate.update({
-      where: { id: payload.id },
-      data: { status: payload.status },
-    });
+    if(payload?.definition){
+      await this.#_prisma.definition.deleteMany({where: {translateId: foundedTranslate.id}})
+
+      for (const item of Object.entries(payload.definition)) {
+        const language = await this.#_prisma.language.findFirst({
+          where: { code: item[0] },
+        });
+  
+        await this.#_prisma.definition.create({
+          data: {
+            languageId: language.id,
+            translateId: foundedTranslate.id,
+            value: item[1],
+          },
+        });
+      }
+    }
   }
 
   async deleteTranslate(id: string) {

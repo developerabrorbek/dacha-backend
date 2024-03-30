@@ -15,7 +15,7 @@ export class NotificationController {
     this.#_service = service;
   }
 
-  @ApiBearerAuth()
+  @ApiBearerAuth("JWT")
   @CheckAuth(true)
   @Permission(PERMISSIONS.notification.get_all_notification)
   @Get('all')
@@ -33,7 +33,7 @@ export class NotificationController {
     return await this.#_service.getNotificationList({ userId });
   }
 
-  @ApiBearerAuth()
+  @ApiBearerAuth("JWT")
   @CheckAuth(true)
   @Permission(PERMISSIONS.notification.create_notification)
   @Post("add")
@@ -47,7 +47,7 @@ export class NotificationController {
     });
   }
 
-  @ApiBearerAuth()
+  @ApiBearerAuth("JWT")
   @CheckAuth(true)
   @Permission(PERMISSIONS.notification.edit_notification)
   @Patch("/update/:id")
@@ -55,7 +55,7 @@ export class NotificationController {
     await this.#_service.updateNotification({userId: request.userId, id, ...payload})
   }
 
-  @ApiBearerAuth()
+  @ApiBearerAuth("JWT")
   @CheckAuth(true)
   @Permission(PERMISSIONS.notification.delete_notification)
   @Delete("/delete/:id")

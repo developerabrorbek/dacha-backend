@@ -38,7 +38,7 @@ export class PlaceController {
     return await this.#_service.getPlaceList(languageCode);
   }
 
-  @ApiBearerAuth()
+  @ApiBearerAuth("JWT")
   @CheckAuth(true)
   @Permission(PERMISSIONS.place.create_place)
   @Post('/add')
@@ -63,7 +63,7 @@ export class PlaceController {
     await this.#_service.createPlace({ ...payload, image });
   }
 
-  @ApiBearerAuth()
+  @ApiBearerAuth("JWT")
   @CheckAuth(true)
   @Permission(PERMISSIONS.place.edit_place)
   @Patch('/edit/:id')
@@ -93,7 +93,7 @@ export class PlaceController {
     });
   }
 
-  @ApiBearerAuth()
+  @ApiBearerAuth("JWT")
   @CheckAuth(true)
   @Permission(PERMISSIONS.place.delete_place)
   @Delete('/delete/:id')

@@ -33,7 +33,7 @@ export class LanguageController {
     return await this.#_service.getLanguageList();
   }
 
-  @ApiBearerAuth()
+  @ApiBearerAuth("JWT")
   @CheckAuth(true)
   @Permission(PERMISSIONS.language.create_language)
   @Post()
@@ -41,7 +41,7 @@ export class LanguageController {
     await this.#_service.createLanguage(payload);
   }
 
-  @ApiBearerAuth()
+  @ApiBearerAuth("JWT")
   @CheckAuth(true)
   @Permission(PERMISSIONS.language.edit_language)
   @Patch(':id')
@@ -52,7 +52,7 @@ export class LanguageController {
     await this.#_service.updateLanguage({ id, ...payload });
   }
 
-  @ApiBearerAuth()
+  @ApiBearerAuth("JWT")
   @CheckAuth(true)
   @Permission(PERMISSIONS.language.delete_language)
   @Delete(':id')

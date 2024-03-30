@@ -33,7 +33,7 @@ export class RegionController {
     return await this.#_service.getRegionList(languageCode);
   }
 
-  @ApiBearerAuth()
+  @ApiBearerAuth("JWT")
   @CheckAuth(true)
   @Permission(PERMISSIONS.region.create_region)
   @Post('/add')
@@ -41,7 +41,7 @@ export class RegionController {
     await this.#_service.createRegion(payload);
   }
 
-  @ApiBearerAuth()
+  @ApiBearerAuth("JWT")
   @CheckAuth(true)
   @Permission(PERMISSIONS.region.edit_region)
   @Patch('/edit/:id')
@@ -52,7 +52,7 @@ export class RegionController {
     await this.#_service.updateRegion({ id: regionId, name: paylaod.name });
   }
 
-  @ApiBearerAuth()
+  @ApiBearerAuth("JWT")
   @CheckAuth(true)
   @Permission(PERMISSIONS.region.delete_region)
   @Delete("/delete/:id")

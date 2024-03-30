@@ -14,7 +14,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CheckAuth, Permission } from '@decorators';
 import { PERMISSIONS } from '@constants';
 
-@ApiBearerAuth()
+@ApiBearerAuth("JWT")
 @ApiTags('Models')
 @Controller('models')
 export class ModelsController {

@@ -21,7 +21,7 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { Express } from 'express';
 
-@ApiBearerAuth()
+@ApiBearerAuth("JWT")
 @ApiTags('User')
 @Controller('user')
 export class UserController {

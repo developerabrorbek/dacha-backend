@@ -39,7 +39,7 @@ export class ComfortController {
     return await this.#_service.getComfortList(languageCode);
   }
 
-  @ApiBearerAuth()
+  @ApiBearerAuth("JWT")
   @CheckAuth(true)
   @Permission(PERMISSIONS.comfort.create_comfort)
   @Post('/add')
@@ -64,7 +64,7 @@ export class ComfortController {
     await this.#_service.createComfort({ ...payload, image });
   }
 
-  @ApiBearerAuth()
+  @ApiBearerAuth("JWT")
   @CheckAuth(true)
   @Permission(PERMISSIONS.comfort.edit_comfort)
   @Patch('/edit/:id')
@@ -90,7 +90,7 @@ export class ComfortController {
     await this.#_service.updateComfort({ ...payload, id: comfortId, image });
   }
 
-  @ApiBearerAuth()
+  @ApiBearerAuth("JWT")
   @CheckAuth(true)
   @Permission(PERMISSIONS.comfort.delete_comfort)
   @Delete('/delete/:id')

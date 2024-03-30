@@ -78,7 +78,7 @@ export class CottageController {
     return await this.#_service.getCottageListByPlace(languageCode, id);
   }
 
-  @ApiBearerAuth()
+  @ApiBearerAuth("JWT")
   @CheckAuth(true)
   @Permission(PERMISSIONS.cottage.get_all_cottages_by_user)
   @Get('user')
@@ -106,7 +106,7 @@ export class CottageController {
     });
   }
 
-  @ApiBearerAuth()
+  @ApiBearerAuth("JWT")
   @CheckAuth(true)
   @Permission(PERMISSIONS.cottage.create_cottage)
   @UseInterceptors(
@@ -148,7 +148,7 @@ export class CottageController {
     await this.#_service.createCottage({ ...payload, files }, req.userId);
   }
 
-  @ApiBearerAuth()
+  @ApiBearerAuth("JWT")
   @CheckAuth(true)
   @Permission(PERMISSIONS.cottage.edit_cottage)
   @Patch('/edit/:id')
@@ -159,7 +159,7 @@ export class CottageController {
     await this.#_service.updateCottage({ id: cottageId, ...payload });
   }
 
-  @ApiBearerAuth()
+  @ApiBearerAuth("JWT")
   @CheckAuth(true)
   @Permission(PERMISSIONS.cottage.delete_cottage)
   @Delete('/delete/:id')
@@ -167,7 +167,7 @@ export class CottageController {
     await this.#_service.deleteCottage(id);
   }
 
-  @ApiBearerAuth()
+  @ApiBearerAuth("JWT")
   @CheckAuth(true)
   @Permission(PERMISSIONS.cottage.create_cottage_image)
   @UseInterceptors(
@@ -192,7 +192,7 @@ export class CottageController {
     await this.#_service.addCottageImage({ ...payload, image });
   }
 
-  @ApiBearerAuth()
+  @ApiBearerAuth("JWT")
   @CheckAuth(true)
   @Permission(PERMISSIONS.cottage.edit_cottage_image)
   @UseInterceptors(
@@ -218,7 +218,7 @@ export class CottageController {
     await this.#_service.updateCottageImage({ id, ...payload, image });
   }
 
-  @ApiBearerAuth()
+  @ApiBearerAuth("JWT")
   @CheckAuth(true)
   @Permission(PERMISSIONS.cottage.delete_cottage_image)
   @Delete('/image/delete/:id')

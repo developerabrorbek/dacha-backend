@@ -33,7 +33,7 @@ export class CottageTypeController {
     return await this.#_service.getCottageTypeList(languageCode);
   }
 
-  @ApiBearerAuth()
+  @ApiBearerAuth("JWT")
   @CheckAuth(true)
   @Permission(PERMISSIONS.cottage_type.create_cottage_type)
   @Post('/add')
@@ -41,7 +41,7 @@ export class CottageTypeController {
     await this.#_service.createCottageType(payload);
   }
 
-  @ApiBearerAuth()
+  @ApiBearerAuth("JWT")
   @CheckAuth(true)
   @Permission(PERMISSIONS.cottage_type.edit_cottage_type)
   @Patch('/edit/:id')
@@ -52,7 +52,7 @@ export class CottageTypeController {
     await this.#_service.updateCottageType({ id: cottageTypeId, name: paylaod.name });
   }
 
-  @ApiBearerAuth()
+  @ApiBearerAuth("JWT")
   @CheckAuth(true)
   @Permission(PERMISSIONS.cottage_type.delete_cottage_type)
   @Delete("/delete/:id")
