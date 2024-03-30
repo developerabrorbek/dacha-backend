@@ -14,7 +14,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { CottageService } from './cottage.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import {
   AddCottageImageDto,
   CreateCottageDto,
@@ -78,6 +78,7 @@ export class CottageController {
     return await this.#_service.getCottageListByPlace(languageCode, id);
   }
 
+  @ApiBearerAuth()
   @CheckAuth(true)
   @Permission(PERMISSIONS.cottage.get_all_cottages_by_user)
   @Get('user')
@@ -105,6 +106,7 @@ export class CottageController {
     });
   }
 
+  @ApiBearerAuth()
   @CheckAuth(true)
   @Permission(PERMISSIONS.cottage.create_cottage)
   @UseInterceptors(
@@ -146,6 +148,7 @@ export class CottageController {
     await this.#_service.createCottage({ ...payload, files }, req.userId);
   }
 
+  @ApiBearerAuth()
   @CheckAuth(true)
   @Permission(PERMISSIONS.cottage.edit_cottage)
   @Patch('/edit/:id')
@@ -156,6 +159,7 @@ export class CottageController {
     await this.#_service.updateCottage({ id: cottageId, ...payload });
   }
 
+  @ApiBearerAuth()
   @CheckAuth(true)
   @Permission(PERMISSIONS.cottage.delete_cottage)
   @Delete('/delete/:id')
@@ -163,6 +167,7 @@ export class CottageController {
     await this.#_service.deleteCottage(id);
   }
 
+  @ApiBearerAuth()
   @CheckAuth(true)
   @Permission(PERMISSIONS.cottage.create_cottage_image)
   @UseInterceptors(
@@ -187,6 +192,7 @@ export class CottageController {
     await this.#_service.addCottageImage({ ...payload, image });
   }
 
+  @ApiBearerAuth()
   @CheckAuth(true)
   @Permission(PERMISSIONS.cottage.edit_cottage_image)
   @UseInterceptors(
@@ -212,6 +218,7 @@ export class CottageController {
     await this.#_service.updateCottageImage({ id, ...payload, image });
   }
 
+  @ApiBearerAuth()
   @CheckAuth(true)
   @Permission(PERMISSIONS.cottage.delete_cottage_image)
   @Delete('/image/delete/:id')

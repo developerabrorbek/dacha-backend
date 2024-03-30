@@ -116,7 +116,7 @@ export class TranslateService {
     });
 
     return {
-      value: definition?.value,
+      value: definition?.value || "Deleted translate",
     };
   }
 

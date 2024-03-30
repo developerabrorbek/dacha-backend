@@ -9,13 +9,14 @@ import {
   Post,
 } from '@nestjs/common';
 import { TranslateService } from './translate.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreateTranslateDto, UpdateTranslateDto } from './dtos';
 import { Translate } from '@prisma/client';
 import { GetSingleTranslateResponse } from './interfaces';
 import { CheckAuth, Permission } from '@decorators';
 import { PERMISSIONS } from '@constants';
 
+@ApiBearerAuth("JWT")
 @ApiTags('Translate')
 @Controller({
   path: 'translate',

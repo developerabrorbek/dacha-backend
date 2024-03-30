@@ -9,7 +9,7 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreateLanguageDto, UpdateLanguageDto } from './dtos';
 import { CheckAuth, Permission } from '@decorators';
 import { PERMISSIONS } from '@constants';
@@ -33,6 +33,7 @@ export class LanguageController {
     return await this.#_service.getLanguageList();
   }
 
+  @ApiBearerAuth()
   @CheckAuth(true)
   @Permission(PERMISSIONS.language.create_language)
   @Post()
@@ -40,6 +41,7 @@ export class LanguageController {
     await this.#_service.createLanguage(payload);
   }
 
+  @ApiBearerAuth()
   @CheckAuth(true)
   @Permission(PERMISSIONS.language.edit_language)
   @Patch(':id')
@@ -50,6 +52,7 @@ export class LanguageController {
     await this.#_service.updateLanguage({ id, ...payload });
   }
 
+  @ApiBearerAuth()
   @CheckAuth(true)
   @Permission(PERMISSIONS.language.delete_language)
   @Delete(':id')

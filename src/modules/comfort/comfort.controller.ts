@@ -12,13 +12,13 @@ import {
 } from '@nestjs/common';
 import { ComfortService } from './comfort.service';
 import { Comfort } from '@prisma/client';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreateComfortDto, UpdateComfortDto } from './dtos';
 import { CheckAuth, Permission } from '@decorators';
 import { PERMISSIONS } from '@constants';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { extname } from 'path';
-import { Express } from "express"
+import { Express } from 'express';
 import { diskStorage } from 'multer';
 
 @ApiTags('Comfort')
@@ -39,6 +39,7 @@ export class ComfortController {
     return await this.#_service.getComfortList(languageCode);
   }
 
+  @ApiBearerAuth()
   @CheckAuth(true)
   @Permission(PERMISSIONS.comfort.create_comfort)
   @Post('/add')
@@ -63,6 +64,7 @@ export class ComfortController {
     await this.#_service.createComfort({ ...payload, image });
   }
 
+  @ApiBearerAuth()
   @CheckAuth(true)
   @Permission(PERMISSIONS.comfort.edit_comfort)
   @Patch('/edit/:id')
@@ -88,6 +90,7 @@ export class ComfortController {
     await this.#_service.updateComfort({ ...payload, id: comfortId, image });
   }
 
+  @ApiBearerAuth()
   @CheckAuth(true)
   @Permission(PERMISSIONS.comfort.delete_comfort)
   @Delete('/delete/:id')

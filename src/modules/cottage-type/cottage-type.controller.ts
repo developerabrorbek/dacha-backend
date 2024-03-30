@@ -11,7 +11,7 @@ import {
 import { CottageTypeService } from './cottage-type.service';
 import { CottageType } from '@prisma/client';
 import { UpdateCottageTypeDto, CreateCottageTypeDto } from './dtos';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CheckAuth, Permission } from '@decorators';
 import { PERMISSIONS } from '@constants';
 
@@ -33,6 +33,7 @@ export class CottageTypeController {
     return await this.#_service.getCottageTypeList(languageCode);
   }
 
+  @ApiBearerAuth()
   @CheckAuth(true)
   @Permission(PERMISSIONS.cottage_type.create_cottage_type)
   @Post('/add')
@@ -40,6 +41,7 @@ export class CottageTypeController {
     await this.#_service.createCottageType(payload);
   }
 
+  @ApiBearerAuth()
   @CheckAuth(true)
   @Permission(PERMISSIONS.cottage_type.edit_cottage_type)
   @Patch('/edit/:id')
@@ -50,6 +52,7 @@ export class CottageTypeController {
     await this.#_service.updateCottageType({ id: cottageTypeId, name: paylaod.name });
   }
 
+  @ApiBearerAuth()
   @CheckAuth(true)
   @Permission(PERMISSIONS.cottage_type.delete_cottage_type)
   @Delete("/delete/:id")

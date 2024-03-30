@@ -11,7 +11,7 @@ import {
 import { RegionService } from './region.service';
 import { Region } from '@prisma/client';
 import { CreateRegionDto, UpdateRegionDto } from './dtos';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CheckAuth, Permission } from '@decorators';
 import { PERMISSIONS } from '@constants';
 
@@ -33,6 +33,7 @@ export class RegionController {
     return await this.#_service.getRegionList(languageCode);
   }
 
+  @ApiBearerAuth()
   @CheckAuth(true)
   @Permission(PERMISSIONS.region.create_region)
   @Post('/add')
@@ -40,6 +41,7 @@ export class RegionController {
     await this.#_service.createRegion(payload);
   }
 
+  @ApiBearerAuth()
   @CheckAuth(true)
   @Permission(PERMISSIONS.region.edit_region)
   @Patch('/edit/:id')
@@ -50,6 +52,7 @@ export class RegionController {
     await this.#_service.updateRegion({ id: regionId, name: paylaod.name });
   }
 
+  @ApiBearerAuth()
   @CheckAuth(true)
   @Permission(PERMISSIONS.region.delete_region)
   @Delete("/delete/:id")

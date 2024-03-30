@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Param, Patch, Post, Req } from '@nestjs/
 import { NotificationService } from './notification.service';
 import { Notification } from '@prisma/client';
 import { CreateNotificationDto, UpdateNotificationDto } from './dtos';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CheckAuth, Permission } from '@decorators';
 import { PERMISSIONS } from '@constants';
 
@@ -15,6 +15,7 @@ export class NotificationController {
     this.#_service = service;
   }
 
+  @ApiBearerAuth()
   @CheckAuth(true)
   @Permission(PERMISSIONS.notification.get_all_notification)
   @Get('all')
@@ -32,6 +33,7 @@ export class NotificationController {
     return await this.#_service.getNotificationList({ userId });
   }
 
+  @ApiBearerAuth()
   @CheckAuth(true)
   @Permission(PERMISSIONS.notification.create_notification)
   @Post("add")
@@ -45,6 +47,7 @@ export class NotificationController {
     });
   }
 
+  @ApiBearerAuth()
   @CheckAuth(true)
   @Permission(PERMISSIONS.notification.edit_notification)
   @Patch("/update/:id")
@@ -52,7 +55,7 @@ export class NotificationController {
     await this.#_service.updateNotification({userId: request.userId, id, ...payload})
   }
 
-
+  @ApiBearerAuth()
   @CheckAuth(true)
   @Permission(PERMISSIONS.notification.delete_notification)
   @Delete("/delete/:id")

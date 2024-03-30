@@ -10,10 +10,11 @@ import {
 import { Roleservice } from './role.service';
 import { Role } from '@prisma/client';
 import { CreateRoleDto, UpdateRoleDto } from './dtos';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CheckAuth, Permission } from '@decorators';
 import { PERMISSIONS } from '@constants';
 
+@ApiBearerAuth()
 @ApiTags('Roles')
 @Controller('role')
 export class RoleController {

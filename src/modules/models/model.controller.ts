@@ -10,10 +10,11 @@ import {
 import { Modelservice } from './model.service';
 import { Models } from '@prisma/client';
 import { CreateModelDto, UpdateModelDto } from './dtos';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CheckAuth, Permission } from '@decorators';
 import { PERMISSIONS } from '@constants';
 
+@ApiBearerAuth()
 @ApiTags('Models')
 @Controller('models')
 export class ModelsController {

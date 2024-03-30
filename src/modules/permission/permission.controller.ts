@@ -10,10 +10,11 @@ import {
 import { Permissionservice } from './permission.service';
 import * as types from '@prisma/client';
 import { CreatePermissionDto, UpdatePermissionDto } from './dtos';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CheckAuth, Permission } from '@decorators';
 import { PERMISSIONS } from '@constants';
 
+@ApiBearerAuth()
 @ApiTags('Permission')
 @Controller('permission')
 export class PermissionController {

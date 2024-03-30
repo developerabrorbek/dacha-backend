@@ -30,6 +30,7 @@ async function bootstrap() {
     .setTitle('Dacha API Documentation')
     .setDescription('The dacha site API description')
     .setVersion('1.0')
+    .addBearerAuth(undefined, "JWT")
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
