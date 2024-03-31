@@ -75,7 +75,11 @@ export class UserService {
           userId: user.id,
         },
         select: {
-          role: true,
+          role: {
+            select: {
+              name: true
+            }
+          },
         },
       });
 

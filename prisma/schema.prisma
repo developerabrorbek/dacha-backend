@@ -242,3 +242,12 @@ model UserOnRole {
 
   @@id([userId, roleId])
 }
+
+model Service {
+  id          String   @default(dbgenerated("GEN_RANDOM_UUID()")) @map("id") @db.Uuid
+  name        String   @map("name") @db.Uuid
+  description String   @map("description") @db.Uuid
+  images      String[] @map("images") @db.VarChar()
+
+  @@id([id])
+}

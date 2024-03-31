@@ -84,4 +84,10 @@ export const PERMISSIONS = {
     edit_cottage_type: "edit_cottage-type",
     delete_cottage_type: "delete_cottage-type",
   },
+  services: {
+    get_all_services: "get_all_services",
+    create_service: "create_service",
+    edit_service: "edit_service",
+    delete_service: "delete_service",
+  }
 }

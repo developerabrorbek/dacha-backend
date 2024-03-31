@@ -19,6 +19,7 @@ export class UpdateTranslateDto implements Omit<UpdateTranslateRequest, 'id'> {
     },
     required: true,
   })
+  @IsOptional()
   @IsObject()
   definition?: Record<string, string>;
 }
