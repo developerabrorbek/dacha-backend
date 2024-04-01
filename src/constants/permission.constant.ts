@@ -89,5 +89,11 @@ export const PERMISSIONS = {
     create_service: "create_service",
     edit_service: "edit_service",
     delete_service: "delete_service",
+  },
+  tariff: {
+    get_all_tariffs: "get_all_tariffs",
+    create_tariff: "create_tariff",
+    edit_tariff: "edit_tariff",
+    delete_tariff: "delete_tariff",
   }
 }

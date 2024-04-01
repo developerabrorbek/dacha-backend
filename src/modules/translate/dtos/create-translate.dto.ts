@@ -23,6 +23,7 @@ export class CreateTranslateDto implements CreateTranslateInterface {
 
   @ApiProperty({
     examples: ['error', 'content'],
+    enum: TranslateType,
     required: true
   })
   @IsEnum(TranslateType)

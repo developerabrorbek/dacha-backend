@@ -53,12 +53,13 @@ export class ServicesService {
         description: payload.description,
         name: payload.name,
         images: { set: images },
+        serviceCode: payload.code,
       },
     });
   }
 
   async getAllService(languageCode: string): Promise<Service[]> {
-    const data = await this.#_prisma.service.findMany();
+    const data = await this.#_prisma.service.findMany({include: {tariffs: true}});
 
     for (const el of data) {
       const name = await this.#_translate.getSingleTranslate({
@@ -72,6 +73,20 @@ export class ServicesService {
         translateId: el.description,
       });
       el.description = description.value;
+
+      for(const tr of el.tariffs){
+        const description = await this.#_translate.getSingleTranslate({
+          languageCode,
+          translateId: tr.description,
+        });
+        tr.description = description.value;
+
+        const type = await this.#_translate.getSingleTranslate({
+          languageCode,
+          translateId: tr.type,
+        });
+        tr.type = type.value;
+      }
     }
 
     return data;
@@ -148,11 +163,16 @@ export class ServicesService {
     if (!foundedService) return;
 
     // Set Inactive to old translate
-    await this.#_translate.updateTranslate({id: foundedService.description, status: "inactive"})
+    await this.#_translate.updateTranslate({
+      id: foundedService.description,
+      status: 'inactive',
+    });
 
     // Set Inactive to old translate
-    await this.#_translate.updateTranslate({id: foundedService.name, status: "inactive"})
-
+    await this.#_translate.updateTranslate({
+      id: foundedService.name,
+      status: 'inactive',
+    });
 
     for (const image of foundedService.images) {
       fs.unlink(join(process.cwd(), image), (): unknown => undefined);

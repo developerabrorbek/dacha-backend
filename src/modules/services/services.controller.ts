@@ -10,7 +10,7 @@ import {
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { ServicesService } from './services.service';
 import { Service } from '@prisma/client';
 import { CreateServiceDto, UpdateServiceDto } from './dtos';
@@ -41,6 +41,7 @@ export class ServicesController {
 
   @CheckAuth(true)
   @Permission(PERMISSIONS.services.create_service)
+  @ApiConsumes("multipart/form-data")
   @Post('/add')
   @UseInterceptors(
     FilesInterceptor('images', 10, {

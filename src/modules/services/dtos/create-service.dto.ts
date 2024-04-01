@@ -1,6 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { CreateServiceRequest } from "../interfaces";
-import { IsUUID } from "class-validator";
+import { IsEnum, IsUUID } from "class-validator";
+import { ServiceCode } from "@prisma/client";
 
 export class CreateServiceDto implements CreateServiceRequest {
   @ApiProperty()
@@ -11,6 +12,12 @@ export class CreateServiceDto implements CreateServiceRequest {
   @IsUUID(4)
   name: string;
 
-  @ApiProperty()
+  @ApiProperty({type: "string", format: "binary", required: true, isArray: true})
   images?: any;
+
+  @ApiProperty({
+    enum: ServiceCode
+  })
+  @IsEnum(ServiceCode)
+  code: ServiceCode;
 }

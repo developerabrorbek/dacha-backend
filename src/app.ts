@@ -14,6 +14,7 @@ import {
   RegionModule,
   RoleModule,
   ServicesModule,
+  TariffModule,
   TranslateModule,
   UserModule,
 } from '@modules';
@@ -51,6 +52,7 @@ import { join } from 'path';
     AuthModule,
     UserModule,
     ServicesModule,
+    TariffModule,
   ],
   providers: [
     {
