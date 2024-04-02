@@ -12,7 +12,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { TariffService } from './tariff.service';
 import { Tariff } from '@prisma/client';
 import { CreateTariffDto } from './dtos/create-tariff.dto';
-import { UpdateTariffDto } from './dtos';
+import { DisableTariffDto, UpdateTariffDto, UseTariffDto } from './dtos';
 import { CheckAuth, Permission } from '@decorators';
 import { PERMISSIONS } from '@constants';
 
@@ -43,6 +43,13 @@ export class TariffController {
   }
 
   @CheckAuth(true)
+  @Permission(PERMISSIONS.tariff.activate_tariff)
+  @Post('/activate')
+  async activateTariff(@Body() payload: UseTariffDto): Promise<void> {
+    await this.#_service.activateTariff(payload);
+  }
+
+  @CheckAuth(true)
   @Permission(PERMISSIONS.tariff.edit_tariff)
   @Patch('/edit/:id')
   async updateTariff(
@@ -50,6 +57,13 @@ export class TariffController {
     @Body() payload: UpdateTariffDto,
   ): Promise<void> {
     await this.#_service.updateTariff({ ...payload, id });
+  }
+
+  @CheckAuth(true)
+  @Permission(PERMISSIONS.tariff.delete_tariff)
+  @Delete('/disable')
+  async disableTariff(@Body() payload: DisableTariffDto): Promise<void> {
+    await this.#_service.disableTariff(payload);
   }
 
   @CheckAuth(true)
