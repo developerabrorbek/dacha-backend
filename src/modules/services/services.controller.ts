@@ -40,8 +40,18 @@ export class ServicesController {
   }
 
   @CheckAuth(true)
+  @Permission(PERMISSIONS.services.get_single_service)
+  @Get('/single/:id')
+  async getSingleService(
+    @Headers('accept-language') languageCode: string,
+    @Param('id') serviceId: string,
+  ): Promise<Service> {
+    return await this.#_service.getSingleService(languageCode, serviceId);
+  }
+
+  @CheckAuth(true)
   @Permission(PERMISSIONS.services.create_service)
-  @ApiConsumes("multipart/form-data")
+  @ApiConsumes('multipart/form-data')
   @Post('/add')
   @UseInterceptors(
     FilesInterceptor('images', 10, {

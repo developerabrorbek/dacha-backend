@@ -86,6 +86,7 @@ export const PERMISSIONS = {
   },
   services: {
     get_all_services: "get_all_services",
+    get_single_service: "get_single_service",
     create_service: "create_service",
     edit_service: "edit_service",
     delete_service: "delete_service",

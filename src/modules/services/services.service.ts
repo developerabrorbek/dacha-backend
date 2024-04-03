@@ -59,7 +59,9 @@ export class ServicesService {
   }
 
   async getAllService(languageCode: string): Promise<Service[]> {
-    const data = await this.#_prisma.service.findMany({include: {tariffs: true}});
+    const data = await this.#_prisma.service.findMany({
+      include: { tariffs: true },
+    });
 
     for (const el of data) {
       const name = await this.#_translate.getSingleTranslate({
@@ -74,7 +76,7 @@ export class ServicesService {
       });
       el.description = description.value;
 
-      for(const tr of el.tariffs){
+      for (const tr of el.tariffs) {
         const description = await this.#_translate.getSingleTranslate({
           languageCode,
           translateId: tr.description,
@@ -87,6 +89,49 @@ export class ServicesService {
         });
         tr.type = type.value;
       }
+    }
+
+    return data;
+  }
+
+  async getSingleService(
+    languageCode: string,
+    serviceId: string,
+  ): Promise<Service> {
+    // checking service ID
+    this.#_checkUUID(serviceId);
+
+    const data = await this.#_prisma.service.findFirst({
+      include: { tariffs: true },
+      where: { id: serviceId },
+    });
+
+    // get service name translation
+    const name = await this.#_translate.getSingleTranslate({
+      languageCode,
+      translateId: data.name,
+    });
+    data.name = name.value;
+
+    // get service description translation
+    const description = await this.#_translate.getSingleTranslate({
+      languageCode,
+      translateId: data.description,
+    });
+    data.description = description.value;
+
+    for (const tr of data.tariffs) {
+      const description = await this.#_translate.getSingleTranslate({
+        languageCode,
+        translateId: tr.description,
+      });
+      tr.description = description.value;
+
+      const type = await this.#_translate.getSingleTranslate({
+        languageCode,
+        translateId: tr.type,
+      });
+      tr.type = type.value;
     }
 
     return data;
@@ -145,7 +190,7 @@ export class ServicesService {
         images.push(imagePath.replace('\\', '/'));
       }
 
-      // Deleting old images of service
+      // Ddataeting old images of service
       for (const img of foundedService.images) {
         fs.unlink(join(process.cwd(), img), (): unknown => undefined);
       }

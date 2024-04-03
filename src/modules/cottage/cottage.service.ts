@@ -103,11 +103,16 @@ export class CottageService {
     languageCode: string,
   ): Promise<GetCottageListResponse[]> {
     const response = [];
-    const data = await this.#_prisma.cottage.findMany();
+
+    const data = await this.#_prisma.cottage.findMany({
+      include: { tariffs: true },
+    });
+
     for (const cottage of data) {
       const data = await this.#_getCottage(cottage, languageCode);
       response.push(data);
     }
+    
     return response;
   }
 
@@ -133,7 +138,7 @@ export class CottageService {
             price: {
               lte: payload.price,
             },
-            placeId: payload.regionId
+            placeId: payload.regionId,
           },
         ],
         cottageStatus: 'confirmed',
@@ -150,7 +155,7 @@ export class CottageService {
     languageCode: string,
     cottageTypeId: string,
   ): Promise<GetCottageListResponse[]> {
-    this.#_checkUUID(cottageTypeId)
+    this.#_checkUUID(cottageTypeId);
     const response = [];
     const data = await this.#_prisma.cottage.findMany({
       where: {
@@ -195,7 +200,11 @@ export class CottageService {
       where: {
         createdBy: userId,
       },
+      include: {
+        tariffs: true,
+      },
     });
+    
     for (const cottage of data) {
       const data = await this.#_getCottage(cottage, languageCode);
       response.push(data);
@@ -345,11 +354,16 @@ export class CottageService {
   }
 
   async #_getCottage(cottage: any, languageCode: string): Promise<any> {
+    // get comforts with translations
     const comforts = await this.#_getComforts(cottage.comforts, languageCode);
+
+    // get cottage-types with translations
     const cottageTypes = await this.#_getCottageTypes(
       cottage.cottageType,
       languageCode,
     );
+
+    // Get region translate
     const region = await this.#_prisma.region.findFirst({
       where: { id: cottage.regionId },
     });
@@ -359,6 +373,8 @@ export class CottageService {
         translateId: region.name,
       })
     ).value;
+    
+    // Get place translate
     const place = await this.#_prisma.place.findFirst({
       where: { id: cottage.placeId },
     });
@@ -388,6 +404,7 @@ export class CottageService {
       cottageStatus: cottage.cottageStatus,
       status: cottage.status,
       isTop: cottage.isTop,
+      tariffs: cottage.tariffs,
     };
   }
 
