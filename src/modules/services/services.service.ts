@@ -190,10 +190,15 @@ export class ServicesService {
         images.push(imagePath.replace('\\', '/'));
       }
 
-      // Ddataeting old images of service
+      // Deleting old images of service
       for (const img of foundedService.images) {
         fs.unlink(join(process.cwd(), img), (): unknown => undefined);
       }
+
+      await this.#_prisma.service.update({
+        where: { id: foundedService.id },
+        data: { images },
+      });
     }
   }
 
