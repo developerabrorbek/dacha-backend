@@ -89,7 +89,7 @@ export class CottageController {
     return await this.#_service.getCottageListByUser(languageCode, req.userId);
   }
 
-  @CheckAuth(true)
+  @CheckAuth(false)
   @Permission(PERMISSIONS.cottage.get_all_cottages_by_user_id)
   @Get('user/:userId')
   async getCottageListByUserId(
