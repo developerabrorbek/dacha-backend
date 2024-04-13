@@ -110,9 +110,15 @@ export class CottageService {
 
     for (const cottage of data) {
       const data = await this.#_getCottage(cottage, languageCode);
-      response.push(data);
+
+      // Find who created the cottage
+      const user = await this.#_prisma.user.findFirst({
+        where: { id: cottage.createdBy },
+      });
+
+      response.push({ ...data, user });
     }
-    
+
     return response;
   }
 
@@ -196,6 +202,8 @@ export class CottageService {
   ): Promise<GetCottageListResponse[]> {
     const response = [];
 
+    this.#_checkUUID(userId)
+
     const data = await this.#_prisma.cottage.findMany({
       where: {
         createdBy: userId,
@@ -204,7 +212,7 @@ export class CottageService {
         tariffs: true,
       },
     });
-    
+
     for (const cottage of data) {
       const data = await this.#_getCottage(cottage, languageCode);
       response.push(data);
@@ -373,7 +381,7 @@ export class CottageService {
         translateId: region.name,
       })
     ).value;
-    
+
     // Get place translate
     const place = await this.#_prisma.place.findFirst({
       where: { id: cottage.placeId },
@@ -405,6 +413,7 @@ export class CottageService {
       status: cottage.status,
       isTop: cottage.isTop,
       tariffs: cottage.tariffs,
+      user: cottage?.user
     };
   }
 

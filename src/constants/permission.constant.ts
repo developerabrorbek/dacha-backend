@@ -36,6 +36,7 @@ export const PERMISSIONS = {
     get_all_cottages_by_cottage_type: "get_all_cotteges_by_cottage_type",
     get_all_cottages_by_place: "get_all_cotteges_by_place",
     get_all_cottages_by_user: "get_all_cotteges_by_user",
+    get_all_cottages_by_user_id: "get_all_cotteges_by_user_id",
     get_all_filtered_cottages: "get_all_filtered_cottages",
     get_all_cottages_on_top: "get_all_cottages_on_top",
     create_cottage: "create_cottage",
