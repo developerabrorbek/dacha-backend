@@ -19,6 +19,7 @@ export class NotificationService {
   async createNotification(payload: CreateNotificationRequest): Promise<void> {
     await this.#_prisma.notification.create({
       data: {
+        title: payload.title,
         message: payload.message,
         userId: payload.userId,
         type: payload.type,

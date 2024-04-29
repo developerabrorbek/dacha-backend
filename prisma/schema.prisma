@@ -161,6 +161,7 @@ model Cottage {
 
 model Notification {
   id           String             @default(dbgenerated("GEN_RANDOM_UUID()")) @map("id") @db.Uuid
+  title        String             @map("title") @db.VarChar()
   message      String             @map("message") @db.VarChar()
   type         NotificationType   @default(personal) @map("type")
   status       NotificationStatus @default(new) @map("status")
