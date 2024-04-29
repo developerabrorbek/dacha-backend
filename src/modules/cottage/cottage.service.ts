@@ -130,13 +130,13 @@ export class CottageService {
       payload.cottageType = '';
     }
 
-    if (!payload.regionId || payload.regionId == 'undefined') {
-      payload.regionId = undefined;
+    if (!payload.placeId || payload.placeId == 'undefined') {
+      payload.placeId = undefined;
     }
 
     const data = await this.#_prisma.cottage.findMany({
       where: {
-        OR: [
+        AND: [
           {
             cottageType: {
               hasSome: [payload.cottageType],
@@ -144,7 +144,7 @@ export class CottageService {
             price: {
               lte: payload.price,
             },
-            placeId: payload.regionId,
+            placeId: payload.placeId,
           },
         ],
         cottageStatus: 'confirmed',
