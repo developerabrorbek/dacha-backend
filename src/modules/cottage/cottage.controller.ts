@@ -105,14 +105,14 @@ export class CottageController {
   async getFilteredCottageList(
     @Headers('accept-language') languageCode: string,
     @Query('type') cottageType?: string,
-    @Query('region') regionId?: string,
+    @Query('place') placeId?: string,
     @Query('price') price?: string,
   ): Promise<GetCottageListResponse[]> {
     return await this.#_service.getFilteredCottageList({
       languageCode,
       cottageType,
       price: Number(price) || 10000,
-      regionId,
+      placeId,
     });
   }
 
