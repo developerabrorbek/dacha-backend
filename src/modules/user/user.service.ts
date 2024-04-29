@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateUserRequest, UpdateUserRequest } from './interfaces';
-import { UserDevice } from '@prisma/client';
+import { User, UserDevice } from '@prisma/client';
 import { join } from 'path';
 import * as fs from 'fs';
 import { isArray, isUUID } from 'class-validator';
@@ -77,8 +77,8 @@ export class UserService {
         select: {
           role: {
             select: {
-              name: true
-            }
+              name: true,
+            },
           },
         },
       });
@@ -134,6 +134,15 @@ export class UserService {
       roles,
       devices,
     };
+  }
+
+  async getSingleUserByUserID(id: string): Promise<User> {
+    this.#_checkUUID(id);
+    const user = await this.#_prisma.user.findFirst({ where: { id: id } });
+
+    if (!user) throw new NotFoundException('User not found');
+
+    return user;
   }
 
   async updateUser(payload: UpdateUserRequest, userId: string): Promise<void> {

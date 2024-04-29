@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UserService } from './user.service';
-import { UserDevice } from '@prisma/client';
+import { User, UserDevice } from '@prisma/client';
 import { CreateUserDto, UpdateUserDto } from './dtos';
 import { CheckAuth, Permission } from '@decorators';
 import { PERMISSIONS } from '@constants';
@@ -43,6 +43,13 @@ export class UserController {
   @Get('/single')
   async getSingleUser(@Req() req: any): Promise<any> {
     return await this.#_service.getSingleUser(req.userId);
+  }
+
+  @CheckAuth(false)
+  @Permission(PERMISSIONS.user.get_single_user_by_userid)
+  @Get('/single/user/by/:userId')
+  async getSingleUserByUserID(@Param("userId") userId: string): Promise<User> {
+    return await this.#_service.getSingleUser(userId);
   }
 
   @CheckAuth(true)

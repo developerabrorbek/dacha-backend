@@ -74,6 +74,7 @@ export const PERMISSIONS = {
   user: {
     get_all_users: "get_all_users",
     get_single_user: "get_single_user",
+    get_single_user_by_userid: "get_single_user_by_userid",
     create_users: "create_users",
     get_all_user_device: "get_all_user-device",
     edit_user: "edit_user",
