@@ -7,11 +7,6 @@ import { Transform } from 'class-transformer';
 export class CreateNotificationDto
   implements Omit<CreateNotificationRequest, 'createdBy'>
 {
-  @ApiProperty({
-    required: true,
-  })
-  @IsString()
-  title: string;
 
   @ApiProperty({
     required: true,
