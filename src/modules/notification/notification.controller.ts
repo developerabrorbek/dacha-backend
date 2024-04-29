@@ -26,9 +26,9 @@ export class NotificationController {
 
   @CheckAuth(false)
   @Permission(PERMISSIONS.notification.get_user_notification)
-  @Get(':id')
+  @Get('by/:userId')
   async getUserNotificationList(
-    @Param('id') userId: string,
+    @Param('userId') userId: string,
   ): Promise<Notification[]> {
     return await this.#_service.getNotificationList({ userId });
   }
