@@ -9,6 +9,7 @@ export const PERMISSIONS = {
     get_all_translate: "get_all_translate",
     get_unused_translate: "get_unused_translate",
     get_translate:"get_translate",
+    get_single_translate_by_code:"get_single_translate_by_code",
     create_translate: "create_translate",
     edit_translate: "edit_translate",
     delete_translate: "delete_translate",

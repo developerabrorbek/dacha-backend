@@ -9,6 +9,8 @@ import {
 import { isUUID } from 'class-validator';
 import {
   CreateTranslateInterface,
+  GetSingleTranslateByTranslateCodeRequest,
+  GetSingleTranslateByTranslateCodeResponse,
   GetSingleTranslateRequest,
   GetSingleTranslateResponse,
   UpdateTranslateRequest,
@@ -120,6 +122,39 @@ export class TranslateService {
     };
   }
 
+  async getSingleTranslateByTranslateCode(
+    payload: GetSingleTranslateByTranslateCodeRequest,
+  ): Promise<GetSingleTranslateByTranslateCodeResponse> {
+    await this.#_checkLanguage(payload.languageCode);
+
+    const foundedTranslate = await this.#_prisma.translate.findFirst({
+      where: { code: payload.translateCode },
+    });
+
+    if (!foundedTranslate) return { value: 'Unavailable' };
+
+    const language = await this.#_prisma.language.findFirst({
+      where: { code: payload.languageCode },
+      select: {
+        id: true,
+      },
+    });
+
+    const definition = await this.#_prisma.definition.findFirst({
+      where: {
+        languageId: language.id,
+        translateId: foundedTranslate.id,
+      },
+      select: {
+        value: true,
+      },
+    });
+
+    return {
+      value: definition?.value || '',
+    };
+  }
+
   async updateTranslate(payload: UpdateTranslateRequest): Promise<void> {
     await this.#_checkTranslate(payload.id);
     const foundedTranslate = await this.#_prisma.translate.findFirst({
@@ -137,14 +172,16 @@ export class TranslateService {
       });
     }
 
-    if(payload?.definition){
-      await this.#_prisma.definition.deleteMany({where: {translateId: foundedTranslate.id}})
+    if (payload?.definition) {
+      await this.#_prisma.definition.deleteMany({
+        where: { translateId: foundedTranslate.id },
+      });
 
       for (const item of Object.entries(payload.definition)) {
         const language = await this.#_prisma.language.findFirst({
           where: { code: item[0] },
         });
-  
+
         await this.#_prisma.definition.create({
           data: {
             languageId: language.id,

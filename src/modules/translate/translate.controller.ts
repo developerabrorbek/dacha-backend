@@ -12,11 +12,14 @@ import { TranslateService } from './translate.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreateTranslateDto, UpdateTranslateDto } from './dtos';
 import { Translate } from '@prisma/client';
-import { GetSingleTranslateResponse } from './interfaces';
+import {
+  GetSingleTranslateByTranslateCodeResponse,
+  GetSingleTranslateResponse,
+} from './interfaces';
 import { CheckAuth, Permission } from '@decorators';
 import { PERMISSIONS } from '@constants';
 
-@ApiBearerAuth("JWT")
+@ApiBearerAuth('JWT')
 @ApiTags('Translate')
 @Controller({
   path: 'translate',
@@ -53,6 +56,19 @@ export class TranslateController {
     return await this.#_service.getSingleTranslate({
       languageCode,
       translateId,
+    });
+  }
+
+  @CheckAuth(false)
+  @Permission(PERMISSIONS.translate.get_single_translate_by_code)
+  @Get('single/by/:translateCode')
+  async retrieveSingleTranslateByCode(
+    @Headers('accept-language') languageCode: string,
+    @Param('translateCode') translateCode: string,
+  ): Promise<GetSingleTranslateByTranslateCodeResponse> {
+    return await this.#_service.getSingleTranslateByTranslateCode({
+      languageCode,
+      translateCode,
     });
   }
 
