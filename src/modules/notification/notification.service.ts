@@ -29,13 +29,19 @@ export class NotificationService {
 
   async getNotificationList(
     payload: GetNotificationListRequest,
-  ): Promise<Notification[]> { 
+  ): Promise<Notification[]> {
     if (!isUUID(payload.userId, 4)) {
       throw new ConflictException('Give valid ID');
     }
     const data = await this.#_prisma.notification.findMany({
       where: { OR: [{ userId: payload.userId }, { type: 'public' }] },
     });
+
+    for (const nf of data) {
+      if (nf.watchedUsers.includes(payload.userId)) {
+        nf.status = 'seen';
+      }
+    }
 
     return data;
   }
