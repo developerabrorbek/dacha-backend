@@ -35,6 +35,7 @@ export class NotificationService {
     }
     const data = await this.#_prisma.notification.findMany({
       where: { OR: [{ userId: payload.userId }, { type: 'public' }] },
+      orderBy: {createdAt: "asc"}
     });
 
     for (const nf of data) {
@@ -47,7 +48,7 @@ export class NotificationService {
   }
 
   async getAllNotifications(): Promise<Notification[]> {
-    return await this.#_prisma.notification.findMany();
+    return await this.#_prisma.notification.findMany({orderBy: {createdAt: "asc"}});
   }
 
   async updateNotification(payload: UpdateNotificationRequest): Promise<null> {
