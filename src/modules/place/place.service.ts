@@ -59,8 +59,36 @@ export class PlaceService {
     return responseData;
   }
 
+  async getPlaceListByRegion(
+    languageCode: string,
+    regionId: string,
+  ): Promise<Place[]> {
+    await this.#_checkLanguage(languageCode);
+    this.#_checkUUID(regionId);
+
+    const foundedRegion = await this.#_prisma.region.findFirst({
+      where: { id: regionId },
+    });
+
+    if (!foundedRegion) throw new NotFoundException('Region not found');
+
+    const responseData = [];
+    const data = await this.#_prisma.place.findMany({ where: { regionId } });
+    for (const el of data) {
+      const name = await this.#_translate.getSingleTranslate({
+        languageCode,
+        translateId: el.name,
+      });
+      responseData.push({
+        ...el,
+        name: name.value,
+      });
+    }
+    return responseData;
+  }
+
   async updatePlace(payload: UpdatePlaceRequest): Promise<void> {
-    this.#_checkUUID(payload.id)
+    this.#_checkUUID(payload.id);
     const foundedPlace = await this.#_prisma.place.findFirst({
       where: { id: payload.id },
     });
@@ -103,7 +131,7 @@ export class PlaceService {
   }
 
   async deletePlace(id: string): Promise<void> {
-    this.#_checkUUID(id)
+    this.#_checkUUID(id);
     const foundedPlace = await this.#_prisma.place.findFirst({ where: { id } });
     if (!foundedPlace) {
       throw new NotFoundException('Place not found');
@@ -121,9 +149,9 @@ export class PlaceService {
     await this.#_prisma.place.delete({ where: { id: foundedPlace.id } });
   }
 
-  #_checkUUID(id: string): void{
-    if(!isUUID(id, 4)){
-      throw new ConflictException("Please provide a valid UUID")
+  #_checkUUID(id: string): void {
+    if (!isUUID(id, 4)) {
+      throw new ConflictException('Please provide a valid UUID');
     }
   }
 

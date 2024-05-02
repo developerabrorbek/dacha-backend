@@ -24,7 +24,8 @@ export const PERMISSIONS = {
     delete_place: "delete_place",
     edit_place: "edit_place",
     create_place: "create_place",
-    get_all_place: "get_all_place"
+    get_all_place: "get_all_place",
+    get_all_place_by_region: "get_all_place_by_region"
   },
   comfort: {
     get_all_comfort: "get_all_comfort",

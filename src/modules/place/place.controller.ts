@@ -38,7 +38,17 @@ export class PlaceController {
     return await this.#_service.getPlaceList(languageCode);
   }
 
-  @ApiBearerAuth("JWT")
+  @CheckAuth(false)
+  @Permission(PERMISSIONS.place.get_all_place_by_region)
+  @Get('by/region/:regionId')
+  async getPlaceListByRegion(
+    @Headers('accept-language') languageCode: string,
+    @Param('regionId') regionId: string,
+  ): Promise<Place[]> {
+    return await this.#_service.getPlaceListByRegion(languageCode, regionId);
+  }
+
+  @ApiBearerAuth('JWT')
   @CheckAuth(true)
   @Permission(PERMISSIONS.place.create_place)
   @Post('/add')
@@ -63,7 +73,7 @@ export class PlaceController {
     await this.#_service.createPlace({ ...payload, image });
   }
 
-  @ApiBearerAuth("JWT")
+  @ApiBearerAuth('JWT')
   @CheckAuth(true)
   @Permission(PERMISSIONS.place.edit_place)
   @Patch('/edit/:id')
@@ -93,7 +103,7 @@ export class PlaceController {
     });
   }
 
-  @ApiBearerAuth("JWT")
+  @ApiBearerAuth('JWT')
   @CheckAuth(true)
   @Permission(PERMISSIONS.place.delete_place)
   @Delete('/delete/:id')
