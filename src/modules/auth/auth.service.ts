@@ -258,30 +258,31 @@ export class AuthService {
   }
 
   async #_sendSms(payload: SendSMSRequest): Promise<any> {
-    const myHeaders = new Headers();
-    myHeaders.append(
-      'Authorization',
-      'App 53006856e580728eba1da7cd3f11ce58-3e9f8ccf-6c3b-426b-a398-cc89ba3b4a93',
-    );
-    myHeaders.append('Content-Type', 'application/json');
-    myHeaders.append('Accept', 'application/json');
+    // const myHeaders = new Headers();
+    // myHeaders.append(
+    //   'Authorization',
+    //   'App 53006856e580728eba1da7cd3f11ce58-3e9f8ccf-6c3b-426b-a398-cc89ba3b4a93',
+    // );
+    // myHeaders.append('Content-Type', 'application/json');
+    // myHeaders.append('Accept', 'application/json');
 
-    const raw = JSON.stringify({
-      messages: [
-        {
-          destinations: [{ to: `998${payload.phone}` }],
-          from: 'ServiceSMS',
-          text: `Assalomu alaykum, sizning dacha v gorax ga kirish kodingiz: ${payload.smsCode}`,
-        },
-      ],
-    });
+    // const raw = JSON.stringify({
+    //   messages: [
+    //     {
+    //       destinations: [{ to: `998${payload.phone}` }],
+    //       from: 'ServiceSMS',
+    //       text: `Assalomu alaykum, sizning dacha v gorax ga kirish kodingiz: ${payload.smsCode}`,
+    //     },
+    //   ],
+    // });
     let result = null;
 
-    fetch('https://xlq3eg.api.infobip.com/sms/2/text/advanced', {
-      method: 'POST',
-      headers: myHeaders,
-      body: raw,
-    })
+    fetch(
+      `94.158.52.192/api/husanboy_ytt/sendsms.php?username=HusanboyYTT&password=5ddfb54b7a39cd782a37f3f493051509e9a8fb2d&id=MESSSAGE_ID&from=SMSINFO&to=998${payload.phone}&text=Dachivgorax&coding=${payload.smsCode}`,
+      {
+        method: 'GET',
+      },
+    )
       .then((response) => response.text())
       .then((res) => (result = res))
       .catch((error) => console.log('error', error));
