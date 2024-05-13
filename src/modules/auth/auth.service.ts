@@ -278,7 +278,7 @@ export class AuthService {
     let result = null;
 
     fetch(
-      `94.158.52.192/api/husanboy_ytt/sendsms.php?username=HusanboyYTT&password=5ddfb54b7a39cd782a37f3f493051509e9a8fb2d&id=MESSSAGE_ID&from=SMSINFO&to=998${payload.phone}&text=Dachivgorax&coding=${payload.smsCode}`,
+      `http://94.158.52.192/api/husanboy_ytt/sendsms.php?username=HusanboyYTT&password=5ddfb54b7a39cd782a37f3f493051509e9a8fb2d&id=MESSSAGE_ID&from=SMSINFO&to=998${payload.phone}&text=Dachivgorax&coding=${payload.smsCode}`,
       {
         method: 'GET',
       },
