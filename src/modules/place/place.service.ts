@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { Place } from '@prisma/client';
-import { CreatePlaceRequest, UpdatePlaceRequest } from './interfaces';
+import { CreatePlaceRequest, UpdatePlaceImageRequest, UpdatePlaceImageResponse, UpdatePlaceRequest } from './interfaces';
 import { TranslateService } from 'modules/translate';
 import { join } from 'path';
 import * as fs from 'fs';
@@ -97,22 +97,6 @@ export class PlaceService {
       throw new NotFoundException('Place not found');
     }
 
-    if (payload?.image?.path) {
-      fs.unlink(
-        join(process.cwd(), foundedPlace.image),
-        (): unknown => undefined,
-      );
-
-      const imagePath = payload.image.path.replace('\\', '/');
-
-      const image = imagePath.replace('\\', '/');
-
-      await this.#_prisma.place.update({
-        where: { id: payload.id },
-        data: { image: image },
-      });
-    }
-
     if (payload?.name) {
       await this.#_translate.updateTranslate({
         id: foundedPlace.name,
@@ -128,6 +112,35 @@ export class PlaceService {
         data: { name: payload.name },
       });
     }
+  }
+
+  async updatePlaceImage(payload: UpdatePlaceImageRequest): Promise<UpdatePlaceImageResponse> {
+    this.#_checkUUID(payload.id);
+    const foundedPlace = await this.#_prisma.place.findFirst({
+      where: { id: payload.id },
+    });
+
+    if (!foundedPlace) {
+      throw new NotFoundException('Place not found');
+    }
+
+      fs.unlink(
+        join(process.cwd(), foundedPlace.image),
+        (): unknown => undefined,
+      );
+
+      const imagePath = payload.image.path.replace('\\', '/');
+
+      const image = imagePath.replace('\\', '/');
+
+      await this.#_prisma.place.update({
+        where: { id: payload.id },
+        data: { image: image },
+      });
+
+      return {
+        newImage: image
+      }
   }
 
   async deletePlace(id: string): Promise<void> {

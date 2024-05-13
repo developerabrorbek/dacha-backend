@@ -12,8 +12,8 @@ import {
 } from '@nestjs/common';
 import { ComfortService } from './comfort.service';
 import { Comfort } from '@prisma/client';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { CreateComfortDto, UpdateComfortDto } from './dtos';
+import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { CreateComfortDto, UpdateComfortDto, UpdateComfortImageDto } from './dtos';
 import { CheckAuth, Permission } from '@decorators';
 import { PERMISSIONS } from '@constants';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -68,6 +68,18 @@ export class ComfortController {
   @CheckAuth(true)
   @Permission(PERMISSIONS.comfort.edit_comfort)
   @Patch('/edit/:id')
+  async updateComfort(
+    @Param('id') comfortId: string,
+    @Body() payload: UpdateComfortDto,
+    @UploadedFile() image: Express.Multer.File,
+  ): Promise<void> {
+    await this.#_service.updateComfort({ ...payload, id: comfortId, image });
+  }
+
+  @ApiConsumes("multipart/form-data")
+  @ApiBearerAuth("JWT")
+  @CheckAuth(true)
+  @Permission(PERMISSIONS.comfort.edit_comfort_image)
   @UseInterceptors(
     FileInterceptor('image', {
       storage: diskStorage({
@@ -82,9 +94,10 @@ export class ComfortController {
       }),
     }),
   )
-  async updateComfort(
-    @Param('id') comfortId: string,
-    @Body() payload: UpdateComfortDto,
+  @Patch('/edit/image/:comfortId')
+  async updateComfortImage(
+    @Param('comfortId') comfortId: string,
+    @Body() payload: UpdateComfortImageDto,
     @UploadedFile() image: Express.Multer.File,
   ): Promise<void> {
     await this.#_service.updateComfort({ ...payload, id: comfortId, image });

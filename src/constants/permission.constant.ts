@@ -23,6 +23,7 @@ export const PERMISSIONS = {
   place: {
     delete_place: "delete_place",
     edit_place: "edit_place",
+    edit_place_image: "edit_place_image",
     create_place: "create_place",
     get_all_place: "get_all_place",
     get_all_place_by_region: "get_all_place_by_region"
@@ -31,6 +32,7 @@ export const PERMISSIONS = {
     get_all_comfort: "get_all_comfort",
     create_comfort: "create_comfort",
     edit_comfort: "edit_comfort",
+    edit_comfort_image: "edit_comfort_image",
     delete_comfort: "delete_comfort"
   },
   cottage: {

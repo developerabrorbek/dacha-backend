@@ -12,8 +12,8 @@ import {
 } from '@nestjs/common';
 import { PlaceService } from './place.service';
 import { Place } from '@prisma/client';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { CreatePlaceDto, UpdatePlaceDto } from './dtos';
+import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { CreatePlaceDto, UpdatePlaceDto, UpdatePlaceImageDto } from './dtos';
 import { CheckAuth, Permission } from '@decorators';
 import { PERMISSIONS } from '@constants';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -77,6 +77,21 @@ export class PlaceController {
   @CheckAuth(true)
   @Permission(PERMISSIONS.place.edit_place)
   @Patch('/edit/:id')
+  async updatePlace(
+    @Param('id') placeId: string,
+    @Body() paylaod: UpdatePlaceDto,
+  ): Promise<void> {
+    await this.#_service.updatePlace({
+      id: placeId,
+      name: paylaod?.name,
+    });
+  }
+
+  @ApiConsumes("multipart/form-data")
+  @ApiBearerAuth('JWT')
+  @CheckAuth(true)
+  @Permission(PERMISSIONS.place.edit_place_image)
+  @Patch('/edit/image/:placeId')
   @UseInterceptors(
     FileInterceptor('image', {
       storage: diskStorage({
@@ -91,14 +106,13 @@ export class PlaceController {
       }),
     }),
   )
-  async updatePlace(
-    @Param('id') placeId: string,
-    @Body() paylaod: UpdatePlaceDto,
+  async updatePlaceImage(
+    @Param('placeId') placeId: string,
+    @Body() paylaod: UpdatePlaceImageDto,
     @UploadedFile() image: Express.Multer.File,
   ): Promise<void> {
-    await this.#_service.updatePlace({
+    await this.#_service.updatePlaceImage({
       id: placeId,
-      name: paylaod?.name,
       image,
     });
   }

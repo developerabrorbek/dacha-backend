@@ -5,7 +5,12 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { Comfort } from '@prisma/client';
-import { CreateComfortRequest, UpdateComfortRequest } from './interfaces';
+import {
+  CreateComfortRequest,
+  UpdateComfortImageRequest,
+  UpdateComfortImageResponse,
+  UpdateComfortRequest,
+} from './interfaces';
 import * as fs from 'node:fs';
 import { TranslateService } from 'modules/translate';
 import { join } from 'node:path';
@@ -16,10 +21,7 @@ export class ComfortService {
   #_prisma: PrismaService;
   #_translate: TranslateService;
 
-  constructor(
-    prisma: PrismaService,
-    translate: TranslateService,
-  ) {
+  constructor(prisma: PrismaService, translate: TranslateService) {
     this.#_prisma = prisma;
     this.#_translate = translate;
   }
@@ -57,7 +59,7 @@ export class ComfortService {
   }
 
   async updateComfort(payload: UpdateComfortRequest): Promise<void> {
-    this.#_checkUUID(payload.id)
+    this.#_checkUUID(payload.id);
     const foundedComfort = await this.#_prisma.comfort.findFirst({
       where: { id: payload.id },
     });
@@ -100,8 +102,38 @@ export class ComfortService {
     }
   }
 
+  async updateComfortImage(
+    payload: UpdateComfortImageRequest,
+  ): Promise<UpdateComfortImageResponse> {
+    this.#_checkUUID(payload.id);
+    const foundedComfort = await this.#_prisma.comfort.findFirst({
+      where: { id: payload.id },
+    });
+
+    if (!foundedComfort) {
+      throw new NotFoundException('Comfort not found');
+    }
+    let image = null;
+
+    fs.unlink(
+      join(process.cwd(), foundedComfort.image),
+      (): unknown => undefined,
+    );
+
+    const imagePath = payload.image.path.replace('\\', '/');
+
+    image = imagePath.replace('\\', '/');
+
+    await this.#_prisma.comfort.update({
+      where: { id: payload.id },
+      data: { image: image },
+    });
+
+    return { newImage: image };
+  }
+
   async deleteComfort(id: string): Promise<void> {
-    this.#_checkUUID(id)
+    this.#_checkUUID(id);
     const foundedComfort = await this.#_prisma.comfort.findFirst({
       where: { id: id },
     });
@@ -119,8 +151,8 @@ export class ComfortService {
   }
 
   #_checkUUID(id: string): void {
-    if(!isUUID(id,4)){
-      throw new ConflictException("Please provide a valid UUID")
+    if (!isUUID(id, 4)) {
+      throw new ConflictException('Please provide a valid UUID');
     }
   }
 }
