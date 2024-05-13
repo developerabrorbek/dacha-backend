@@ -92,6 +92,7 @@ export class TariffService {
     }
 
     if (payload?.description) {
+      this.#_checkUUID(payload.description)
       await this.#_translate.updateTranslate({
         id: foundedTariff.description,
         status: 'inactive',
