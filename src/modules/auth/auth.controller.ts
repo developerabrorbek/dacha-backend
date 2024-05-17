@@ -1,10 +1,4 @@
-import {
-  Body,
-  Controller,
-  Headers,
-  Post,
-  Res,
-} from '@nestjs/common';
+import { Body, Controller, Headers, Post, Res } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto, LoginForAdminDto, LoginGetSMSDto, RefreshDto } from './dtos';
@@ -25,7 +19,10 @@ export class AuthController {
   }
 
   @Post('/login')
-  async login(@Body() payload: LoginDto, @Res() res: any): Promise<LoginResponse> {
+  async login(
+    @Body() payload: LoginDto,
+    @Res({ passthrough: true }) res: any,
+  ): Promise<LoginResponse> {
     return await this.#_service.login(payload, res);
   }
 
@@ -39,14 +36,18 @@ export class AuthController {
   @Post('/login/admin')
   async loginForAdmin(
     @Body() payload: LoginForAdminDto,
-    @Res() res: any
+    @Res({ passthrough: true }) res: any,
   ): Promise<LoginForAdminResponse> {
     return await this.#_service.loginForAdmin(payload, res);
   }
 
   @Post('/refresh')
-  async refresh(@Headers('refreshToken') refreshToken: string, @Body() payload: RefreshDto, @Res() res: any): Promise<RefreshResponse> {
-    return await this.#_service.refresh({refreshToken, ...payload}, res);
+  async refresh(
+    @Headers('refreshToken') refreshToken: string,
+    @Body() payload: RefreshDto,
+    @Res({ passthrough: true }) res: any,
+  ): Promise<RefreshResponse> {
+    return await this.#_service.refresh({ refreshToken, ...payload }, res);
   }
 
   // @Delete('/logout')
