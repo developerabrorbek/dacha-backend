@@ -13,7 +13,7 @@ async function bootstrap() {
     rawBody: true,
   });
 
-  app.use(cookieParser())
+  app.use(cookieParser("salom"))
 
   app.use(json({ limit: '125mb' }));
   app.disable('x-powered-by', 'X-Powered-By', 'etag');
@@ -22,6 +22,7 @@ async function bootstrap() {
     methods: ['GET', 'POST', 'PATCH', 'DELETE'],
     optionsSuccessStatus: 200,
     origin: '*',
+    credentials: true,
   });
 
   app.useGlobalPipes(new ValidationPipe({

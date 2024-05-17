@@ -143,8 +143,16 @@ export class AuthService {
       },
     });
 
-    res.cookie('accessToken', accessToken);
-    res.cookie('refreshToken', refreshToken);
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      sameSite: 'none',
+      secure: true,
+    });
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      sameSite: 'none',
+      secure: true,
+    });
 
     return {
       accessToken,
@@ -212,8 +220,16 @@ export class AuthService {
       },
     });
 
-    res.cookie('accessToken', accessToken);
-    res.cookie('refreshToken', refreshToken);
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      sameSite: 'none',
+      secure: true,
+    });
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      sameSite: 'none',
+      secure: true,
+    });
 
     return {
       accessToken,
@@ -252,8 +268,16 @@ export class AuthService {
         },
       });
 
-      res.cookie('accessToken', accessToken);
-      res.cookie('refreshToken', refreshToken);
+      res.cookie('accessToken', accessToken, {
+        httpOnly: true,
+        sameSite: 'none',
+        secure: true,
+      });
+      res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        sameSite: 'none',
+        secure: true,
+      });
 
       return {
         accessToken,
