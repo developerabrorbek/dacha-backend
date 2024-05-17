@@ -30,8 +30,8 @@ export class AuthGuard implements CanActivate {
 
     if (!isAuth) {
       return true;
-    }    
-    
+    }
+
     const request = context.switchToHttp().getRequest<any>();
 
     // const token = request.headers.authorization;
@@ -42,7 +42,9 @@ export class AuthGuard implements CanActivate {
 
     // const accessToken = token.replace('Bearer ', '');
 
-    const accessToken = request.cookies["accessToken"]
+    console.log(request.cookies, 'cookies');
+
+    const accessToken = request.cookies['accessToken'];
 
     if (!accessToken) {
       throw new ConflictException('Please provide a bearer token');
@@ -51,11 +53,11 @@ export class AuthGuard implements CanActivate {
       const data = this.jwt.verify(accessToken, {
         secret: this.config.getOrThrow<string>('jwt.accessKey'),
       });
-      request.userId = data.id
+      request.userId = data.id;
       return true;
     } catch (err) {
       if (err instanceof TokenExpiredError) {
-        throw new NotAcceptableException('Token already expired')
+        throw new NotAcceptableException('Token already expired');
       }
 
       if (err instanceof JsonWebTokenError) {
