@@ -5,7 +5,6 @@ import { AppModule } from './app';
 import { appConfig } from 'config';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import * as cookieParser from "cookie-parser"
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -13,7 +12,6 @@ async function bootstrap() {
     rawBody: true,
   });
 
-  app.use(cookieParser())
 
   app.use(json({ limit: '125mb' }));
   app.disable('x-powered-by', 'X-Powered-By', 'etag');
@@ -22,7 +20,6 @@ async function bootstrap() {
     methods: ['GET', 'POST', 'PATCH', 'DELETE'],
     optionsSuccessStatus: 200,
     origin: '*',
-    credentials: true,
   });
 
   app.useGlobalPipes(new ValidationPipe({

@@ -4,7 +4,7 @@ import {
   ExecutionContext,
   ConflictException,
   BadRequestException,
-  // UnprocessableEntityException,
+  UnprocessableEntityException,
   NotAcceptableException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
@@ -34,17 +34,13 @@ export class AuthGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest<any>();
 
-    // const token = request.headers.authorization;
+    const token = request.headers.authorization;
 
-    // if (!token || !token.startsWith('Bearer ')) {
-    //   throw new UnprocessableEntityException('Please provide a Bearer token');
-    // }
+    if (!token || !token.startsWith('Bearer ')) {
+      throw new UnprocessableEntityException('Please provide a Bearer token');
+    }
 
-    // const accessToken = token.replace('Bearer ', '');
-
-    console.log(request.cookies, 'cookies');
-
-    const accessToken = request.cookies['accessToken'];
+    const accessToken = token.replace('Bearer ', '');
 
     if (!accessToken) {
       throw new ConflictException('Please provide a bearer token');

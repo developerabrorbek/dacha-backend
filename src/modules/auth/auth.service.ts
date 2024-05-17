@@ -79,7 +79,7 @@ export class AuthService {
     };
   }
 
-  async login(payload: LoginRequest, res: any): Promise<LoginResponse> {
+  async login(payload: LoginRequest): Promise<LoginResponse> {
     const foundedUser = await this.#_prisma.user.findFirst({
       where: { id: payload.userId },
     });
@@ -143,16 +143,6 @@ export class AuthService {
       },
     });
 
-    res.cookie('accessToken', accessToken, {
-      httpOnly: true,
-      sameSite: 'none',
-      secure: true,
-    });
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      sameSite: 'none',
-      secure: true,
-    });
 
     return {
       accessToken,
@@ -163,7 +153,6 @@ export class AuthService {
 
   async loginForAdmin(
     payload: LoginForAdminRequest,
-    res: any,
   ): Promise<LoginForAdminResponse> {
     const foundedUser = await this.#_prisma.user.findFirst({
       where: { password: payload.password, username: payload.username },
@@ -220,24 +209,13 @@ export class AuthService {
       },
     });
 
-    res.cookie('accessToken', accessToken, {
-      httpOnly: true,
-      sameSite: 'none',
-      secure: true,
-    });
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      sameSite: 'none',
-      secure: true,
-    });
-
     return {
       accessToken,
       refreshToken,
     };
   }
 
-  async refresh(payload: RefreshRequest, res: any): Promise<RefreshResponse> {
+  async refresh(payload: RefreshRequest): Promise<RefreshResponse> {
     try {
       if (!isJWT(payload.refreshToken)) {
         throw new UnprocessableEntityException('Invalid token');
@@ -266,17 +244,6 @@ export class AuthService {
           accessToken,
           refreshToken,
         },
-      });
-
-      res.cookie('accessToken', accessToken, {
-        httpOnly: true,
-        sameSite: 'none',
-        secure: true,
-      });
-      res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-        sameSite: 'none',
-        secure: true,
       });
 
       return {

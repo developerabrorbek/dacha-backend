@@ -3,7 +3,7 @@ import {
   CanActivate,
   ExecutionContext,
   InternalServerErrorException,
-  // UnprocessableEntityException,
+  UnprocessableEntityException,
   ConflictException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
@@ -50,16 +50,13 @@ export class PermissionGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest<any>();
 
-    // const token = request.headers.authorization;
+    const token = request.headers.authorization;
 
-    // if (!token || !token.startsWith('Bearer ')) {
-    //   throw new UnprocessableEntityException('Please provide a token');
-    // }
+    if (!token || !token.startsWith('Bearer ')) {
+      throw new UnprocessableEntityException('Please provide a token');
+    }
 
-    // const accessToken = token.replace('Bearer ', '');
-
-    const accessToken = request.cookies["accessToken"]
-
+    const accessToken = token.replace('Bearer ', '');
 
     const userData = this.jwt.verify(accessToken, {
       secret: this.config.getOrThrow<string>('jwt.accessKey'),
@@ -69,7 +66,7 @@ export class PermissionGuard implements CanActivate {
       where: { userId: userData?.id },
     });
 
-    let isHavePermission = false
+    let isHavePermission = false;
 
     for (const role of userRoles) {
       const foundedRole = await this.prisma.role.findFirst({
@@ -77,12 +74,12 @@ export class PermissionGuard implements CanActivate {
       });
 
       if (foundedRole?.permissions?.includes(foundedPermission.id)) {
-        isHavePermission = true
+        isHavePermission = true;
       }
     }
 
-    if(!isHavePermission){
-      throw new ConflictException("User has no permission to do that")
+    if (!isHavePermission) {
+      throw new ConflictException('User has no permission to do that');
     }
 
     return isHavePermission;
