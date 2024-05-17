@@ -3,7 +3,7 @@ import {
   CanActivate,
   ExecutionContext,
   InternalServerErrorException,
-  UnprocessableEntityException,
+  // UnprocessableEntityException,
   ConflictException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
@@ -11,7 +11,6 @@ import { PERMISSION_KEY } from '@decorators';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
-import { Request } from 'express';
 
 @Injectable()
 export class PermissionGuard implements CanActivate {
@@ -49,15 +48,18 @@ export class PermissionGuard implements CanActivate {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest<Request>();
+    const request = context.switchToHttp().getRequest<any>();
 
-    const token = request.headers.authorization;
+    // const token = request.headers.authorization;
 
-    if (!token || !token.startsWith('Bearer ')) {
-      throw new UnprocessableEntityException('Please provide a token');
-    }
+    // if (!token || !token.startsWith('Bearer ')) {
+    //   throw new UnprocessableEntityException('Please provide a token');
+    // }
 
-    const accessToken = token.replace('Bearer ', '');
+    // const accessToken = token.replace('Bearer ', '');
+
+    const accessToken = request.cookie("accessToken")
+
 
     const userData = this.jwt.verify(accessToken, {
       secret: this.config.getOrThrow<string>('jwt.accessKey'),

@@ -79,7 +79,7 @@ export class AuthService {
     };
   }
 
-  async login(payload: LoginRequest): Promise<LoginResponse> {
+  async login(payload: LoginRequest, res: any): Promise<LoginResponse> {
     const foundedUser = await this.#_prisma.user.findFirst({
       where: { id: payload.userId },
     });
@@ -143,6 +143,9 @@ export class AuthService {
       },
     });
 
+    res.cookie('accessToken', accessToken);
+    res.cookie('refreshToken', refreshToken);
+
     return {
       accessToken,
       refreshToken,
@@ -152,6 +155,7 @@ export class AuthService {
 
   async loginForAdmin(
     payload: LoginForAdminRequest,
+    res: any,
   ): Promise<LoginForAdminResponse> {
     const foundedUser = await this.#_prisma.user.findFirst({
       where: { password: payload.password, username: payload.username },
@@ -208,13 +212,16 @@ export class AuthService {
       },
     });
 
+    res.cookie('accessToken', accessToken);
+    res.cookie('refreshToken', refreshToken);
+
     return {
       accessToken,
       refreshToken,
     };
   }
 
-  async refresh(payload: RefreshRequest): Promise<RefreshResponse> {
+  async refresh(payload: RefreshRequest, res: any): Promise<RefreshResponse> {
     try {
       if (!isJWT(payload.refreshToken)) {
         throw new UnprocessableEntityException('Invalid token');
@@ -244,6 +251,9 @@ export class AuthService {
           refreshToken,
         },
       });
+
+      res.cookie('accessToken', accessToken);
+      res.cookie('refreshToken', refreshToken);
 
       return {
         accessToken,

@@ -5,12 +5,15 @@ import { AppModule } from './app';
 import { appConfig } from 'config';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as cookieParser from "cookie-parser"
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bodyParser: true,
     rawBody: true,
   });
+
+  app.use(cookieParser())
 
   app.use(json({ limit: '125mb' }));
   app.disable('x-powered-by', 'X-Powered-By', 'etag');
