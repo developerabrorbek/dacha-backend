@@ -13,7 +13,7 @@ async function bootstrap() {
     rawBody: true,
   });
 
-  app.use(cookieParser("salom"))
+  app.use(cookieParser())
 
   app.use(json({ limit: '125mb' }));
   app.disable('x-powered-by', 'X-Powered-By', 'etag');
