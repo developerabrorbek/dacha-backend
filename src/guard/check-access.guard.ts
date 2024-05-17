@@ -42,7 +42,7 @@ export class AuthGuard implements CanActivate {
 
     // const accessToken = token.replace('Bearer ', '');
 
-    const accessToken = request.cookie("accessToken")
+    const accessToken = request.cookies["accessToken"]
 
     if (!accessToken) {
       throw new ConflictException('Please provide a bearer token');

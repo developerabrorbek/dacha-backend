@@ -58,7 +58,7 @@ export class PermissionGuard implements CanActivate {
 
     // const accessToken = token.replace('Bearer ', '');
 
-    const accessToken = request.cookie("accessToken")
+    const accessToken = request.cookies["accessToken"]
 
 
     const userData = this.jwt.verify(accessToken, {
