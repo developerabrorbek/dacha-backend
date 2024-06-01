@@ -103,6 +103,7 @@ export const PERMISSIONS = {
   },
   tariff: {
     get_all_tariffs: "get_all_tariffs",
+    get_all_used_tariffs: "get_all_used_tariffs",
     create_tariff: "create_tariff",
     activate_tariff: "activate_tariff",
     edit_tariff: "edit_tariff",

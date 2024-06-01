@@ -145,13 +145,13 @@ export class UserService {
       where: {
         assignedBy: payload.userId,
       },
-      include: {
+      select: {
+        end_time: true,
+        assignedAt: true,
+        status: true,
+        tariffStatus: true,
         cottage: true,
-        tariff: {
-          include: {
-            service: true,
-          }
-        },
+        tariff: true,
       },
     });
 

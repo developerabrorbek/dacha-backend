@@ -79,6 +79,22 @@ export class TariffService {
     return data;
   }
 
+  async getAllUsedTariffs(): Promise<any>{
+    const data = await this.#_prisma.cottageOnTariff.findMany({
+      select: {
+        assignedAt: true,
+        assignedBy: true,
+        cottage: true,
+        end_time: true,
+        status: true,
+        tariffId: true,
+        tariffStatus: true,
+      }
+    })
+
+    return data
+  }
+
   async updateTariff(payload: UpdateTariffRequest): Promise<void> {
     // Checking ID
     this.#_checkUUID(payload.id);

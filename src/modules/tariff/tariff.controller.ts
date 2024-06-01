@@ -36,6 +36,13 @@ export class TariffController {
   }
 
   @CheckAuth(true)
+  @Permission(PERMISSIONS.tariff.get_all_used_tariffs)
+  @Get("/used/for/admin")
+  async getAllUsedTariff(): Promise<any> {
+    return await this.#_service.getAllUsedTariffs();
+  }
+
+  @CheckAuth(true)
   @Permission(PERMISSIONS.tariff.create_tariff)
   @Post('/add')
   async createTariff(@Body() payload: CreateTariffDto): Promise<void> {
