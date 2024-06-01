@@ -174,14 +174,15 @@ export class TariffService {
 
     if (!foundedUser) throw new NotFoundException('User not found');
 
+    const date = new Date();
+    date.setDate(date.getDate() + 7);
+
     await this.#_prisma.cottageOnTariff.create({
       data: {
         assignedBy: payload.assignedBy,
         tariffId: foundedTariff.id,
         cottageId: foundedCottage.id,
-        end_time: String(
-          new Date().setDate(new Date().getDate() + foundedTariff.days),
-        ),
+        end_time: date
       },
     });
   }
