@@ -266,7 +266,43 @@ export class CottageService {
   ): Promise<GetCottageListResponse[]> {
     const response = [];
     const data = await this.#_prisma.cottage.findMany({
-      where: { isTop: true },
+      where: { tariffs: {
+        some: {
+          tariffStatus: "success",
+          status: "active",
+          tariff: {
+            service: {
+              serviceCode: "top"
+            }
+          }
+        }
+
+      } },
+    });
+    for (const cottage of data) {
+      const data = await this.#_getCottage(cottage, languageCode);
+      response.push(data);
+    }
+    return response;
+  }
+
+  async getRecommendedCottageList(
+    languageCode: string,
+  ): Promise<GetCottageListResponse[]> {
+    const response = [];
+    const data = await this.#_prisma.cottage.findMany({
+      where: { tariffs: {
+        some: {
+          tariffStatus: "success",
+          status: "active",
+          tariff: {
+            service: {
+              serviceCode: "recommended"
+            }
+          }
+        }
+
+      } },
     });
     for (const cottage of data) {
       const data = await this.#_getCottage(cottage, languageCode);
@@ -310,8 +346,6 @@ export class CottageService {
         cottageStatus: payload.cottageStatus,
         latitude: payload.latitude,
         longitude: payload.longitude,
-        bookedTime: payload.bookedTime,
-        isTop: payload.isTop,
       },
     });
   }
@@ -452,7 +486,6 @@ export class CottageService {
       latitude: cottage.longitude,
       cottageStatus: cottage.cottageStatus,
       status: cottage.status,
-      isTop: cottage.isTop,
       tariffs: cottage.tariffs,
       user: cottage?.user,
     };

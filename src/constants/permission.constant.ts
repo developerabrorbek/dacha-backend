@@ -45,6 +45,7 @@ export const PERMISSIONS = {
     get_all_filtered_cottages: "get_all_filtered_cottages",
     get_all_suitable_cottages: "get_all_suitable_cottages",
     get_all_cottages_on_top: "get_all_cottages_on_top",
+    get_all_cottages_recommended: "get_all_cottages_recommended",
     create_cottage: "create_cottage",
     edit_cottage_image: "edit_cottage_image",
     delete_cottage_image: "delete_cottage_image",

@@ -62,6 +62,15 @@ export class CottageController {
   }
 
   @CheckAuth(false)
+  @Permission(PERMISSIONS.cottage.get_all_cottages_on_top)
+  @Get('recommended')
+  async getRecommendedCottageList(
+    @Headers('accept-language') languageCode: string,
+  ): Promise<GetCottageListResponse[]> {
+    return await this.#_service.getRecommendedCottageList(languageCode);
+  }
+
+  @CheckAuth(false)
   @Permission(PERMISSIONS.cottage.get_all_cottages_by_cottage_type)
   @Get('cottage-type/:cottageTypeId')
   async getCottageListByCottageType(
@@ -73,7 +82,7 @@ export class CottageController {
 
   @CheckAuth(false)
   @Permission(PERMISSIONS.cottage.get_all_suitable_cottages)
-  @Get('sutable/:cottageId')
+  @Get('suitable/:cottageId')
   async getSutableCottageList(
     @Headers('accept-language') languageCode: string,
     @Param('cottageId') id: string,
