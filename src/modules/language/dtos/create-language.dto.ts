@@ -1,6 +1,6 @@
-import { IsNotEmpty, IsString, MaxLength } from "class-validator";
-import { CreateLanguageRequest } from "../interfaces";
-import { ApiProperty } from "@nestjs/swagger";
+import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
+import { CreateLanguageRequest } from '../interfaces';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateLanguageDto implements CreateLanguageRequest {
   @ApiProperty({
@@ -15,10 +15,8 @@ export class CreateLanguageDto implements CreateLanguageRequest {
   @MaxLength(2)
   code: string;
 
-
-
   @ApiProperty({
-    example: 'O\'zbek tili',
+    example: "O'zbek tili",
     maxLength: 64,
     type: String,
     required: true,
@@ -27,4 +25,12 @@ export class CreateLanguageDto implements CreateLanguageRequest {
   @IsString()
   @MaxLength(64)
   title: string;
+
+  @ApiProperty({
+    required: false,
+    type: 'string',
+    format: 'binary',
+  })
+  @IsOptional()
+  image: any;
 }

@@ -19,6 +19,12 @@ enum Status {
   inactive @map("inactive")
 }
 
+enum CottageOnTariffStatus {
+  cancelled @map("cancelled")
+  progress @map("progress")
+  success @map("success")
+}
+
 enum NotificationStatus {
   new
   seen
@@ -44,6 +50,7 @@ model Language {
   id         String       @default(dbgenerated("GEN_RANDOM_UUID()")) @map("id") @db.Uuid
   code       String       @map("code") @db.VarChar(2)
   title      String       @map("title") @db.VarChar(64)
+  image      String?      @map("image") @db.VarChar()
   definition Definition[]
 
   @@id([id])
@@ -139,14 +146,11 @@ model Cottage {
   price         Float         @map("price") @db.Real
   priceWeekend  Float         @map("price_weekend") @db.Real
   status        Status        @default(active) @map("status")
-  isTop         Boolean       @default(false) @map("is_top") @db.Boolean
-  isRecommended Boolean       @default(false) @map("is_recommended") @db.Boolean
   comforts      String[]      @map("comforts") @db.Uuid
   regionId      String        @map("region_id") @db.Uuid
   placeId       String        @map("place_id") @db.Uuid
   longitude     String?       @map("longitude") @db.VarChar()
   latitude      String?       @map("lattitude") @db.VarChar()
-  bookedTime    String[]      @map("booked_time") @db.VarChar()
   createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamp()
   createdBy     String        @map("user_id") @db.Uuid
 
@@ -180,7 +184,6 @@ model User {
   image            String?      @map("image") @db.VarChar()
   email            String?      @map("email") @db.VarChar()
   balance          Float?       @map("balance") @db.DoublePrecision
-  favoriteCottages String[]     @map("favorite_cottages") @db.Uuid
   password         String?      @map("password") @db.VarChar()
   username         String?      @map("username") @db.VarChar()
   smsCode          String?      @map("sms_code") @db.VarChar()
@@ -284,7 +287,8 @@ model CottageOnTariff {
   tariff     Tariff   @relation(fields: [tariffId], references: [id])
   assignedAt DateTime @default(now()) @map("assigned_at")
   end_time   DateTime @map("end_time")
-  status     Status   @default(active) @map("status")
+  status     Status   @default(inactive) @map("status")
+  tariffStatus CottageOnTariffStatus @default(progress) @map("tariff_status")
   assignedBy String   @map("assigned_by") @db.Uuid
 
   @@id([cottageId, tariffId])

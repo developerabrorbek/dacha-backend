@@ -20,17 +20,6 @@ export class UpdateUserDto {
 
   @Transform(({ value }) => {
     if (!value) return undefined;
-    else return value
-  })
-  @ApiProperty()
-  @IsOptional()
-  @IsUUID(4, {
-    each: true,
-  })
-  favoriteCottages?: string[];
-
-  @Transform(({ value }) => {
-    if (!value) return undefined;
     else return value;
   })
   @ApiProperty()

@@ -1,8 +1,19 @@
 import { PrismaService } from '@prisma';
-import { CreateLanguageRequest, UpdateLanguageRequest } from './interfaces';
-import { ConflictException, Injectable, UnprocessableEntityException } from '@nestjs/common';
+import {
+  CreateLanguageRequest,
+  UpdateLanguageImageRequest,
+  UpdateLanguageRequest,
+} from './interfaces';
+import {
+  ConflictException,
+  Injectable,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { Language } from '@prisma/client';
 import { isUUID } from 'class-validator';
+import { join } from 'path';
+import * as fs from 'fs';
+
 
 @Injectable()
 export class LanguageService {
@@ -15,10 +26,15 @@ export class LanguageService {
   async createLanguage(payload: CreateLanguageRequest): Promise<void> {
     await this.#_checkExistingLanguage(payload.code);
 
+    const imagePath = payload?.image?.path
+      ? payload?.image?.path.replace('\\', '/')
+      : '';
+
     await this.#_prisma.language.create({
       data: {
         code: payload.code,
         title: payload.title,
+        image: imagePath.replace('\\', '/'),
       },
     });
   }
@@ -33,6 +49,30 @@ export class LanguageService {
     await this.#_prisma.language.update({
       data: { title: payload.title },
       where: { id: payload.id },
+    });
+  }
+
+  async updateLanguageImage(
+    payload: UpdateLanguageImageRequest,
+  ): Promise<void> {
+    await this.#_checkLanguage(payload.languageId);
+
+    const foundedLanguage = await this.#_prisma.language.findFirst({where: {id: payload.languageId}})
+
+    if(foundedLanguage.image){
+      fs.unlink(
+        join(process.cwd(), foundedLanguage.image),
+        (): unknown => undefined,
+      );
+    }
+
+    const imagePath = payload.image.path.replace('\\', '/');
+
+    await this.#_prisma.language.update({
+      where: { id: payload.languageId },
+      data: {
+        image: imagePath.replace('\\', '/'),
+      },
     });
   }
 
@@ -55,7 +95,7 @@ export class LanguageService {
   }
 
   async #_checkLanguage(id: string): Promise<void> {
-    await this.#_checkId(id)
+    await this.#_checkId(id);
     const language = await this.#_prisma.language.findFirst({
       where: {
         id,
@@ -67,10 +107,10 @@ export class LanguageService {
     }
   }
 
-  async #_checkId(id: string): Promise<void>{
-    const isValid = isUUID(id, 4)
-    if(!isValid){
-      throw new UnprocessableEntityException(`Invalid ${id} id`)
+  async #_checkId(id: string): Promise<void> {
+    const isValid = isUUID(id, 4);
+    if (!isValid) {
+      throw new UnprocessableEntityException(`Invalid ${id} id`);
     }
   }
 }

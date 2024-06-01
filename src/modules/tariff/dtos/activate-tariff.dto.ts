@@ -3,7 +3,9 @@ import { UseTariffRequest } from "../interfaces";
 import { IsUUID } from "class-validator";
 
 export class UseTariffDto implements UseTariffRequest {
-  @ApiProperty()
+  @ApiProperty({
+    description: "user id'ni kiriting"
+  })
   @IsUUID()
   assignedBy: string;
 

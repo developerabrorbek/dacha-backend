@@ -21,7 +21,10 @@ import {
   UpdateCottageDto,
   UpdateCottageImageDto,
 } from './dtos';
-import { GetCottageListResponse } from './interfaces';
+import {
+  GetCottageListResponse,
+  GetSuitableCottageListResponse,
+} from './interfaces';
 import { CheckAuth, Permission } from '@decorators';
 import { PERMISSIONS } from '@constants';
 import {
@@ -69,6 +72,19 @@ export class CottageController {
   }
 
   @CheckAuth(false)
+  @Permission(PERMISSIONS.cottage.get_all_suitable_cottages)
+  @Get('sutable/:cottageId')
+  async getSutableCottageList(
+    @Headers('accept-language') languageCode: string,
+    @Param('cottageId') id: string,
+  ): Promise<GetSuitableCottageListResponse[]> {
+    return await this.#_service.getSuitableCottageList({
+      cottageId: id,
+      languageCode,
+    });
+  }
+
+  @CheckAuth(false)
   @Permission(PERMISSIONS.cottage.get_all_cottages_by_place)
   @Get('place/:placeId')
   async getCottageListByPlace(
@@ -78,7 +94,7 @@ export class CottageController {
     return await this.#_service.getCottageListByPlace(languageCode, id);
   }
 
-  @ApiBearerAuth("JWT")
+  @ApiBearerAuth('JWT')
   @CheckAuth(true)
   @Permission(PERMISSIONS.cottage.get_all_cottages_by_user)
   @Get('user')
@@ -94,7 +110,7 @@ export class CottageController {
   @Get('user/:userId')
   async getCottageListByUserId(
     @Headers('accept-language') languageCode: string,
-    @Param("userId") userId: string
+    @Param('userId') userId: string,
   ): Promise<GetCottageListResponse[]> {
     return await this.#_service.getCottageListByUser(languageCode, userId);
   }
@@ -116,7 +132,7 @@ export class CottageController {
     });
   }
 
-  @ApiBearerAuth("JWT")
+  @ApiBearerAuth('JWT')
   @CheckAuth(true)
   @Permission(PERMISSIONS.cottage.create_cottage)
   @UseInterceptors(
@@ -158,7 +174,7 @@ export class CottageController {
     await this.#_service.createCottage({ ...payload, files }, req.userId);
   }
 
-  @ApiBearerAuth("JWT")
+  @ApiBearerAuth('JWT')
   @CheckAuth(true)
   @Permission(PERMISSIONS.cottage.edit_cottage)
   @Patch('/edit/:id')
@@ -169,7 +185,7 @@ export class CottageController {
     await this.#_service.updateCottage({ id: cottageId, ...payload });
   }
 
-  @ApiBearerAuth("JWT")
+  @ApiBearerAuth('JWT')
   @CheckAuth(true)
   @Permission(PERMISSIONS.cottage.delete_cottage)
   @Delete('/delete/:id')
@@ -177,7 +193,7 @@ export class CottageController {
     await this.#_service.deleteCottage(id);
   }
 
-  @ApiBearerAuth("JWT")
+  @ApiBearerAuth('JWT')
   @CheckAuth(true)
   @Permission(PERMISSIONS.cottage.create_cottage_image)
   @UseInterceptors(
@@ -202,7 +218,7 @@ export class CottageController {
     await this.#_service.addCottageImage({ ...payload, image });
   }
 
-  @ApiBearerAuth("JWT")
+  @ApiBearerAuth('JWT')
   @CheckAuth(true)
   @Permission(PERMISSIONS.cottage.edit_cottage_image)
   @UseInterceptors(
@@ -228,7 +244,7 @@ export class CottageController {
     await this.#_service.updateCottageImage({ id, ...payload, image });
   }
 
-  @ApiBearerAuth("JWT")
+  @ApiBearerAuth('JWT')
   @CheckAuth(true)
   @Permission(PERMISSIONS.cottage.delete_cottage_image)
   @Delete('/image/delete/:id')

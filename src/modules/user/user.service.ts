@@ -4,7 +4,11 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
-import { CreateUserRequest, UpdateUserRequest } from './interfaces';
+import {
+  CreateUserRequest,
+  GetUsedServiceOfUser,
+  UpdateUserRequest,
+} from './interfaces';
 import { User, UserDevice } from '@prisma/client';
 import { join } from 'path';
 import * as fs from 'fs';
@@ -136,6 +140,24 @@ export class UserService {
     };
   }
 
+  async getUsedServicesOfUser(payload: GetUsedServiceOfUser): Promise<any> {
+    const usedServices = await this.#_prisma.cottageOnTariff.findMany({
+      where: {
+        assignedBy: payload.userId,
+      },
+      include: {
+        cottage: true,
+        tariff: {
+          include: {
+            service: true,
+          }
+        },
+      },
+    });
+
+    return usedServices;
+  }
+
   async getSingleUserByUserID(id: string): Promise<User> {
     this.#_checkUUID(id);
     const user = await this.#_prisma.user.findFirst({ where: { id: id } });
@@ -147,19 +169,6 @@ export class UserService {
 
   async updateUser(payload: UpdateUserRequest, userId: string): Promise<void> {
     this.#_checkUUID(userId);
-    const favoriteCottages = [];
-
-    if (!isArray(payload.favoriteCottages) && payload.favoriteCottages) {
-      favoriteCottages.push(payload.favoriteCottages);
-    }
-
-    if (isArray(payload.favoriteCottages)) {
-      favoriteCottages.push(...payload.favoriteCottages);
-    }
-
-    if (payload?.favoriteCottages?.length) {
-      await this.#_checkCottages(favoriteCottages);
-    }
 
     if (!userId) {
       throw new ConflictException('Please provide Bearer token');
@@ -242,7 +251,6 @@ export class UserService {
       data: {
         name: payload.name,
         email: payload.email,
-        favoriteCottages: favoriteCottages || [],
         password: payload.password,
         phone: payload.phone,
         username: payload.username,
@@ -300,17 +308,6 @@ export class UserService {
       });
       if (!foundedRole) {
         throw new NotFoundException('Role ${role} not found');
-      }
-    }
-  }
-
-  async #_checkCottages(cottages: string[]): Promise<void> {
-    for (const cottage of cottages) {
-      const foundedCottage = await this.#_prisma.cottage.findFirst({
-        where: { id: cottage },
-      });
-      if (!foundedCottage) {
-        throw new NotFoundException(`Cottage ${cottage} not found`);
       }
     }
   }

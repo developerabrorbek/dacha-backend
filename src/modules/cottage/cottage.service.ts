@@ -11,6 +11,8 @@ import {
   GetCottageListResponse,
   GetCottageTypesInterfaces,
   GetFilteredCottagesRequest,
+  GetSuitableCottageListRequest,
+  GetSuitableCottageListResponse,
   UpdateCottageImageRequest,
   UpdateCottageRequest,
 } from './interfaces';
@@ -122,6 +124,45 @@ export class CottageService {
     return response;
   }
 
+  async getSuitableCottageList(
+    payload: GetSuitableCottageListRequest,
+  ): Promise<GetSuitableCottageListResponse[]> {
+    const response = [];
+    this.#_checkUUID(payload.cottageId);
+
+    const foundedCottage = await this.#_prisma.cottage.findFirst({
+      where: { id: payload.cottageId },
+    });
+
+    if (!foundedCottage) throw new NotFoundException('Cottage not found');
+
+    const data = await this.#_prisma.cottage.findMany({
+      where: {
+        OR: [
+          {
+            placeId: foundedCottage.placeId,
+          },
+          {
+            regionId: foundedCottage.regionId,
+          },
+        ],
+      },
+    });
+
+    for (const cottage of data) {
+      const data = await this.#_getCottage(cottage, payload.languageCode);
+
+      // Find who created the cottage
+      const user = await this.#_prisma.user.findFirst({
+        where: { id: cottage.createdBy },
+      });
+
+      response.push({ ...data, user });
+    }
+
+    return response;
+  }
+
   async getFilteredCottageList(
     payload: GetFilteredCottagesRequest,
   ): Promise<GetCottageListResponse[]> {
@@ -202,7 +243,7 @@ export class CottageService {
   ): Promise<GetCottageListResponse[]> {
     const response = [];
 
-    this.#_checkUUID(userId)
+    this.#_checkUUID(userId);
 
     const data = await this.#_prisma.cottage.findMany({
       where: {
@@ -413,7 +454,7 @@ export class CottageService {
       status: cottage.status,
       isTop: cottage.isTop,
       tariffs: cottage.tariffs,
-      user: cottage?.user
+      user: cottage?.user,
     };
   }
 

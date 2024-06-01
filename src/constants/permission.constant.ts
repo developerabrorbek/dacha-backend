@@ -3,6 +3,7 @@ export const PERMISSIONS = {
     get_all_language : "get_all_language",
     create_language: "create_language",
     edit_language: "edit_language",
+    edit_language_image: "edit_language_image",
     delete_language: "delete_language"
   },
   translate: {
@@ -42,6 +43,7 @@ export const PERMISSIONS = {
     get_all_cottages_by_user: "get_all_cotteges_by_user",
     get_all_cottages_by_user_id: "get_all_cotteges_by_user_id",
     get_all_filtered_cottages: "get_all_filtered_cottages",
+    get_all_suitable_cottages: "get_all_suitable_cottages",
     get_all_cottages_on_top: "get_all_cottages_on_top",
     create_cottage: "create_cottage",
     edit_cottage_image: "edit_cottage_image",
@@ -79,6 +81,7 @@ export const PERMISSIONS = {
     get_all_users: "get_all_users",
     get_single_user: "get_single_user",
     get_single_user_by_userid: "get_single_user_by_userid",
+    get_used_services_of_user: "get_used_services_of_user",
     create_users: "create_users",
     get_all_user_device: "get_all_user-device",
     edit_user: "edit_user",

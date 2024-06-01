@@ -11,7 +11,7 @@ import {
   UpdateTariffRequest,
   UseTariffRequest,
 } from './interfaces';
-import { ServiceCode, Tariff } from '@prisma/client';
+import { Tariff } from '@prisma/client';
 import { isUUID } from 'class-validator';
 
 @Injectable()
@@ -92,7 +92,7 @@ export class TariffService {
     }
 
     if (payload?.description) {
-      this.#_checkUUID(payload.description)
+      this.#_checkUUID(payload.description);
       await this.#_translate.updateTranslate({
         id: foundedTariff.description,
         status: 'inactive',
@@ -174,39 +174,16 @@ export class TariffService {
 
     if (!foundedUser) throw new NotFoundException('User not found');
 
-    // Checking user balance
-    if (foundedUser.balance < foundedTariff.price)
-      throw new ConflictException("User doesn't have enough money");
-
-    // Reduce user balance
-    await this.#_prisma.user.update({
-      where: { id: foundedUser.id },
-      data: { balance: foundedUser.balance - foundedTariff.price },
+    await this.#_prisma.cottageOnTariff.create({
+      data: {
+        assignedBy: payload.assignedBy,
+        tariffId: foundedTariff.id,
+        cottageId: foundedCottage.id,
+        end_time: String(
+          new Date().setDate(new Date().getDate() + foundedTariff.days),
+        ),
+      },
     });
-
-    switch (foundedTariff.service.serviceCode) {
-      case ServiceCode.recommended:
-        await this.#_prisma.cottage.update({
-          where: { id: foundedCottage.id },
-          data: { isRecommended: true },
-        });
-      case ServiceCode.top:
-        await this.#_prisma.cottage.update({
-          where: { id: foundedCottage.id },
-          data: { isTop: true },
-        });
-
-        await this.#_prisma.cottageOnTariff.create({
-          data: {
-            assignedBy: payload.assignedBy,
-            tariffId: foundedTariff.id,
-            cottageId: foundedCottage.id,
-            end_time: String(
-              new Date().setDate(new Date().getDate() + foundedTariff.days),
-            ),
-          },
-        });
-    }
   }
 
   async disableTariff(payload: DisableTariffRequest): Promise<void> {
@@ -229,6 +206,14 @@ export class TariffService {
 
     if (!foundedCottage) throw new NotFoundException('Cottage not found');
 
+    const foundedCottageOnTariff =
+      await this.#_prisma.cottageOnTariff.findFirst({
+        where: {
+          cottageId: payload.cottageId,
+          tariffId: payload.tariffId,
+        },
+      });
+
     await this.#_prisma.cottageOnTariff.update({
       where: {
         cottageId_tariffId: {
@@ -236,21 +221,15 @@ export class TariffService {
           tariffId: payload.tariffId,
         },
       },
-      data: { status: 'inactive' },
+      data: {
+        status: payload?.status
+          ? payload.status
+          : foundedCottageOnTariff.status,
+        tariffStatus: payload?.tariffStatus
+          ? payload.tariffStatus
+          : foundedCottageOnTariff.tariffStatus,
+      },
     });
-
-    switch (foundedTariff.service.serviceCode) {
-      case ServiceCode.recommended:
-        await this.#_prisma.cottage.update({
-          where: { id: foundedCottage.id },
-          data: { isRecommended: false },
-        });
-      case ServiceCode.top:
-        await this.#_prisma.cottage.update({
-          where: { id: foundedCottage.id },
-          data: { isTop: false },
-        });
-    }
   }
 
   #_checkUUID(id: string): void {
