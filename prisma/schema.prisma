@@ -21,8 +21,8 @@ enum Status {
 
 enum CottageOnTariffStatus {
   cancelled @map("cancelled")
-  progress @map("progress")
-  success @map("success")
+  progress  @map("progress")
+  success   @map("success")
 }
 
 enum NotificationStatus {
@@ -178,18 +178,18 @@ model Notification {
 }
 
 model User {
-  id               String       @default(dbgenerated("GEN_RANDOM_UUID()")) @map("id") @db.Uuid
-  name             String?      @map("name") @db.VarChar()
-  phone            String       @map("phone") @db.VarChar()
-  image            String?      @map("image") @db.VarChar()
-  email            String?      @map("email") @db.VarChar()
-  balance          Float?       @map("balance") @db.DoublePrecision
-  password         String?      @map("password") @db.VarChar()
-  username         String?      @map("username") @db.VarChar()
-  smsCode          String?      @map("sms_code") @db.VarChar()
-  smsExpireTime    String?      @map("sms_time") @db.VarChar()
-  userDevices      UserDevice[]
-  roles            UserOnRole[]
+  id            String       @default(dbgenerated("GEN_RANDOM_UUID()")) @map("id") @db.Uuid
+  name          String?      @map("name") @db.VarChar()
+  phone         String       @map("phone") @db.VarChar()
+  image         String?      @map("image") @db.VarChar()
+  email         String?      @map("email") @db.VarChar()
+  balance       Float?       @map("balance") @db.DoublePrecision
+  password      String?      @map("password") @db.VarChar()
+  username      String?      @map("username") @db.VarChar()
+  smsCode       String?      @map("sms_code") @db.VarChar()
+  smsExpireTime String?      @map("sms_time") @db.VarChar()
+  userDevices   UserDevice[]
+  roles         UserOnRole[]
 
   @@id([id])
   @@unique([phone])
@@ -281,15 +281,16 @@ model Tariff {
 }
 
 model CottageOnTariff {
-  cottageId  String   @map("cottage_id") @db.Uuid
-  cottage    Cottage  @relation(fields: [cottageId], references: [id])
-  tariffId   String   @map("tariff_id") @db.Uuid
-  tariff     Tariff   @relation(fields: [tariffId], references: [id])
-  assignedAt DateTime @default(now()) @map("assigned_at")
-  end_time   DateTime @map("end_time")
-  status     Status   @default(inactive) @map("status")
+  id           String                @default(dbgenerated("GEN_RANDOM_UUID()")) @map("id") @db.Uuid
+  cottageId    String                @map("cottage_id") @db.Uuid
+  cottage      Cottage               @relation(fields: [cottageId], references: [id])
+  tariffId     String                @map("tariff_id") @db.Uuid
+  tariff       Tariff                @relation(fields: [tariffId], references: [id])
+  assignedAt   DateTime              @default(now()) @map("assigned_at")
+  end_time     DateTime              @map("end_time")
+  status       Status                @default(inactive) @map("status")
   tariffStatus CottageOnTariffStatus @default(progress) @map("tariff_status")
-  assignedBy String   @map("assigned_by") @db.Uuid
+  assignedBy   String                @map("assigned_by") @db.Uuid
 
-  @@id([cottageId, tariffId])
+  @@id([id])
 }
