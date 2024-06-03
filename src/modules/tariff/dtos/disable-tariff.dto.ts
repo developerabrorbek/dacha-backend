@@ -6,11 +6,7 @@ import { $Enums } from '@prisma/client';
 export class DisableTariffDto implements DisableTariffRequest {
   @ApiProperty()
   @IsUUID()
-  cottageId: string;
-
-  @ApiProperty()
-  @IsUUID()
-  tariffId: string;
+  id: string
 
   @ApiProperty({
     required: false,

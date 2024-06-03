@@ -79,7 +79,7 @@ export class TariffService {
     return data;
   }
 
-  async getAllUsedTariffs(): Promise<any>{
+  async getAllUsedTariffs(): Promise<any> {
     const data = await this.#_prisma.cottageOnTariff.findMany({
       select: {
         assignedAt: true,
@@ -89,10 +89,11 @@ export class TariffService {
         status: true,
         tariffId: true,
         tariffStatus: true,
-      }
-    })
+        id: true,
+      },
+    });
 
-    return data
+    return data;
   }
 
   async updateTariff(payload: UpdateTariffRequest): Promise<void> {
@@ -198,45 +199,22 @@ export class TariffService {
         assignedBy: payload.assignedBy,
         tariffId: foundedTariff.id,
         cottageId: foundedCottage.id,
-        end_time: date
+        end_time: date,
       },
     });
   }
 
   async disableTariff(payload: DisableTariffRequest): Promise<void> {
-    // Checking Cottage UUID
-    this.#_checkUUID(payload.cottageId);
-
-    // Checking Tariff UUID
-    this.#_checkUUID(payload.tariffId);
-
-    const foundedTariff = await this.#_prisma.tariff.findFirst({
-      where: { id: payload.tariffId },
-      include: { service: true },
-    });
-
-    if (!foundedTariff) throw new NotFoundException('Tariff not found');
-
-    const foundedCottage = await this.#_prisma.cottage.findFirst({
-      where: { id: payload.cottageId },
-    });
-
-    if (!foundedCottage) throw new NotFoundException('Cottage not found');
-
     const foundedCottageOnTariff =
       await this.#_prisma.cottageOnTariff.findFirst({
         where: {
-          cottageId: payload.cottageId,
-          tariffId: payload.tariffId,
+          id: payload.id,
         },
       });
 
     await this.#_prisma.cottageOnTariff.update({
       where: {
-        cottageId_tariffId: {
-          cottageId: payload.cottageId,
-          tariffId: payload.tariffId,
-        },
+        id: payload.id,
       },
       data: {
         status: payload?.status
