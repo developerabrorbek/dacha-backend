@@ -68,7 +68,7 @@ export class TariffController {
 
   @CheckAuth(true)
   @Permission(PERMISSIONS.tariff.delete_tariff)
-  @Delete('/disable')
+  @Patch('/disable')
   async disableTariff(@Body() payload: DisableTariffDto): Promise<void> {
     await this.#_service.disableTariff(payload);
   }
