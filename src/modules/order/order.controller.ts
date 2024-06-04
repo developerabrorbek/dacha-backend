@@ -14,8 +14,9 @@ import { Orders } from '@prisma/client';
 import { CreateOrderDto, UpdateOrderDto } from './dtos';
 import { CheckAuth, Permission } from '@decorators';
 import { PERMISSIONS } from '@constants';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiBearerAuth("JWT")
 @ApiTags("Orders")
 @Controller('order')
 export class OrderController {
