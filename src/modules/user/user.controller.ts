@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  Headers,
   Param,
   Patch,
   Post,
@@ -51,13 +50,6 @@ export class UserController {
   @Get('/single/user/by/:userId')
   async getSingleUserByUserID(@Param("userId") userId: string): Promise<User> {
     return await this.#_service.getSingleUser(userId);
-  }
-
-  @CheckAuth(true)
-  @Permission(PERMISSIONS.user.get_used_services_of_user)
-  @Get('/used/services')
-  async getUsedServicesOfUser(@Req() req: any, @Headers('accept-language') languageCode: string,): Promise<User> {
-    return await this.#_service.getUsedServicesOfUser({languageCode, userId: req?.userId});
   }
 
   @CheckAuth(true)

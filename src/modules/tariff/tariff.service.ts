@@ -7,9 +7,7 @@ import { TranslateService } from '@modules';
 import { PrismaService } from 'prisma/prisma.service';
 import {
   CreateTariffRequest,
-  DisableTariffRequest,
   UpdateTariffRequest,
-  UseTariffRequest,
 } from './interfaces';
 import { Tariff } from '@prisma/client';
 import { isUUID } from 'class-validator';
@@ -51,9 +49,8 @@ export class TariffService {
   async getAllTariffs(languageCode: string): Promise<Tariff[]> {
     const data = await this.#_prisma.tariff.findMany({
       include: {
-        service: { select: { name: true, id: true, serviceCode: true } },
-        cottages: { select: { cottage: true } },
-      },
+        service: true
+      }
     });
 
     for (const el of data) {
@@ -75,23 +72,6 @@ export class TariffService {
       });
       el.service.name = service.value;
     }
-
-    return data;
-  }
-
-  async getAllUsedTariffs(): Promise<any> {
-    const data = await this.#_prisma.cottageOnTariff.findMany({
-      select: {
-        assignedAt: true,
-        assignedBy: true,
-        cottage: true,
-        end_time: true,
-        status: true,
-        tariffId: true,
-        tariffStatus: true,
-        id: true,
-      },
-    });
 
     return data;
   }
@@ -160,71 +140,6 @@ export class TariffService {
     });
 
     await this.#_prisma.tariff.delete({ where: { id } });
-  }
-
-  async activateTariff(payload: UseTariffRequest): Promise<void> {
-    // Checking User UUID
-    this.#_checkUUID(payload.assignedBy);
-
-    // Checking Cottage UUID
-    this.#_checkUUID(payload.cottageId);
-
-    // Checking Tariff UUID
-    this.#_checkUUID(payload.tariffId);
-
-    const foundedTariff = await this.#_prisma.tariff.findFirst({
-      where: { id: payload.tariffId },
-      include: { service: true },
-    });
-
-    if (!foundedTariff) throw new NotFoundException('Tariff not found');
-
-    const foundedCottage = await this.#_prisma.cottage.findFirst({
-      where: { id: payload.cottageId },
-    });
-
-    if (!foundedCottage) throw new NotFoundException('Cottage not found');
-
-    const foundedUser = await this.#_prisma.user.findFirst({
-      where: { id: payload.assignedBy },
-    });
-
-    if (!foundedUser) throw new NotFoundException('User not found');
-
-    const date = new Date();
-    date.setDate(date.getDate() + 7);
-
-    await this.#_prisma.cottageOnTariff.create({
-      data: {
-        assignedBy: payload.assignedBy,
-        tariffId: foundedTariff.id,
-        cottageId: foundedCottage.id,
-        end_time: date,
-      },
-    });
-  }
-
-  async disableTariff(payload: DisableTariffRequest): Promise<void> {
-    const foundedCottageOnTariff =
-      await this.#_prisma.cottageOnTariff.findFirst({
-        where: {
-          id: payload.id,
-        },
-      });
-
-    await this.#_prisma.cottageOnTariff.update({
-      where: {
-        id: payload.id,
-      },
-      data: {
-        status: payload?.status
-          ? payload.status
-          : foundedCottageOnTariff.status,
-        tariffStatus: payload?.tariffStatus
-          ? payload.tariffStatus
-          : foundedCottageOnTariff.tariffStatus,
-      },
-    });
   }
 
   #_checkUUID(id: string): void {

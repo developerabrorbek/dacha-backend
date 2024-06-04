@@ -109,5 +109,12 @@ export const PERMISSIONS = {
     edit_tariff: "edit_tariff",
     disable_tariff: "disable_tariff",
     delete_tariff: "delete_tariff",
+  },
+  order: {
+    get_all_users_orders_for_admin: "get_all_users_orders_for_admin",
+    get_all_user_orders: "get_all_user_orders",
+    create_order: "create_order",
+    update_order: "update_order",
+    delete_order: "delete_order",
   }
 }

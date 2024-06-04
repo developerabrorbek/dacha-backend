@@ -9,6 +9,7 @@ import {
   LanguageModule,
   ModelsModule,
   NotificationModule,
+  OrderModule,
   PermissionModule,
   PlaceModule,
   RegionModule,
@@ -53,6 +54,7 @@ import { join } from 'path';
     UserModule,
     ServicesModule,
     TariffModule,
+    OrderModule,
   ],
   providers: [
     {

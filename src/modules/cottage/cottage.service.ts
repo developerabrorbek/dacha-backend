@@ -107,7 +107,7 @@ export class CottageService {
     const response = [];
 
     const data = await this.#_prisma.cottage.findMany({
-      include: { tariffs: true },
+      include: { Orders: true },
     });
 
     for (const cottage of data) {
@@ -250,7 +250,7 @@ export class CottageService {
         createdBy: userId,
       },
       include: {
-        tariffs: true,
+        Orders: true,
       },
     });
 
@@ -266,9 +266,9 @@ export class CottageService {
   ): Promise<GetCottageListResponse[]> {
     const response = [];
     const data = await this.#_prisma.cottage.findMany({
-      where: { tariffs: {
+      where: { Orders: {
         some: {
-          tariffStatus: "success",
+          orderStatus: "success",
           status: "active",
           tariff: {
             service: {
@@ -291,9 +291,9 @@ export class CottageService {
   ): Promise<GetCottageListResponse[]> {
     const response = [];
     const data = await this.#_prisma.cottage.findMany({
-      where: { tariffs: {
+      where: { Orders: {
         some: {
-          tariffStatus: "success",
+          orderStatus: "success",
           status: "active",
           tariff: {
             service: {

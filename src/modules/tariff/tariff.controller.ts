@@ -12,7 +12,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { TariffService } from './tariff.service';
 import { Tariff } from '@prisma/client';
 import { CreateTariffDto } from './dtos/create-tariff.dto';
-import { DisableTariffDto, UpdateTariffDto, UseTariffDto } from './dtos';
+import { UpdateTariffDto } from './dtos';
 import { CheckAuth, Permission } from '@decorators';
 import { PERMISSIONS } from '@constants';
 
@@ -36,24 +36,10 @@ export class TariffController {
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.tariff.get_all_used_tariffs)
-  @Get("/used/for/admin")
-  async getAllUsedTariff(): Promise<any> {
-    return await this.#_service.getAllUsedTariffs();
-  }
-
-  @CheckAuth(true)
   @Permission(PERMISSIONS.tariff.create_tariff)
   @Post('/add')
   async createTariff(@Body() payload: CreateTariffDto): Promise<void> {
     await this.#_service.createTariff(payload);
-  }
-
-  @CheckAuth(true)
-  @Permission(PERMISSIONS.tariff.activate_tariff)
-  @Post('/activate')
-  async activateTariff(@Body() payload: UseTariffDto): Promise<void> {
-    await this.#_service.activateTariff(payload);
   }
 
   @CheckAuth(true)
@@ -64,13 +50,6 @@ export class TariffController {
     @Body() payload: UpdateTariffDto,
   ): Promise<void> {
     await this.#_service.updateTariff({ ...payload, id });
-  }
-
-  @CheckAuth(true)
-  @Permission(PERMISSIONS.tariff.delete_tariff)
-  @Patch('/disable')
-  async disableTariff(@Body() payload: DisableTariffDto): Promise<void> {
-    await this.#_service.disableTariff(payload);
   }
 
   @CheckAuth(true)

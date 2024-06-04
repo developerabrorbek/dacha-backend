@@ -4,11 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
-import {
-  CreateUserRequest,
-  GetUsedServiceOfUser,
-  UpdateUserRequest,
-} from './interfaces';
+import { CreateUserRequest, UpdateUserRequest } from './interfaces';
 import { User, UserDevice } from '@prisma/client';
 import { join } from 'path';
 import * as fs from 'fs';
@@ -138,24 +134,6 @@ export class UserService {
       roles,
       devices,
     };
-  }
-
-  async getUsedServicesOfUser(payload: GetUsedServiceOfUser): Promise<any> {
-    const usedServices = await this.#_prisma.cottageOnTariff.findMany({
-      where: {
-        assignedBy: payload.userId,
-      },
-      select: {
-        end_time: true,
-        assignedAt: true,
-        status: true,
-        tariffStatus: true,
-        cottage: true,
-        tariff: true,
-      },
-    });
-
-    return usedServices;
   }
 
   async getSingleUserByUserID(id: string): Promise<User> {
