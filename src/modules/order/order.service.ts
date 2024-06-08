@@ -22,7 +22,13 @@ export class OrderService {
 
   async createOrder(payload: CreateOrderRequest): Promise<void> {
     const date = new Date();
-    date.setDate(date.getDate() + 7);
+    const foundedTariff = await this.#_prisma.tariff.findFirst({
+      where: { id: payload.tariffId },
+    });
+
+    if (!foundedTariff) throw new NotFoundException('Tariff not found');
+
+    date.setDate(date.getDate() + foundedTariff.days);
 
     await this.#_prisma.orders.create({
       data: {
