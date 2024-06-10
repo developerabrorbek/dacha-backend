@@ -300,6 +300,7 @@ export class CottageService {
       where: {
         OR: [
           {
+            status: "active",
             Orders: {
               some: {
                 orderStatus: 'success',
@@ -312,6 +313,9 @@ export class CottageService {
               },
             },
           },
+          {
+            status: "active"
+          }
         ],
       },
       orderBy: {
