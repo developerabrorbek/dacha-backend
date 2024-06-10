@@ -145,6 +145,11 @@ export class CottageService {
           {
             regionId: foundedCottage.regionId,
           },
+          {
+            price: {
+              lte: foundedCottage.price + 100,
+            },
+          },
         ],
       },
     });
@@ -266,18 +271,19 @@ export class CottageService {
   ): Promise<GetCottageListResponse[]> {
     const response = [];
     const data = await this.#_prisma.cottage.findMany({
-      where: { Orders: {
-        some: {
-          orderStatus: "success",
-          status: "active",
-          tariff: {
-            service: {
-              serviceCode: "top"
-            }
-          }
-        }
-
-      } },
+      where: {
+        Orders: {
+          some: {
+            orderStatus: 'success',
+            status: 'active',
+            tariff: {
+              service: {
+                serviceCode: 'top',
+              },
+            },
+          },
+        },
+      },
     });
     for (const cottage of data) {
       const data = await this.#_getCottage(cottage, languageCode);
@@ -291,18 +297,28 @@ export class CottageService {
   ): Promise<GetCottageListResponse[]> {
     const response = [];
     const data = await this.#_prisma.cottage.findMany({
-      where: { Orders: {
-        some: {
-          orderStatus: "success",
-          status: "active",
-          tariff: {
-            service: {
-              serviceCode: "recommended"
-            }
-          }
-        }
-
-      } },
+      where: {
+        OR: [
+          {
+            Orders: {
+              some: {
+                orderStatus: 'success',
+                status: 'active',
+                tariff: {
+                  service: {
+                    serviceCode: 'recommended',
+                  },
+                },
+              },
+            },
+          },
+        ],
+      },
+      orderBy: {
+        Orders: {
+          _count: 'desc',
+        },
+      },
     });
     for (const cottage of data) {
       const data = await this.#_getCottage(cottage, languageCode);
