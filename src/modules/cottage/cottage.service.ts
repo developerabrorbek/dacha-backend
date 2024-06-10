@@ -296,35 +296,57 @@ export class CottageService {
     languageCode: string,
   ): Promise<GetCottageListResponse[]> {
     const response = [];
+    const allCottages = [];
+
     const data = await this.#_prisma.cottage.findMany({
       where: {
-        OR: [
-          {
-            status: "active",
-            Orders: {
-              some: {
-                orderStatus: 'success',
-                status: 'active',
-                tariff: {
-                  service: {
-                    serviceCode: 'recommended',
-                  },
-                },
+        status: 'active',
+        Orders: {
+          some: {
+            orderStatus: 'success',
+            status: 'active',
+            tariff: {
+              service: {
+                serviceCode: 'recommended',
               },
             },
           },
-          {
-            status: "active"
-          }
-        ],
-      },
-      orderBy: {
-        Orders: {
-          _count: 'desc',
         },
       },
     });
-    for (const cottage of data) {
+
+    const cottages = await this.#_prisma.cottage.findMany({
+      where: {
+        status: 'active',
+        Orders: {
+          some: {
+            OR: [
+              {
+                orderStatus: {
+                  not: 'success',
+                },
+              },
+              {
+                status: {
+                  not: 'active',
+                },
+              },
+            ],
+            tariff: {
+              service: {
+                serviceCode: 'recommended',
+              },
+            },
+          },
+        },
+      },
+    });
+
+    allCottages.push(...data);
+
+    allCottages.push(...cottages);
+
+    for (const cottage of allCottages) {
       const data = await this.#_getCottage(cottage, languageCode);
       response.push(data);
     }
