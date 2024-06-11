@@ -317,28 +317,18 @@ export class CottageService {
 
     const cottages = await this.#_prisma.cottage.findMany({
       where: {
-        status: 'active',
-        Orders: {
-          some: {
-            OR: [
-              {
-                orderStatus: {
-                  not: 'success',
-                },
-              },
-              {
-                status: {
-                  not: 'active',
-                },
-              },
-            ],
-            tariff: {
-              service: {
-                serviceCode: 'recommended',
+        AND: [
+          {
+            status: 'active',
+          },
+          {
+            Orders: {
+              none: {
+                orderStatus: 'success',
               },
             },
           },
-        },
+        ],
       },
     });
 
