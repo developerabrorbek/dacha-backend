@@ -4,6 +4,9 @@
 #ignores
 /uploads/images/**
 
+# .env files
+.env
+
 # Logs
 logs
 *.log
