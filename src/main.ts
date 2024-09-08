@@ -11,6 +11,7 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bodyParser: true,
     rawBody: true,
+    logger: false,
   });
 
   // SET VERSION PREFIX FOR SERVER
