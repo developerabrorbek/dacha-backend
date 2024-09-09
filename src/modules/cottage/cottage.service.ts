@@ -43,6 +43,27 @@ export class CottageService {
       throw new ConflictException('Please provide Bearer token');
     }
 
+    // Set test cottages by admins
+    let isTest = false;
+    const foundedUser = await this.#_prisma.user.findFirst({
+      where: { id: userId },
+      include: {
+        roles: {
+          include: {
+            role: true,
+          },
+        },
+      },
+    });
+
+    if (
+      foundedUser.roles.some(
+        (role) => role.role.name == 'ADMIN' || role.role.name == 'SUPER_ADMIN',
+      )
+    ) {
+      isTest = true;
+    }
+
     const comforts = [];
     if (isArray(payload.comforts)) {
       await this.#_checkComforts(payload.comforts);
@@ -97,6 +118,7 @@ export class CottageService {
           },
         },
         cottageStatus: payload.cottageStatus,
+        isTest,
       },
     });
   }

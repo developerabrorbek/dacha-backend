@@ -31,8 +31,6 @@ export class PermissionGuard implements CanActivate {
       return true;
     }
 
-    return true;
-
     const userRole = await this.prisma.role.findFirst({
       where: { name: 'USER' },
     });
