@@ -190,13 +190,13 @@ export class UserService {
 
     if (userRoles.length) {
       await this.#_checkRoles(userRoles);
-      await this.#_prisma.userOnRole.deleteMany({
+      await this.#_prisma.user_Role.deleteMany({
         where: { userId: foundedUser.id },
       });
       for (const role of userRoles) {
-        await this.#_prisma.userOnRole.create({
+        await this.#_prisma.user_Role.create({
           data: {
-            assignedBy: userId,
+            // : userId,
             roleId: role,
             userId: foundedUser.id,
           },
@@ -252,7 +252,7 @@ export class UserService {
       );
     }
 
-    await this.#_prisma.userOnRole.deleteMany({
+    await this.#_prisma.user_Role.deleteMany({
       where: { userId: foundedUser.id },
     });
     await this.#_prisma.userDevice.deleteMany({

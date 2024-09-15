@@ -12,7 +12,7 @@ export declare interface LoginGetSMSCodeResponse {
 
 export declare interface LoginRequest {
   smsCode: string;
-  userAgent?: string;
+  userAgent: string;
   ip?: string;
   userId: string;
 }
@@ -26,7 +26,7 @@ export declare interface LoginResponse {
 export declare interface LoginForAdminRequest {
   username: string;
   password: string;
-  userAgent?: string;
+  userAgent: string;
   ip?: string;
 }
 
