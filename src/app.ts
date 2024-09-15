@@ -23,15 +23,15 @@ import { PrismaModule } from '@prisma';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { AuthGuard, PermissionGuard } from '@guard';
 import { JwtModule } from '@nestjs/jwt';
-import { HttpExceptionFilter } from '@filters';
-import {ServeStaticModule } from "@nestjs/serve-static"
+import { HttpExceptionFilter, PrismaClientExceptionFilter } from '@filters';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 
 @Module({
   imports: [
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, "..", "uploads"),
-      serveRoot: "/uploads/",
+      rootPath: join(__dirname, '..', 'uploads'),
+      serveRoot: '/uploads/',
     }),
     ConfigModule.forRoot({
       isGlobal: true,
@@ -64,6 +64,10 @@ import { join } from 'path';
     {
       provide: APP_GUARD,
       useClass: PermissionGuard,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: PrismaClientExceptionFilter,
     },
     {
       provide: APP_FILTER,
