@@ -1,18 +1,15 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { $Enums } from "@prisma/client";
-import { IsEnum, IsOptional, IsString } from "class-validator";
+import { ApiProperty } from '@nestjs/swagger';
+import { UpdateNotificationRequest } from '../interfaces';
+import { IsBoolean, IsUUID } from 'class-validator';
 
-export class UpdateNotificationDto {
+export class UpdateNotificationDto
+  implements Omit<UpdateNotificationRequest, 'notificationId'>
+{
   @ApiProperty()
-  @IsString()
-  @IsOptional()
-  watchedUserId?: string;
+  @IsBoolean()
+  isRead: boolean;
 
-  @ApiProperty({
-    enum: $Enums.NotificationStatus,
-    nullable: true,
-  })
-  @IsEnum($Enums.NotificationStatus)
-  @IsOptional()
-  status?: $Enums.NotificationStatus;
+  @ApiProperty()
+  @IsUUID(4)
+  userId: string;
 }

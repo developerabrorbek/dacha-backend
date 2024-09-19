@@ -57,6 +57,7 @@ export const PERMISSIONS = {
     get_all_notification: "get_all_notification",
     get_user_notification: "get_user_notification",
     create_notification: "create_notification",
+    create_notification_for_all: "create_notification_for_all",
     edit_notification: "edit_notification",
     delete_notification: "delete_notification",
   },

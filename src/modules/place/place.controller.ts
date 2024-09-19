@@ -17,8 +17,7 @@ import { CreatePlaceDto, UpdatePlaceDto, UpdatePlaceImageDto } from './dtos';
 import { CheckAuth, Permission } from '@decorators';
 import { PERMISSIONS } from '@constants';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { MulterConfig } from '@config';
 
 @ApiTags('Place')
 @Controller('place')
@@ -49,22 +48,12 @@ export class PlaceController {
   }
 
   @ApiBearerAuth('JWT')
+  @ApiConsumes("multipart/form-data")
   @CheckAuth(true)
   @Permission(PERMISSIONS.place.create_place)
   @Post('/add')
   @UseInterceptors(
-    FileInterceptor('image', {
-      storage: diskStorage({
-        destination: './uploads/images',
-        filename: (req, file, cb) => {
-          const randomName = Array(32)
-            .fill(null)
-            .map(() => Math.round(Math.random() * 16).toString(16))
-            .join('');
-          cb(null, `${randomName}${extname(file.originalname)}`);
-        },
-      }),
-    }),
+    FileInterceptor('image', MulterConfig()),
   )
   async createPlace(
     @Body() payload: CreatePlaceDto,
@@ -93,18 +82,7 @@ export class PlaceController {
   @Permission(PERMISSIONS.place.edit_place_image)
   @Patch('/edit/image/:placeId')
   @UseInterceptors(
-    FileInterceptor('image', {
-      storage: diskStorage({
-        destination: './uploads/images',
-        filename: (req, file, cb) => {
-          const randomName = Array(32)
-            .fill(null)
-            .map(() => Math.round(Math.random() * 16).toString(16))
-            .join('');
-          cb(null, `${randomName}${extname(file.originalname)}`);
-        },
-      }),
-    }),
+    FileInterceptor('image', MulterConfig()),
   )
   async updatePlaceImage(
     @Param('placeId') placeId: string,

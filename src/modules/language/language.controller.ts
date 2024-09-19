@@ -20,8 +20,7 @@ import {
 import { CheckAuth, Permission } from '@decorators';
 import { PERMISSIONS } from '@constants';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { MulterConfig } from '@config';
 
 @ApiTags('Language')
 @Controller({
@@ -42,25 +41,12 @@ export class LanguageController {
     return await this.#_service.getLanguageList();
   }
 
-  @ApiConsumes("multipart/form-data")
+  @ApiConsumes('multipart/form-data')
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
   @Permission(PERMISSIONS.language.create_language)
+  @UseInterceptors(FileInterceptor('image', MulterConfig()))
   @Post()
-  @UseInterceptors(
-    FileInterceptor('image', {
-      storage: diskStorage({
-        destination: './uploads/images',
-        filename: (req, file, cb) => {
-          const randomName = Array(32)
-            .fill(null)
-            .map(() => Math.round(Math.random() * 16).toString(16))
-            .join('');
-          cb(null, `${randomName}${extname(file.originalname)}`);
-        },
-      }),
-    }),
-  )
   async createLanguage(
     @Body() payload: CreateLanguageDto,
     @UploadedFile() image: Express.Multer.File,
@@ -79,25 +65,12 @@ export class LanguageController {
     await this.#_service.updateLanguage({ id, ...payload });
   }
 
-  @ApiConsumes("multipart/form-data")
+  @ApiConsumes('multipart/form-data')
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
   @Permission(PERMISSIONS.language.edit_language_image)
   @Patch('/update/image/:languageId')
-  @UseInterceptors(
-    FileInterceptor('image', {
-      storage: diskStorage({
-        destination: './uploads/images',
-        filename: (req, file, cb) => {
-          const randomName = Array(32)
-            .fill(null)
-            .map(() => Math.round(Math.random() * 16).toString(16))
-            .join('');
-          cb(null, `${randomName}${extname(file.originalname)}`);
-        },
-      }),
-    }),
-  )
+  @UseInterceptors(FileInterceptor('image', MulterConfig()))
   async updateLanguageImage(
     @Body() payload: UpdateLanguageImageDto,
     @Param('languageId') languageId: string,

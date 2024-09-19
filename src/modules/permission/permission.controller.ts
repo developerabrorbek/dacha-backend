@@ -7,12 +7,12 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { Permissionservice } from './permission.service';
-import * as types from '@prisma/client';
-import { CreatePermissionDto, UpdatePermissionDto } from './dtos';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import * as types from '@prisma/client';
 import { CheckAuth, Permission } from '@decorators';
 import { PERMISSIONS } from '@constants';
+import { Permissionservice } from './permission.service';
+import { CreatePermissionDto, UpdatePermissionDto } from './dtos';
 
 @ApiBearerAuth("JWT")
 @ApiTags('Permission')

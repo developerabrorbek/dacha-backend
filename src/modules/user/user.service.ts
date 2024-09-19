@@ -18,8 +18,7 @@ export class UserService {
     this.#_prisma = prisma;
   }
 
-  async createUser(payload: CreateUserRequest, userId: string): Promise<void> {
-    this.#_checkUUID(userId);
+  async createUser(payload: CreateUserRequest): Promise<void> {
     await this.#_checkExistingUser(payload.phone);
     await this.#_checkRoles(payload.roles);
 
@@ -56,9 +55,8 @@ export class UserService {
     });
 
     for (const role of payload.roles) {
-      await this.#_prisma.userOnRole.create({
+      await this.#_prisma.user_Role.create({
         data: {
-          assignedBy: userId,
           roleId: role,
           userId: newUser.id,
         },
@@ -70,7 +68,7 @@ export class UserService {
     const response = [];
     const data = await this.#_prisma.user.findMany();
     for (const user of data) {
-      const roles = await this.#_prisma.userOnRole.findMany({
+      const roles = await this.#_prisma.user_Role.findMany({
         where: {
           userId: user.id,
         },
@@ -89,8 +87,11 @@ export class UserService {
         },
         select: {
           id: true,
-          ip: true,
-          userAgent: true,
+          deviceId: true,
+          deviceName: true,
+          deviceType: true,
+          platform: true,
+          isActive: true,
         },
       });
 
@@ -105,40 +106,57 @@ export class UserService {
 
   async getSingleUser(id: string): Promise<any> {
     this.#_checkUUID(id);
-    const user = await this.#_prisma.user.findFirst({ where: { id: id } });
+    const user = await this.#_prisma.user.findFirst({
+      where: { id: id },
+      include: {
+        cottages: true,
+        notifications: true,
+        orders: true,
+        roles: true,
+        userDevices: true,
+      },
+    });
 
     if (!user) throw new NotFoundException('User not found');
 
-    const roles = await this.#_prisma.userOnRole.findMany({
-      where: {
-        userId: user.id,
-      },
-      select: {
-        role: true,
-      },
-    });
+    // const roles = await this.#_prisma.user_Role.findMany({
+    //   where: {
+    //     userId: user.id,
+    //   },
+    //   select: {
+    //     role: true,
+    //   },
+    // });
 
-    const devices = await this.#_prisma.userDevice.findMany({
-      where: {
-        userId: user.id,
-      },
-      select: {
-        id: true,
-        ip: true,
-        userAgent: true,
-      },
-    });
+    // const devices = await this.#_prisma.userDevice.findMany({
+    //   where: {
+    //     userId: user.id,
+    //   },
+    //   select: {
+    //     id: true,
+    //     deviceId: true,
+    //     deviceName: true,
+    //     deviceType: true,
+    //     platform: true,
+    //     isActive: true,
+    //   },
+    // });
 
-    return {
-      ...user,
-      roles,
-      devices,
-    };
+    return user;
   }
 
   async getSingleUserByUserID(id: string): Promise<User> {
     this.#_checkUUID(id);
-    const user = await this.#_prisma.user.findFirst({ where: { id: id } });
+    const user = await this.#_prisma.user.findFirst({
+      where: { id: id },
+      include: {
+        userDevices: true,
+        notifications: true,
+        cottages: true,
+        orders: true,
+        roles: true,
+      },
+    });
 
     if (!user) throw new NotFoundException('User not found');
 
@@ -196,7 +214,6 @@ export class UserService {
       for (const role of userRoles) {
         await this.#_prisma.user_Role.create({
           data: {
-            // : userId,
             roleId: role,
             userId: foundedUser.id,
           },
@@ -252,12 +269,6 @@ export class UserService {
       );
     }
 
-    await this.#_prisma.user_Role.deleteMany({
-      where: { userId: foundedUser.id },
-    });
-    await this.#_prisma.userDevice.deleteMany({
-      where: { userId: foundedUser.id },
-    });
     await this.#_prisma.user.delete({ where: { id: userId } });
   }
 
@@ -285,7 +296,7 @@ export class UserService {
         where: { id: role },
       });
       if (!foundedRole) {
-        throw new NotFoundException('Role ${role} not found');
+        throw new NotFoundException(`Role ${role} not found`);
       }
     }
   }

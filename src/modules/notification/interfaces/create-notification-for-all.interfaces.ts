@@ -1,7 +1,6 @@
 import { NotificationType } from '@prisma/client';
 
-export declare interface CreateNotificationRequest {
+export declare interface CreateNotificationForAllRequest {
   message: string;
   type?: NotificationType;
-  userId: string;
 }

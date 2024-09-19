@@ -1,9 +1,11 @@
 import { $Enums } from '@prisma/client';
-import { CreateNotificationRequest } from '../interfaces';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsString, IsUUID } from 'class-validator';
+import { IsEnum, IsString } from 'class-validator';
+import { CreateNotificationForAllRequest } from '../interfaces';
 
-export class CreateNotificationDto implements CreateNotificationRequest {
+export class CreateNotificationForAllDto
+  implements CreateNotificationForAllRequest
+{
   @ApiProperty({
     required: true,
   })
@@ -16,10 +18,4 @@ export class CreateNotificationDto implements CreateNotificationRequest {
   })
   @IsEnum($Enums.NotificationType)
   type?: $Enums.NotificationType;
-
-  @ApiProperty({
-    nullable: true,
-  })
-  @IsUUID(4)
-  userId: string;
 }

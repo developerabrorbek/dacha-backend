@@ -1,7 +1,7 @@
 import { IsOptional, IsString, IsUUID, Matches } from "class-validator";
 import { CreateUserRequest } from "../interfaces";
 import { ApiProperty } from "@nestjs/swagger";
-import { Transform } from "class-transformer";
+import { phoneRegex } from "@constants";
 
 
 export class CreateUserDto implements CreateUserRequest {
@@ -11,7 +11,7 @@ export class CreateUserDto implements CreateUserRequest {
 
   @ApiProperty()
   @IsString()
-  @Matches(/^(9[012345789]|6[125679]|7[01234569])[0-9]{7}$/)
+  @Matches(phoneRegex)
   phone: string;
 
   @ApiProperty()
@@ -24,10 +24,6 @@ export class CreateUserDto implements CreateUserRequest {
   @IsString()
   username: string;
 
-  @Transform(({value}) => {
-    if(!value) return undefined
-    else return value
-  } )
   @ApiProperty()
   @IsString()
   @IsOptional()

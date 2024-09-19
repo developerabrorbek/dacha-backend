@@ -1,12 +1,24 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { NotificationService } from './notification.service';
 import { Notification } from '@prisma/client';
-import { CreateNotificationDto, UpdateNotificationDto } from './dtos';
+import {
+  CreateNotificationDto,
+  CreateNotificationForAllDto,
+  UpdateNotificationDto,
+} from './dtos';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CheckAuth, Permission } from '@decorators';
 import { PERMISSIONS } from '@constants';
 
-@ApiTags("Notification")
+@ApiTags('Notification')
 @Controller('notification')
 export class NotificationController {
   #_service: NotificationService;
@@ -15,12 +27,11 @@ export class NotificationController {
     this.#_service = service;
   }
 
-  @ApiBearerAuth("JWT")
+  @ApiBearerAuth('JWT')
   @CheckAuth(true)
   @Permission(PERMISSIONS.notification.get_all_notification)
   @Get('all')
-  async getNotificationList(
-  ): Promise<Notification[]> {
+  async getNotificationList(): Promise<Notification[]> {
     return await this.#_service.getAllNotifications();
   }
 
@@ -33,33 +44,49 @@ export class NotificationController {
     return await this.#_service.getNotificationList({ userId });
   }
 
-  @ApiBearerAuth("JWT")
+  @ApiBearerAuth('JWT')
   @CheckAuth(true)
   @Permission(PERMISSIONS.notification.create_notification)
-  @Post("add")
+  @Post('add/for/single')
   async createNotification(
     @Body() payload: CreateNotificationDto,
-    @Req() request: any,
   ): Promise<void> {
-    await this.#_service.createNotification({
+    await this.#_service.createNotificationForSingle({
       ...payload,
-      createdBy: request.userId,
     });
   }
 
-  @ApiBearerAuth("JWT")
+  @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.notification.edit_notification)
-  @Patch("/update/:id")
-  async updateNotification(@Body() payload: UpdateNotificationDto,@Param("id") id: string, @Req() request: any,): Promise<void>{
-    await this.#_service.updateNotification({userId: request.userId, id, ...payload})
+  @Permission(PERMISSIONS.notification.create_notification_for_all)
+  @Post('add/for/all')
+  async createNotificationForAll(
+    @Body() payload: CreateNotificationForAllDto,
+  ): Promise<void> {
+    await this.#_service.createNotificationForAll({
+      ...payload,
+    });
   }
 
-  @ApiBearerAuth("JWT")
+  @ApiBearerAuth('JWT')
+  @CheckAuth(true)
+  @Permission(PERMISSIONS.notification.edit_notification)
+  @Patch('/update/:id')
+  async updateNotification(
+    @Body() payload: UpdateNotificationDto,
+    @Param('id') id: string,
+  ): Promise<void> {
+    await this.#_service.updateNotification({
+      ...payload,
+      notificationId: id,
+    });
+  }
+
+  @ApiBearerAuth('JWT')
   @CheckAuth(true)
   @Permission(PERMISSIONS.notification.delete_notification)
-  @Delete("/delete/:id")
-  async deleteNotification(@Param("id") id: string): Promise<void> {
-    await this.#_service.deleteNotification(id)
+  @Delete('/delete/:id')
+  async deleteNotification(@Param('id') id: string): Promise<void> {
+    await this.#_service.deleteNotification(id);
   }
 }
