@@ -15,10 +15,9 @@ import { ServicesService } from './services.service';
 import { Service } from '@prisma/client';
 import { CreateServiceDto, UpdateServiceDto } from './dtos';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
 import { CheckAuth, Permission } from '@decorators';
 import { PERMISSIONS } from '@constants';
+import { MulterConfig } from '@config';
 
 @ApiBearerAuth('JWT')
 @ApiTags('Services')
@@ -41,7 +40,7 @@ export class ServicesController {
 
   @CheckAuth(true)
   @Permission(PERMISSIONS.services.get_single_service)
-  @Get('/single/:id')
+  @Get('/:id')
   async getSingleService(
     @Headers('accept-language') languageCode: string,
     @Param('id') serviceId: string,
@@ -53,20 +52,7 @@ export class ServicesController {
   @Permission(PERMISSIONS.services.create_service)
   @ApiConsumes('multipart/form-data')
   @Post('/add')
-  @UseInterceptors(
-    FilesInterceptor('images', 10, {
-      storage: diskStorage({
-        destination: './uploads/images',
-        filename: (req, file, cb) => {
-          const randomName = Array(32)
-            .fill(null)
-            .map(() => Math.round(Math.random() * 16).toString(16))
-            .join('');
-          cb(null, `${randomName}${extname(file.originalname)}`);
-        },
-      }),
-    }),
-  )
+  @UseInterceptors(FilesInterceptor('images', 10, MulterConfig()))
   async createService(
     @Body() payload: CreateServiceDto,
     @UploadedFiles() images: Array<Express.Multer.File>,
@@ -77,20 +63,7 @@ export class ServicesController {
   @CheckAuth(true)
   @Permission(PERMISSIONS.services.edit_service)
   @Patch('/edit/:id')
-  @UseInterceptors(
-    FilesInterceptor('images', 10, {
-      storage: diskStorage({
-        destination: './uploads/images',
-        filename: (req, file, cb) => {
-          const randomName = Array(32)
-            .fill(null)
-            .map(() => Math.round(Math.random() * 16).toString(16))
-            .join('');
-          cb(null, `${randomName}${extname(file.originalname)}`);
-        },
-      }),
-    }),
-  )
+  @UseInterceptors(FilesInterceptor('images', 10, MulterConfig()))
   async updateService(
     @Body() payload: UpdateServiceDto,
     @UploadedFiles() images: Array<Express.Multer.File>,
