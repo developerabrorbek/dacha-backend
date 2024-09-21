@@ -31,35 +31,35 @@ export class UserController {
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.user.get_all_users)
+  @Permission(PERMISSIONS.user.get_all_users.name)
   @Get('/all')
   async getUserList(): Promise<any[]> {
     return await this.#_service.getUserList();
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.user.get_single_user)
+  @Permission(PERMISSIONS.user.get_single_user.name)
   @Get('/me')
   async getSingleUser(@Req() req: any): Promise<any> {
     return await this.#_service.getSingleUser(req?.userId);
   }
 
   @CheckAuth(false)
-  @Permission(PERMISSIONS.user.get_single_user_by_userid)
+  @Permission(PERMISSIONS.user.get_single_user_by_userid.name)
   @Get('/:userId')
   async getSingleUserByUserID(@Param('userId') userId: string): Promise<User> {
     return await this.#_service.getSingleUserByUserID(userId);
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.user.get_all_user_device)
+  @Permission(PERMISSIONS.user.get_all_user_device.name)
   @Get('/:userId/user-devices')
   async getUserDevices(@Param('userId') userId: string): Promise<UserDevice[]> {
     return await this.#_service.getUserDevices(userId);
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.user.create_users)
+  @Permission(PERMISSIONS.user.create_users.name)
   @Post('add')
   async createUser(@Body() payload: CreateUserDto): Promise<void> {
     await this.#_service.createUser(payload);
@@ -67,7 +67,7 @@ export class UserController {
 
   @ApiConsumes('multipart/form-data')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.user.edit_user)
+  @Permission(PERMISSIONS.user.edit_user.name)
   @UseInterceptors(FileInterceptor('image', MulterConfig()))
   @Patch('/edit/:id')
   async updateUser(
@@ -87,7 +87,7 @@ export class UserController {
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.user.delete_user)
+  @Permission(PERMISSIONS.user.delete_user.name)
   @Delete('/delete/:id')
   async deleteUser(@Param('id') userId: string): Promise<void> {
     await this.#_service.deleteUser(userId);

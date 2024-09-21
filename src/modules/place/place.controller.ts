@@ -29,7 +29,7 @@ export class PlaceController {
   }
 
   @CheckAuth(false)
-  @Permission(PERMISSIONS.place.get_all_place)
+  @Permission(PERMISSIONS.place.get_all_place.name)
   @Get()
   async getPlaceList(
     @Headers('accept-language') languageCode: string,
@@ -38,7 +38,7 @@ export class PlaceController {
   }
 
   @CheckAuth(false)
-  @Permission(PERMISSIONS.place.get_all_place_by_region)
+  @Permission(PERMISSIONS.place.get_all_place_by_region.name)
   @Get('by/region/:regionId')
   async getPlaceListByRegion(
     @Headers('accept-language') languageCode: string,
@@ -50,7 +50,7 @@ export class PlaceController {
   @ApiBearerAuth('JWT')
   @ApiConsumes("multipart/form-data")
   @CheckAuth(true)
-  @Permission(PERMISSIONS.place.create_place)
+  @Permission(PERMISSIONS.place.create_place.name)
   @Post('/add')
   @UseInterceptors(
     FileInterceptor('image', MulterConfig()),
@@ -64,7 +64,7 @@ export class PlaceController {
 
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.place.edit_place)
+  @Permission(PERMISSIONS.place.edit_place.name)
   @Patch('/edit/:id')
   async updatePlace(
     @Param('id') placeId: string,
@@ -79,7 +79,7 @@ export class PlaceController {
   @ApiConsumes("multipart/form-data")
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.place.edit_place_image)
+  @Permission(PERMISSIONS.place.edit_place_image.name)
   @Patch('/edit/image/:placeId')
   @UseInterceptors(
     FileInterceptor('image', MulterConfig()),
@@ -97,7 +97,7 @@ export class PlaceController {
 
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.place.delete_place)
+  @Permission(PERMISSIONS.place.delete_place.name)
   @Delete('/delete/:id')
   async deletePlace(@Param('id') id: string): Promise<void> {
     await this.#_service.deletePlace(id);

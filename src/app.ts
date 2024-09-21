@@ -26,6 +26,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { HttpExceptionFilter, PrismaClientExceptionFilter } from '@filters';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { SeedsModule } from 'db';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { join } from 'path';
     ServicesModule,
     TariffModule,
     OrderModule,
+    SeedsModule,
   ],
   providers: [
     {

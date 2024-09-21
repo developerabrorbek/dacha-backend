@@ -25,21 +25,21 @@ export class RoleController {
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.roles.get_all_roles)
+  @Permission(PERMISSIONS.roles.get_all_roles.name)
   @Get()
   async getRoleList(): Promise<Role[]> {
     return await this.#_service.getRoleList();
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.roles.create_roles)
+  @Permission(PERMISSIONS.roles.create_roles.name)
   @Post('/add')
   async createRole(@Body() payload: CreateRoleDto): Promise<void> {
     await this.#_service.createRole(payload);
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.roles.edit_roles)
+  @Permission(PERMISSIONS.roles.edit_roles.name)
   @Patch('/edit/:id')
   async updateRole(
     @Param('id') id: string,
@@ -49,7 +49,7 @@ export class RoleController {
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.roles.delete_roles)
+  @Permission(PERMISSIONS.roles.delete_roles.name)
   @Delete('/delete/:id')
   async deleteRole(@Param('id') id: string): Promise<void> {
     await this.#_service.deleteRole(id);

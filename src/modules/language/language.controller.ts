@@ -35,7 +35,7 @@ export class LanguageController {
   }
 
   @CheckAuth(false)
-  @Permission(PERMISSIONS.language.get_all_language)
+  @Permission(PERMISSIONS.language.get_all_language.name)
   @Get()
   async getLanguageList(): Promise<Language[]> {
     return await this.#_service.getLanguageList();
@@ -44,7 +44,7 @@ export class LanguageController {
   @ApiConsumes('multipart/form-data')
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.language.create_language)
+  @Permission(PERMISSIONS.language.create_language.name)
   @UseInterceptors(FileInterceptor('image', MulterConfig()))
   @Post()
   async createLanguage(
@@ -56,7 +56,7 @@ export class LanguageController {
 
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.language.edit_language)
+  @Permission(PERMISSIONS.language.edit_language.name)
   @Patch(':id')
   async updateLanguage(
     @Body() payload: UpdateLanguageDto,
@@ -68,7 +68,7 @@ export class LanguageController {
   @ApiConsumes('multipart/form-data')
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.language.edit_language_image)
+  @Permission(PERMISSIONS.language.edit_language_image.name)
   @Patch('/update/image/:languageId')
   @UseInterceptors(FileInterceptor('image', MulterConfig()))
   async updateLanguageImage(
@@ -81,7 +81,7 @@ export class LanguageController {
 
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.language.delete_language)
+  @Permission(PERMISSIONS.language.delete_language.name)
   @Delete(':id')
   async deleteLanguage(@Param('id') id: string): Promise<void> {
     await this.#_service.deleteLanguage(id);

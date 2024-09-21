@@ -43,7 +43,7 @@ export class CottageController {
   }
 
   @CheckAuth(false)
-  @Permission(PERMISSIONS.cottage.get_all_cottage)
+  @Permission(PERMISSIONS.cottage.get_all_cottage.name)
   @Get()
   async getCottageList(
     @Headers('accept-language') languageCode: string,
@@ -52,7 +52,7 @@ export class CottageController {
   }
 
   @CheckAuth(false)
-  @Permission(PERMISSIONS.cottage.get_all_cottages_on_top)
+  @Permission(PERMISSIONS.cottage.get_all_cottages_on_top.name)
   @Get('top')
   async getTopCottageList(
     @Headers('accept-language') languageCode: string,
@@ -61,7 +61,7 @@ export class CottageController {
   }
 
   @CheckAuth(false)
-  @Permission(PERMISSIONS.cottage.get_all_cottages_on_top)
+  @Permission(PERMISSIONS.cottage.get_all_cottages_on_top.name)
   @Get('recommended')
   async getRecommendedCottageList(
     @Headers('accept-language') languageCode: string,
@@ -70,7 +70,7 @@ export class CottageController {
   }
 
   @CheckAuth(false)
-  @Permission(PERMISSIONS.cottage.get_all_cottages_by_cottage_type)
+  @Permission(PERMISSIONS.cottage.get_all_cottages_by_cottage_type.name)
   @Get('cottage-type/:cottageTypeId')
   async getCottageListByCottageType(
     @Headers('accept-language') languageCode: string,
@@ -80,7 +80,7 @@ export class CottageController {
   }
 
   @CheckAuth(false)
-  @Permission(PERMISSIONS.cottage.get_all_suitable_cottages)
+  @Permission(PERMISSIONS.cottage.get_all_suitable_cottages.name)
   @Get('suitable/:cottageId')
   async getSutableCottageList(
     @Headers('accept-language') languageCode: string,
@@ -93,7 +93,7 @@ export class CottageController {
   }
 
   @CheckAuth(false)
-  @Permission(PERMISSIONS.cottage.get_all_cottages_by_place)
+  @Permission(PERMISSIONS.cottage.get_all_cottages_by_place.name)
   @Get('place/:placeId')
   async getCottageListByPlace(
     @Headers('accept-language') languageCode: string,
@@ -104,7 +104,7 @@ export class CottageController {
 
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.cottage.get_all_cottages_by_user)
+  @Permission(PERMISSIONS.cottage.get_all_cottages_by_user.name)
   @Get('user')
   async getCottageListByUser(
     @Headers('accept-language') languageCode: string,
@@ -114,7 +114,7 @@ export class CottageController {
   }
 
   @CheckAuth(false)
-  @Permission(PERMISSIONS.cottage.get_all_cottages_by_user_id)
+  @Permission(PERMISSIONS.cottage.get_all_cottages_by_user_id.name)
   @Get('user/:userId')
   async getCottageListByUserId(
     @Headers('accept-language') languageCode: string,
@@ -142,7 +142,7 @@ export class CottageController {
 
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.cottage.create_cottage)
+  @Permission(PERMISSIONS.cottage.create_cottage.name)
   @UseInterceptors(
     FileFieldsInterceptor(
       [
@@ -173,7 +173,7 @@ export class CottageController {
 
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.cottage.edit_cottage)
+  @Permission(PERMISSIONS.cottage.edit_cottage.name)
   @Patch('/edit/:id')
   async updateCottage(
     @Param('id') cottageId: string,
@@ -184,7 +184,7 @@ export class CottageController {
 
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.cottage.delete_cottage)
+  @Permission(PERMISSIONS.cottage.delete_cottage.name)
   @Delete('/delete/:id')
   async deleteCottage(@Param('id') id: string): Promise<void> {
     await this.#_service.deleteCottage(id);
@@ -192,7 +192,7 @@ export class CottageController {
 
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.cottage.create_cottage_image)
+  @Permission(PERMISSIONS.cottage.create_cottage_image.name)
   @UseInterceptors(FileInterceptor('image', MulterConfig()))
   @Post('/image/add')
   async addCottageImage(
@@ -204,7 +204,7 @@ export class CottageController {
 
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.cottage.edit_cottage_image)
+  @Permission(PERMISSIONS.cottage.edit_cottage_image.name)
   @UseInterceptors(FileInterceptor('image', MulterConfig()))
   @Patch('/image/edit/:id')
   async updateCottageImage(
@@ -217,7 +217,7 @@ export class CottageController {
 
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.cottage.delete_cottage_image)
+  @Permission(PERMISSIONS.cottage.delete_cottage_image.name)
   @Delete('/image/delete/:id')
   async deleteCottageImage(@Param('id') id: string): Promise<void> {
     await this.#_service.deleteCottageImage(id);

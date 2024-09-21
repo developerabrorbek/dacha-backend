@@ -34,7 +34,7 @@ export class ComfortController {
   }
 
   @CheckAuth(false)
-  @Permission(PERMISSIONS.comfort.get_all_comfort)
+  @Permission(PERMISSIONS.comfort.get_all_comfort.name)
   @Get()
   async getComfortList(
     @Headers('accept-language') languageCode: string,
@@ -44,7 +44,7 @@ export class ComfortController {
 
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.comfort.create_comfort)
+  @Permission(PERMISSIONS.comfort.create_comfort.name)
   @Post('/add')
   @UseInterceptors(FileInterceptor('image', MulterConfig()))
   async createComfort(
@@ -56,7 +56,7 @@ export class ComfortController {
 
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.comfort.edit_comfort)
+  @Permission(PERMISSIONS.comfort.edit_comfort.name)
   @Patch('/edit/:id')
   async updateComfort(
     @Param('id') comfortId: string,
@@ -68,7 +68,7 @@ export class ComfortController {
   @ApiConsumes('multipart/form-data')
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.comfort.edit_comfort_image)
+  @Permission(PERMISSIONS.comfort.edit_comfort_image.name)
   @UseInterceptors(FileInterceptor('image', MulterConfig()))
   @Patch('/edit/image/:comfortId')
   async updateComfortImage(
@@ -81,7 +81,7 @@ export class ComfortController {
 
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.comfort.delete_comfort)
+  @Permission(PERMISSIONS.comfort.delete_comfort.name)
   @Delete('/delete/:id')
   async deleteComfort(@Param('id') id: string): Promise<void> {
     await this.#_service.deleteComfort(id);

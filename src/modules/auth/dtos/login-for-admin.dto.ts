@@ -14,7 +14,6 @@ export class LoginForAdminDto implements LoginForAdminRequest {
 
   @ApiProperty()
   @IsString()
-  @IsOptional()
   userAgent: string;
 
   @ApiProperty()

@@ -30,7 +30,7 @@ export class ServicesController {
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.services.get_all_services)
+  @Permission(PERMISSIONS.services.get_all_services.name)
   @Get()
   async getAllService(
     @Headers('accept-language') languageCode: string,
@@ -39,7 +39,7 @@ export class ServicesController {
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.services.get_single_service)
+  @Permission(PERMISSIONS.services.get_single_service.name)
   @Get('/:id')
   async getSingleService(
     @Headers('accept-language') languageCode: string,
@@ -49,7 +49,7 @@ export class ServicesController {
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.services.create_service)
+  @Permission(PERMISSIONS.services.create_service.name)
   @ApiConsumes('multipart/form-data')
   @Post('/add')
   @UseInterceptors(FilesInterceptor('images', 10, MulterConfig()))
@@ -61,7 +61,7 @@ export class ServicesController {
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.services.edit_service)
+  @Permission(PERMISSIONS.services.edit_service.name)
   @Patch('/edit/:id')
   @UseInterceptors(FilesInterceptor('images', 10, MulterConfig()))
   async updateService(
@@ -73,7 +73,7 @@ export class ServicesController {
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.services.delete_service)
+  @Permission(PERMISSIONS.services.delete_service.name)
   @Delete('/delete/:id')
   async deleteService(@Param('id') id: string): Promise<void> {
     await this.#_service.deleteService(id);

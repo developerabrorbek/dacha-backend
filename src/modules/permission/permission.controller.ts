@@ -25,21 +25,21 @@ export class PermissionController {
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.permission.get_all_permission)
+  @Permission(PERMISSIONS.permission.get_all_permission.name)
   @Get()
   async getPermissionList(): Promise<types.Permission[]> {
     return await this.#_service.getPermissionList();
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.permission.create_permission)
+  @Permission(PERMISSIONS.permission.create_permission.name)
   @Post('/add')
   async createPermission(@Body() payload: CreatePermissionDto): Promise<void> {
     await this.#_service.createPermission(payload);
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.permission.edit_permission)
+  @Permission(PERMISSIONS.permission.edit_permission.name)
   @Patch('/edit/:id')
   async updatePermission(
     @Param('id') permissionId: string,
@@ -52,7 +52,7 @@ export class PermissionController {
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.permission.delete_permission)
+  @Permission(PERMISSIONS.permission.delete_permission.name)
   @Delete('/delete/:id')
   async deletePermission(@Param('id') id: string): Promise<void> {
     await this.#_service.deletePermission(id);

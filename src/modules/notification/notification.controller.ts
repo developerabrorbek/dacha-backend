@@ -29,14 +29,14 @@ export class NotificationController {
 
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.notification.get_all_notification)
+  @Permission(PERMISSIONS.notification.get_all_notification.name)
   @Get('all')
   async getNotificationList(): Promise<Notification[]> {
     return await this.#_service.getAllNotifications();
   }
 
   @CheckAuth(false)
-  @Permission(PERMISSIONS.notification.get_user_notification)
+  @Permission(PERMISSIONS.notification.get_user_notification.name)
   @Get('by/:userId')
   async getUserNotificationList(
     @Param('userId') userId: string,
@@ -46,7 +46,7 @@ export class NotificationController {
 
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.notification.create_notification)
+  @Permission(PERMISSIONS.notification.create_notification.name)
   @Post('add/for/single')
   async createNotification(
     @Body() payload: CreateNotificationDto,
@@ -58,7 +58,7 @@ export class NotificationController {
 
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.notification.create_notification_for_all)
+  @Permission(PERMISSIONS.notification.create_notification_for_all.name)
   @Post('add/for/all')
   async createNotificationForAll(
     @Body() payload: CreateNotificationForAllDto,
@@ -70,7 +70,7 @@ export class NotificationController {
 
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.notification.edit_notification)
+  @Permission(PERMISSIONS.notification.edit_notification.name)
   @Patch('/update/:id')
   async updateNotification(
     @Body() payload: UpdateNotificationDto,
@@ -84,7 +84,7 @@ export class NotificationController {
 
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.notification.delete_notification)
+  @Permission(PERMISSIONS.notification.delete_notification.name)
   @Delete('/delete/:id')
   async deleteNotification(@Param('id') id: string): Promise<void> {
     await this.#_service.deleteNotification(id);

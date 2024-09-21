@@ -13,7 +13,6 @@ export class LoginDto implements LoginRequest {
   smsCode: string;
 
   @ApiProperty()
-  @IsOptional()
   @IsString()
   userAgent: string;
 

@@ -25,21 +25,21 @@ export class ModelsController {
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.models.get_all_models)
+  @Permission(PERMISSIONS.models.get_all_models.name)
   @Get()
   async getModelsList(): Promise<Models[]> {
     return await this.#_service.getModelsList();
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.models.create_models)
+  @Permission(PERMISSIONS.models.create_models.name)
   @Post('/add')
   async createModel(@Body() payload: CreateModelDto): Promise<void> {
     await this.#_service.createModel(payload);
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.models.edit_models)
+  @Permission(PERMISSIONS.models.edit_models.name)
   @Patch('/edit/:id')
   async updateModel(
     @Param('id') modelId: string,
@@ -49,7 +49,7 @@ export class ModelsController {
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.models.delete_models)
+  @Permission(PERMISSIONS.models.delete_models.name)
   @Delete('/delete/:id')
   async deleteModel(@Param('id') id: string): Promise<void> {
     await this.#_service.deleteModel(id);

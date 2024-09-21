@@ -33,21 +33,21 @@ export class TranslateController {
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.translate.get_all_translate)
+  @Permission(PERMISSIONS.translate.get_all_translate.name)
   @Get()
   async getTranslateList(): Promise<Translate[]> {
     return await this.#_service.getTranslateList();
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.translate.get_unused_translate)
+  @Permission(PERMISSIONS.translate.get_unused_translate.name)
   @Get('/unused')
   async getUnusedTranslateList(): Promise<Translate[]> {
     return await this.#_service.getUnusedTranslateList();
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.translate.get_translate)
+  @Permission(PERMISSIONS.translate.get_translate.name)
   @Get(':id')
   async retrieveSingleTranslate(
     @Headers('accept-language') languageCode: string,
@@ -60,7 +60,7 @@ export class TranslateController {
   }
 
   @CheckAuth(false)
-  @Permission(PERMISSIONS.translate.get_single_translate_by_code)
+  @Permission(PERMISSIONS.translate.get_single_translate_by_code.name)
   @Get('single/by/:translateCode')
   async retrieveSingleTranslateByCode(
     @Headers('accept-language') languageCode: string,
@@ -73,14 +73,14 @@ export class TranslateController {
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.translate.create_translate)
+  @Permission(PERMISSIONS.translate.create_translate.name)
   @Post()
   async createTranslate(@Body() payload: CreateTranslateDto): Promise<void> {
     await this.#_service.createTranslate(payload);
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.translate.edit_translate)
+  @Permission(PERMISSIONS.translate.edit_translate.name)
   @Patch(':id')
   async updateTranslate(
     @Param('id') translateId: string,
@@ -90,7 +90,7 @@ export class TranslateController {
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.translate.delete_translate)
+  @Permission(PERMISSIONS.translate.delete_translate.name)
   @Delete(':id')
   async deleteTranslate(@Param('id') translateId: string): Promise<void> {
     await this.#_service.deleteTranslate(translateId);

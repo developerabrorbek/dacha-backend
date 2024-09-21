@@ -25,7 +25,7 @@ export class CottageTypeController {
   }
 
   @CheckAuth(false)
-  @Permission(PERMISSIONS.cottage_type.get_all_cottage_type)
+  @Permission(PERMISSIONS.cottage_type.get_all_cottage_type.name)
   @Get()
   async getCottageTypeList(
     @Headers('accept-language') languageCode: string,
@@ -35,7 +35,7 @@ export class CottageTypeController {
 
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.cottage_type.create_cottage_type)
+  @Permission(PERMISSIONS.cottage_type.create_cottage_type.name)
   @Post('/add')
   async createCottageType(
     @Body() payload: CreateCottageTypeDto,
@@ -45,7 +45,7 @@ export class CottageTypeController {
 
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.cottage_type.edit_cottage_type)
+  @Permission(PERMISSIONS.cottage_type.edit_cottage_type.name)
   @Patch('/edit/:id')
   async updateCottageType(
     @Param('id') cottageTypeId: string,
@@ -59,7 +59,7 @@ export class CottageTypeController {
 
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.cottage_type.delete_cottage_type)
+  @Permission(PERMISSIONS.cottage_type.delete_cottage_type.name)
   @Delete('/delete/:id')
   async deleteCottageType(@Param('id') id: string): Promise<void> {
     await this.#_service.deleteCottageType(id);
