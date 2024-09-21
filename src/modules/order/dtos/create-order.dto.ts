@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { CreateOrderRequest } from '../interfaces';
-import { IsUUID } from 'class-validator';
+import { IsInt, IsOptional, IsUUID } from 'class-validator';
 
 export class CreateOrderDto implements Omit<CreateOrderRequest, 'assignedBy'> {
   @ApiProperty()
@@ -10,4 +10,11 @@ export class CreateOrderDto implements Omit<CreateOrderRequest, 'assignedBy'> {
   @ApiProperty()
   @IsUUID(4)
   tariffId: string;
+
+  @ApiProperty({
+    required: false,
+  })
+  @IsOptional()
+  @IsInt()
+  priority?: number;
 }

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { databaseConfig, jwtConfig } from '@config';
+import { appConfig, databaseConfig, jwtConfig } from '@config';
 import {
   AuthModule,
   ComfortModule,
@@ -35,7 +35,7 @@ import { join } from 'path';
     }),
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [databaseConfig, jwtConfig],
+      load: [appConfig, databaseConfig, jwtConfig],
     }),
     JwtModule,
     PrismaModule,

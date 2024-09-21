@@ -273,9 +273,9 @@ model UserDevice {
   deviceType    String?  @map("device_type") @db.VarChar()
   deviceName    String?  @map("device_name") @db.VarChar()
   platform      String?  @map("platform") @db.VarChar()
-  tokenExpireAt DateTime @map("token_expire_at") @db.Date
+  tokenExpireAt DateTime? @map("token_expire_at") @db.Date
   createdAt     DateTime @default(now()) @map("created_at") @db.Date
-  lastLogin     DateTime @map("last_login") @db.Date
+  lastLogin     DateTime? @map("last_login") @db.Date
   isActive      Boolean  @default(true) @map("is_active") @db.Boolean
 
   userId String @map("user_id") @db.Uuid

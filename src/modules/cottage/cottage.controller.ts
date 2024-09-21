@@ -7,7 +7,7 @@ import {
   Param,
   Patch,
   Post,
-  Query,
+  // Query,
   Req,
   UploadedFile,
   UploadedFiles,
@@ -31,8 +31,7 @@ import {
   FileFieldsInterceptor,
   FileInterceptor,
 } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { MulterConfig } from '@config';
 
 @ApiTags('Cottage')
 @Controller('cottage')
@@ -124,22 +123,22 @@ export class CottageController {
     return await this.#_service.getCottageListByUser(languageCode, userId);
   }
 
-  @CheckAuth(false)
-  @Permission(PERMISSIONS.cottage.get_all_filtered_cottages)
-  @Get('filter/?')
-  async getFilteredCottageList(
-    @Headers('accept-language') languageCode: string,
-    @Query('type') cottageType?: string,
-    @Query('place') placeId?: string,
-    @Query('price') price?: string,
-  ): Promise<GetCottageListResponse[]> {
-    return await this.#_service.getFilteredCottageList({
-      languageCode,
-      cottageType,
-      price: Number(price) || 10000,
-      placeId,
-    });
-  }
+  // @CheckAuth(false)
+  // @Permission(PERMISSIONS.cottage.get_all_filtered_cottages)
+  // @Get('filter/?')
+  // async getFilteredCottageList(
+  //   @Headers('accept-language') languageCode: string,
+  //   @Query('type') cottageType?: string,
+  //   @Query('place') placeId?: string,
+  //   @Query('price') price?: string,
+  // ): Promise<GetCottageListResponse[]> {
+  //   return await this.#_service.getFilteredCottageList({
+  //     languageCode,
+  //     cottageType,
+  //     price: Number(price) || 10000,
+  //     placeId,
+  //   });
+  // }
 
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
@@ -156,18 +155,7 @@ export class CottageController {
           maxCount: 15,
         },
       ],
-      {
-        storage: diskStorage({
-          destination: './uploads/images',
-          filename: (req, file, cb) => {
-            const randomName = Array(32)
-              .fill(null)
-              .map(() => Math.round(Math.random() * 16).toString(16))
-              .join('');
-            cb(null, `${randomName}${extname(file.originalname)}`);
-          },
-        }),
-      },
+      MulterConfig(),
     ),
   )
   @Post('/add')
@@ -205,20 +193,7 @@ export class CottageController {
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
   @Permission(PERMISSIONS.cottage.create_cottage_image)
-  @UseInterceptors(
-    FileInterceptor('image', {
-      storage: diskStorage({
-        destination: './uploads/images',
-        filename: (req, file, cb) => {
-          const randomName = Array(32)
-            .fill(null)
-            .map(() => Math.round(Math.random() * 16).toString(16))
-            .join('');
-          cb(null, `${randomName}${extname(file.originalname)}`);
-        },
-      }),
-    }),
-  )
+  @UseInterceptors(FileInterceptor('image', MulterConfig()))
   @Post('/image/add')
   async addCottageImage(
     @Body() payload: AddCottageImageDto,
@@ -230,20 +205,7 @@ export class CottageController {
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
   @Permission(PERMISSIONS.cottage.edit_cottage_image)
-  @UseInterceptors(
-    FileInterceptor('image', {
-      storage: diskStorage({
-        destination: './uploads/images',
-        filename: (req, file, cb) => {
-          const randomName = Array(32)
-            .fill(null)
-            .map(() => Math.round(Math.random() * 16).toString(16))
-            .join('');
-          cb(null, `${randomName}${extname(file.originalname)}`);
-        },
-      }),
-    }),
-  )
+  @UseInterceptors(FileInterceptor('image', MulterConfig()))
   @Patch('/image/edit/:id')
   async updateCottageImage(
     @Param('id') id: string,

@@ -21,19 +21,39 @@ export class OrderService {
   }
 
   async createOrder(payload: CreateOrderRequest): Promise<void> {
-    const date = new Date();
+    // check user if exists
+    await this.#_checkUser(payload.assignedBy);
+
+    // check cottage if exists
+    await this.#_checkCottage(payload.cottageId);
+
     const foundedTariff = await this.#_prisma.tariff.findFirst({
       where: { id: payload.tariffId },
+      include: {
+        service: true,
+      },
     });
 
     if (!foundedTariff) throw new NotFoundException('Tariff not found');
 
+    // set expire date to order
+    const date = new Date();
     date.setDate(date.getDate() + foundedTariff.days);
+
+    // set cottages to premium cottages after order
+    // await this.#_prisma.premium_Cottage.create({
+    //   data: {
+    //     expireAt: date,
+    //     serviceCode: foundedTariff.service.serviceCode,
+    //     cottageId: payload.cottageId,
+    //     priority: payload?.priority,
+    //   },
+    // });
 
     await this.#_prisma.orders.create({
       data: {
-        assignedBy: payload.assignedBy,
-        end_time: date,
+        userId: payload.assignedBy,
+        expireAt: date,
         cottageId: payload.cottageId,
         tariffId: payload.tariffId,
       },
@@ -69,7 +89,7 @@ export class OrderService {
   async getAllUserOrder(payload: GetAllUserOrderRequest): Promise<Orders[]> {
     const data = await this.#_prisma.orders.findMany({
       where: {
-        assignedBy: payload.userId,
+        userId: payload.userId,
       },
       include: {
         cottage: true,
@@ -134,5 +154,23 @@ export class OrderService {
   #_checkUUID(id: string): void {
     if (!isUUID(id, 4))
       throw new ConflictException('Please provide a valid UUID');
+  }
+
+  async #_checkCottage(id: string): Promise<void> {
+    const cottage = await this.#_prisma.cottage.findFirst({
+      where: { id: id },
+    });
+
+    if (!cottage) {
+      throw new NotFoundException('Cottage not found');
+    }
+  }
+
+  async #_checkUser(id: string): Promise<void> {
+    const user = await this.#_prisma.user.findFirst({ where: { id: id } });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
   }
 }
