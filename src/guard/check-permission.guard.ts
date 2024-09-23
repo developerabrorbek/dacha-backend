@@ -38,8 +38,8 @@ export class PermissionGuard implements CanActivate {
           select: {
             permission: {
               select: {
-                id: true,
                 code: true,
+                id: true,
                 name: true,
               },
             },

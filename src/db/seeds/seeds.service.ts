@@ -50,6 +50,13 @@ export class SeedsService {
         });
       });
 
+      // CREATE USER ROLE
+      await this.#_prisma.role.create({
+        data: {
+          name: 'USER',
+        },
+      });
+
       // CREATE SUPER-ADMIN ROLE
       const superAdminRole = await this.#_prisma.role.create({
         data: {

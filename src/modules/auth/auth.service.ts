@@ -66,7 +66,7 @@ export class AuthService {
     // Send otp code to user phone
     await this.#_sendSms({ phone: payload.phone, smsCode });
 
-    const expireSmsTime = String(new Date().getTime() + SMS_EXPIRE_TIME * 1000);
+    const expireSmsTime = new Date(new Date().getTime() + SMS_EXPIRE_TIME * 1000);
 
     await this.#_prisma.user_Otp.create({
       data: {
@@ -177,8 +177,8 @@ export class AuthService {
         isActive: true,
         lastLogin: new Date(),
         deviceId: payload.ip,
-        deviceName: userAgent.getDevice().model,
-        deviceType: userAgent.getDevice().type,
+        deviceName: userAgent.getDevice()?.model || "device",
+        deviceType: userAgent.getDevice()?.type || "device",
         platform: userAgent.getOS().name,
         tokenExpireAt: new Date(Date.now() + Number(JWT_ACCESS_EXPIRE_TIME)),
       },
@@ -253,8 +253,8 @@ export class AuthService {
         isActive: true,
         lastLogin: new Date(),
         deviceId: payload.ip,
-        deviceName: userAgent.getDevice().model,
-        deviceType: userAgent.getDevice().type,
+        deviceName: userAgent.getDevice()?.model || "desktop",
+        deviceType: userAgent.getDevice()?.type || "desktop",
         platform: userAgent.getOS().name,
         tokenExpireAt: new Date(Date.now() + Number(JWT_ACCESS_EXPIRE_TIME)),
       },

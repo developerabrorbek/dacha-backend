@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   // Query,
   Req,
   UploadedFile,
@@ -123,22 +124,22 @@ export class CottageController {
     return await this.#_service.getCottageListByUser(languageCode, userId);
   }
 
-  // @CheckAuth(false)
-  // @Permission(PERMISSIONS.cottage.get_all_filtered_cottages)
-  // @Get('filter/?')
-  // async getFilteredCottageList(
-  //   @Headers('accept-language') languageCode: string,
-  //   @Query('type') cottageType?: string,
-  //   @Query('place') placeId?: string,
-  //   @Query('price') price?: string,
-  // ): Promise<GetCottageListResponse[]> {
-  //   return await this.#_service.getFilteredCottageList({
-  //     languageCode,
-  //     cottageType,
-  //     price: Number(price) || 10000,
-  //     placeId,
-  //   });
-  // }
+  @CheckAuth(false)
+  @Permission(PERMISSIONS.cottage.get_all_filtered_cottages.name)
+  @Get('filter/?')
+  async getFilteredCottageList(
+    @Headers('accept-language') languageCode: string,
+    @Query('type') cottageType?: string,
+    @Query('place') placeId?: string,
+    @Query('price') price?: string,
+  ): Promise<GetCottageListResponse[]> {
+    return await this.#_service.getFilteredCottageList({
+      languageCode,
+      cottageType,
+      price: Number(price) || 10000,
+      placeId,
+    });
+  }
 
   @ApiBearerAuth('JWT')
   @CheckAuth(true)

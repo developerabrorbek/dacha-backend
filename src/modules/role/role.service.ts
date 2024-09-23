@@ -39,7 +39,18 @@ export class Roleservice {
   async getRoleList(): Promise<Role[]> {
     const data = await this.#_prisma.role.findMany({
       include: {
-        permissions: true,
+        permissions: {
+          select: {
+            id: true,
+            permission: {
+              select: {
+                code: true,
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -57,6 +68,13 @@ export class Roleservice {
     }
     if (payload?.permissions?.length) {
       await this.#_checkPermissions(payload.permissions);
+
+      // delete all role old permissions
+      await this.#_prisma.role_Permission.deleteMany({
+        where: {
+          roleId: foundedRole.id,
+        },
+      });
 
       for (const per of payload.permissions) {
         await this.#_prisma.role_Permission.create({

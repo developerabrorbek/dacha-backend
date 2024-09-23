@@ -10,7 +10,7 @@ import {
   GetComfortsInterface,
   GetCottageListResponse,
   GetCottageTypesInterfaces,
-  // GetFilteredCottagesRequest,
+  GetFilteredCottagesRequest,
   GetSuitableCottageListRequest,
   GetSuitableCottageListResponse,
   UpdateCottageImageRequest,
@@ -20,6 +20,7 @@ import * as fs from 'fs';
 import { TranslateService } from 'modules/translate';
 import { join } from 'path';
 import { isArray, isUUID } from 'class-validator';
+import { Cottage_Comfort, Cottage_CottageType } from '@prisma/client';
 
 @Injectable()
 export class CottageService {
@@ -228,40 +229,58 @@ export class CottageService {
     return response;
   }
 
-  // async getFilteredCottageList(
-  //   payload: GetFilteredCottagesRequest,
-  // ): Promise<GetCottageListResponse[]> {
-  //   const response = [];
-  //   if (!payload.cottageType || payload.cottageType == 'undefined') {
-  //     payload.cottageType = '';
-  //   }
+  async getFilteredCottageList(
+    payload: GetFilteredCottagesRequest,
+  ): Promise<GetCottageListResponse[]> {
+    const response = [];
+    if (!payload.cottageType || payload.cottageType == 'undefined') {
+      payload.cottageType = '';
+    }
 
-  //   if (!payload.placeId || payload.placeId == 'undefined') {
-  //     payload.placeId = undefined;
-  //   }
+    if (!payload.placeId || payload.placeId == 'undefined') {
+      payload.placeId = undefined;
+    }
 
-  //   const data = await this.#_prisma.cottage.findMany({
-  //     where: {
-  //       AND: [
-  //         {
-  //           cottageType: {
-  //             hasSome: [payload.cottageType],
-  //           },
-  //           price: {
-  //             lte: payload.price,
-  //           },
-  //           placeId: payload.placeId,
-  //         },
-  //       ],
-  //       cottageStatus: 'confirmed',
-  //     },
-  //   });
-  //   for (const cottage of data) {
-  //     const data = await this.#_getCottage(cottage, payload.languageCode);
-  //     response.push(data);
-  //   }
-  //   return response;
-  // }
+    const data = await this.#_prisma.cottage.findMany({
+      include: {
+        comforts: true,
+        cottageTypes: true,
+        images: {
+          where: {
+            status: 'active',
+          },
+        },
+        place: true,
+        region: true,
+        user: true,
+      },
+      where: {
+        AND: [
+          {
+            cottageTypes: {
+              some: {
+                id: {
+                  in: [payload.cottageType]
+                },
+              },
+            },
+            price: {
+              lte: payload?.price,
+            },
+            placeId: {
+              in: [payload.placeId],
+            },
+          },
+        ],
+        cottageStatus: 'confirmed',
+      },
+    });
+    for (const cottage of data) {
+      const data = await this.#_getCottage(cottage, payload.languageCode);
+      response.push(data);
+    }
+    return response;
+  }
 
   async getCottageListByCottageType(
     languageCode: string,
@@ -619,7 +638,7 @@ export class CottageService {
       latitude: cottage.longitude,
       cottageStatus: cottage.cottageStatus,
       status: cottage.status,
-      user: cottage,
+      user: cottage.user
     };
   }
 
@@ -646,13 +665,13 @@ export class CottageService {
   }
 
   async #_getComforts(
-    comforts: string[],
+    comforts: Cottage_Comfort[],
     languageCode: string,
   ): Promise<GetComfortsInterface[]> {
     const response = [];
     for (const c of comforts) {
       const foundedComfort = await this.#_prisma.comfort.findFirst({
-        where: { id: c },
+        where: { id: c.comfortId },
       });
       if (!foundedComfort) {
         throw new NotFoundException('Comfort not found');
@@ -670,13 +689,13 @@ export class CottageService {
   }
 
   async #_getCottageTypes(
-    cottageTypes: string[],
+    cottageTypes: Cottage_CottageType[],
     languageCode: string,
   ): Promise<GetCottageTypesInterfaces[]> {
     const response = [];
     for (const c of cottageTypes) {
       const foundedCottageType = await this.#_prisma.cottageType.findFirst({
-        where: { id: c },
+        where: { id: c.cottageTypeId },
       });
       if (!foundedCottageType) {
         throw new NotFoundException('Cottage type not found');
