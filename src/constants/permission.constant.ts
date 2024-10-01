@@ -158,6 +158,14 @@ export const PERMISSIONS = {
       name: 'create_cottage',
       description: 'Yangi dacha yaratish',
     },
+    create_premium_cottage: {
+      name: 'create_premium_cottage',
+      description: "Premium(pullik) dacha qo'shish",
+    },
+    delete_premium_cottage: {
+      name: 'delete_premium_cottage',
+      description: "Premium dachani o'chirish",
+    },
     edit_cottage_image: {
       name: 'edit_cottage_image',
       description: 'Dachaning rasmini tahrirlash',
@@ -208,15 +216,15 @@ export const PERMISSIONS = {
   models: {
     get_all_models: {
       name: 'get_all_models',
-      description: "Barcha modellarni olish",
+      description: 'Barcha modellarni olish',
     },
     create_models: {
       name: 'create_models',
-      description: "Yangi model yaratish",
+      description: 'Yangi model yaratish',
     },
     edit_models: {
       name: 'edit_models',
-      description: "Modellarni tahrirlash",
+      description: 'Modellarni tahrirlash',
     },
     delete_models: {
       name: 'delete_models',
@@ -226,33 +234,33 @@ export const PERMISSIONS = {
   permission: {
     get_all_permission: {
       name: 'get_all_permissions',
-      description: "Barcha ruhsatlarni olish",
+      description: 'Barcha ruhsatlarni olish',
     },
     create_permission: {
       name: 'create_permission',
-      description: "Yangi ruhsat yaratish",
+      description: 'Yangi ruhsat yaratish',
     },
     edit_permission: {
       name: 'edit_permission',
-      description: "Ruhsatlarni yangilash",
+      description: 'Ruhsatlarni yangilash',
     },
-    delete_permission:{
-      name:  'delete_permission',
+    delete_permission: {
+      name: 'delete_permission',
       description: "Ruhsatlarni o'chirish",
     },
   },
   roles: {
     get_all_roles: {
       name: 'get_all_roles',
-      description: "Barcha rollarni olish",
+      description: 'Barcha rollarni olish',
     },
     create_roles: {
       name: 'create_roles',
-      description: "Yangi rol yaratish",
+      description: 'Yangi rol yaratish',
     },
     edit_roles: {
       name: 'edit_roles',
-      description: "Rollarni tahrirlash",
+      description: 'Rollarni tahrirlash',
     },
     delete_roles: {
       name: 'delete_roles',
@@ -262,11 +270,11 @@ export const PERMISSIONS = {
   user: {
     get_all_users: {
       name: 'get_all_users',
-      description: "Barcha foydalanuvchilarni olish",
+      description: 'Barcha foydalanuvchilarni olish',
     },
     get_single_user: {
       name: 'get_single_user',
-      description: "Bitta foydalanuvchini olish",
+      description: 'Bitta foydalanuvchini olish',
     },
     get_single_user_by_userid: {
       name: 'get_single_user_by_userid',
@@ -274,19 +282,19 @@ export const PERMISSIONS = {
     },
     get_used_services_of_user: {
       name: 'get_used_services_of_user',
-      description: "Foydalanuvchi foydalangan xizmatlarni olish",
+      description: 'Foydalanuvchi foydalangan xizmatlarni olish',
     },
     create_users: {
       name: 'create_users',
-      description: "Yangi foydalanuvchi yaratish",
+      description: 'Yangi foydalanuvchi yaratish',
     },
     get_all_user_device: {
       name: 'get_all_user_device',
-      description: "Foydalanuvchi qurilmalarini olish",
+      description: 'Foydalanuvchi qurilmalarini olish',
     },
     edit_user: {
       name: 'edit_user',
-      description: "Foydalanuvchini tahrirlash",
+      description: 'Foydalanuvchini tahrirlash',
     },
     delete_user: {
       name: 'delete_user',
@@ -296,15 +304,15 @@ export const PERMISSIONS = {
   cottage_type: {
     get_all_cottage_type: {
       name: 'get_all_cottage_type',
-      description: "Barcha dacha turlarini olish",
+      description: 'Barcha dacha turlarini olish',
     },
     create_cottage_type: {
       name: 'create_cottage_type',
-      description: "Dacha turini yaratish",
+      description: 'Dacha turini yaratish',
     },
     edit_cottage_type: {
       name: 'edit_cottage_type',
-      description: "Dacha turini tahrirlash",
+      description: 'Dacha turini tahrirlash',
     },
     delete_cottage_type: {
       name: 'delete_cottage_type',
@@ -314,19 +322,19 @@ export const PERMISSIONS = {
   services: {
     get_all_services: {
       name: 'get_all_services',
-      description: "Barcha xizmatlarni olish",
+      description: 'Barcha xizmatlarni olish',
     },
     get_single_service: {
       name: 'get_single_service',
-      description: "Bitta xizmatni olish",
+      description: 'Bitta xizmatni olish',
     },
     create_service: {
       name: 'create_service',
-      description: "Yangi xizmat yaratish",
+      description: 'Yangi xizmat yaratish',
     },
     edit_service: {
-      name: "edit_service",
-      description: "Xizmatlarni tahrirlash",
+      name: 'edit_service',
+      description: 'Xizmatlarni tahrirlash',
     },
     delete_service: {
       name: 'delete_service',
@@ -336,27 +344,27 @@ export const PERMISSIONS = {
   tariff: {
     get_all_tariffs: {
       name: 'get_all_tariffs',
-      description: "Barcha tariflarni olish",
+      description: 'Barcha tariflarni olish',
     },
     get_all_used_tariffs: {
       name: 'get_all_used_tariffs',
-      description: "Barcha foydalanilgan tariflarni olish",
+      description: 'Barcha foydalanilgan tariflarni olish',
     },
     create_tariff: {
       name: 'create_tariff',
-      description: "Yangi tarif yaratish",
+      description: 'Yangi tarif yaratish',
     },
     activate_tariff: {
       name: 'activate_tariff',
-      description: "Tarifni aktivlashtirish",
+      description: 'Tarifni aktivlashtirish',
     },
     edit_tariff: {
       name: 'edit_tariff',
-      description: "Tarifni tahrirlash",
+      description: 'Tarifni tahrirlash',
     },
     disable_tariff: {
       name: 'disable_tariff',
-      description: "Tarifni disable(faolsizlantirish) qilish",
+      description: 'Tarifni disable(faolsizlantirish) qilish',
     },
     delete_tariff: {
       name: 'delete_tariff',
@@ -366,19 +374,19 @@ export const PERMISSIONS = {
   order: {
     get_all_users_orders_for_admin: {
       name: 'get_all_users_orders_for_admin',
-      description: "Barcha foydalanuvchilar buyurtmalarini olish(admin uchun)",
+      description: 'Barcha foydalanuvchilar buyurtmalarini olish(admin uchun)',
     },
     get_all_user_orders: {
       name: 'get_all_user_orders',
-      description: "Barcha foydalanuvchi buyurtmalarini olish",
+      description: 'Barcha foydalanuvchi buyurtmalarini olish',
     },
     create_order: {
       name: 'create_order',
-      description: "Yangi buyurtma yaratish",
+      description: 'Yangi buyurtma yaratish',
     },
     update_order: {
       name: 'update_order',
-      description: "Buyurtmani tahrirlash",
+      description: 'Buyurtmani tahrirlash',
     },
     delete_order: {
       name: 'delete_order',

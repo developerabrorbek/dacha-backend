@@ -5,6 +5,7 @@ import {
   Get,
   Headers,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Query,
@@ -19,6 +20,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import {
   AddCottageImageDto,
   CreateCottageDto,
+  CreatePremiumCottageDto,
   UpdateCottageDto,
   UpdateCottageImageDto,
 } from './dtos';
@@ -174,6 +176,20 @@ export class CottageController {
 
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
+  @Permission(PERMISSIONS.cottage.create_premium_cottage.name)
+  @Post('/add/premium/:cottageId')
+  async createPremiumCottage(
+    @Param('cottageId', new ParseUUIDPipe({ version: '4' })) cottageId: string,
+    @Body() payload: CreatePremiumCottageDto,
+  ): Promise<void> {
+    await this.#_service.createPremiumCottage({
+      cottageId: cottageId,
+      ...payload,
+    });
+  }
+
+  @ApiBearerAuth('JWT')
+  @CheckAuth(true)
   @Permission(PERMISSIONS.cottage.edit_cottage.name)
   @Patch('/edit/:id')
   async updateCottage(
@@ -189,6 +205,16 @@ export class CottageController {
   @Delete('/delete/:id')
   async deleteCottage(@Param('id') id: string): Promise<void> {
     await this.#_service.deleteCottage(id);
+  }
+
+  @ApiBearerAuth('JWT')
+  @CheckAuth(true)
+  @Permission(PERMISSIONS.cottage.delete_premium_cottage.name)
+  @Delete('/delete/premium/:premiumCottageId')
+  async deletePremiumCottage(
+    @Param('premiumCottageId', new ParseUUIDPipe({ version: '4' })) id: string,
+  ): Promise<void> {
+    await this.#_service.deletePremiumCottage(id);
   }
 
   @ApiBearerAuth('JWT')

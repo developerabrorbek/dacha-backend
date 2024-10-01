@@ -7,6 +7,7 @@ import { PrismaService } from 'prisma/prisma.service';
 import {
   AddCottageImageRequest,
   CreateCottageRequest,
+  CreatePremiumCottageRequest,
   GetComfortsInterface,
   GetCottageListResponse,
   GetCottageTypesInterfaces,
@@ -150,6 +151,24 @@ export class CottageService {
     }
   }
 
+  async createPremiumCottage(
+    payload: CreatePremiumCottageRequest,
+  ): Promise<void> {
+    const today = new Date();
+
+    const expireDate = new Date(today);
+    expireDate.setDate(today.getDate() + payload.expireDays);
+
+    await this.#_prisma.premium_Cottage.create({
+      data: {
+        expireAt: expireDate,
+        serviceCode: payload.serviceCode,
+        cottageId: payload.cottageId,
+        priority: payload.priority,
+      },
+    });
+  }
+
   async getCottageList(
     languageCode: string,
   ): Promise<GetCottageListResponse[]> {
@@ -260,7 +279,7 @@ export class CottageService {
             cottageTypes: {
               some: {
                 id: {
-                  in: [payload.cottageType]
+                  in: [payload.cottageType],
                 },
               },
             },
@@ -375,27 +394,36 @@ export class CottageService {
     languageCode: string,
   ): Promise<GetCottageListResponse[]> {
     const response = [];
-    const data = await this.#_prisma.cottage.findMany({
-      where: {
-        orders: {
-          some: {
-            orderStatus: 'success',
-            status: 'active',
-            expireAt: {
-              lte: new Date(),
-            },
-            tariff: {
-              service: {
-                serviceCode: 'top',
+    const data = await this.#_prisma.premium_Cottage.findMany({
+      include: {
+        cottage: {
+          include: {
+            comforts: true,
+            cottageTypes: true,
+            images: {
+              where: {
+                status: 'active',
               },
             },
+            place: true,
+            region: true,
+            user: true,
           },
+        },
+      },
+      orderBy: {
+        priority: 'desc',
+      },
+      where: {
+        serviceCode: 'top',
+        expireAt: {
+          gte: new Date(),
         },
       },
     });
     for (const cottage of data) {
-      const data = await this.#_getCottage(cottage, languageCode);
-      response.push(data);
+      const data = await this.#_getCottage(cottage.cottage, languageCode);
+      response.push({ ...cottage, cottage: data });
     }
     return response;
   }
@@ -405,29 +433,37 @@ export class CottageService {
   ): Promise<GetCottageListResponse[]> {
     const response = [];
 
-    const data = await this.#_prisma.cottage.findMany({
-      where: {
-        status: 'active',
-        orders: {
-          some: {
-            orderStatus: 'success',
-            status: 'active',
-            expireAt: {
-              lte: new Date(),
-            },
-            tariff: {
-              service: {
-                serviceCode: 'recommended',
+    const data = await this.#_prisma.premium_Cottage.findMany({
+      include: {
+        cottage: {
+          include: {
+            comforts: true,
+            cottageTypes: true,
+            images: {
+              where: {
+                status: 'active',
               },
             },
+            place: true,
+            region: true,
+            user: true,
           },
+        },
+      },
+      orderBy: {
+        priority: 'desc',
+      },
+      where: {
+        serviceCode: 'recommended',
+        expireAt: {
+          gte: new Date(),
         },
       },
     });
 
     for (const cottage of data) {
-      const data = await this.#_getCottage(cottage, languageCode);
-      response.push(data);
+      const data = await this.#_getCottage(cottage.cottage, languageCode);
+      response.push({ ...cottage, cottage: data });
     }
     return response;
   }
@@ -524,6 +560,10 @@ export class CottageService {
     }
 
     await this.#_prisma.cottage.delete({ where: { id: foundedCottage.id } });
+  }
+
+  async deletePremiumCottage(id: string): Promise<void> {
+    await this.#_prisma.premium_Cottage.delete({ where: { id } });
   }
 
   async addCottageImage(payload: AddCottageImageRequest): Promise<void> {
@@ -638,7 +678,7 @@ export class CottageService {
       latitude: cottage.longitude,
       cottageStatus: cottage.cottageStatus,
       status: cottage.status,
-      user: cottage.user
+      user: cottage.user,
     };
   }
 
@@ -665,7 +705,7 @@ export class CottageService {
   }
 
   async #_getComforts(
-    comforts: Cottage_Comfort[],
+    comforts: Cottage_Comfort[] = [],
     languageCode: string,
   ): Promise<GetComfortsInterface[]> {
     const response = [];
@@ -689,7 +729,7 @@ export class CottageService {
   }
 
   async #_getCottageTypes(
-    cottageTypes: Cottage_CottageType[],
+    cottageTypes: Cottage_CottageType[] = [],
     languageCode: string,
   ): Promise<GetCottageTypesInterfaces[]> {
     const response = [];

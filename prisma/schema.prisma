@@ -266,17 +266,17 @@ model User_Otp {
 }
 
 model UserDevice {
-  id            String   @default(dbgenerated("GEN_RANDOM_UUID()")) @map("id") @db.Uuid
-  deviceId      String?  @map("device_id") @db.VarChar()
-  refreshToken  String?  @map("refresh_token") @db.VarChar()
-  accessToken   String?  @map("access_token") @db.VarChar()
-  deviceType    String?  @map("device_type") @db.VarChar()
-  deviceName    String?  @map("device_name") @db.VarChar()
-  platform      String?  @map("platform") @db.VarChar()
+  id            String    @default(dbgenerated("GEN_RANDOM_UUID()")) @map("id") @db.Uuid
+  deviceId      String?   @map("device_id") @db.VarChar()
+  refreshToken  String?   @map("refresh_token") @db.VarChar()
+  accessToken   String?   @map("access_token") @db.VarChar()
+  deviceType    String?   @map("device_type") @db.VarChar()
+  deviceName    String?   @map("device_name") @db.VarChar()
+  platform      String?   @map("platform") @db.VarChar()
   tokenExpireAt DateTime? @map("token_expire_at") @db.Date
-  createdAt     DateTime @default(now()) @map("created_at") @db.Date
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Date
   lastLogin     DateTime? @map("last_login") @db.Date
-  isActive      Boolean  @default(true) @map("is_active") @db.Boolean
+  isActive      Boolean   @default(true) @map("is_active") @db.Boolean
 
   userId String @map("user_id") @db.Uuid
 
@@ -321,27 +321,25 @@ model Role {
 }
 
 model Role_Permission {
-  id           String @default(dbgenerated("GEN_RANDOM_UUID()")) @map("id") @db.Uuid
   roleId       String @map("role_id") @db.Uuid
   permissionId String @map("permission_id") @db.Uuid
 
   role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
-  @@id([id])
+  @@id([roleId, permissionId])
   @@map("role_permission")
 }
 
 model User_Role {
-  id        String   @default(dbgenerated("GEN_RANDOM_UUID()")) @map("id") @db.Uuid
   userId    String   @map("user_id") @db.Uuid
   roleId    String   @map("role_id") @db.Uuid
   createdAt DateTime @default(now()) @map("created_at")
 
-  user User @relation(fields: [userId], references: [id])
-  role Role @relation(fields: [roleId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
-  @@id([id])
+  @@id([userId, roleId])
   @@map("user_role")
 }
 

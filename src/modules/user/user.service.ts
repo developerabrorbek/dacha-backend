@@ -111,7 +111,15 @@ export class UserService {
       include: {
         cottages: true,
         notifications: true,
-        orders: true,
+        orders: {
+          include: {
+            tariff: {
+              include: {
+                service: true
+              }
+            }
+          }
+        },
         roles: true,
         userDevices: true,
       },

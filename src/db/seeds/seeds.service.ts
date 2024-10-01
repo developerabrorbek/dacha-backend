@@ -31,7 +31,7 @@ export class SeedsService {
       }
 
       // CREATE ALL MODELS WITH PERMISSIONS
-      Object.entries(PERMISSIONS).forEach(async (model) => {
+      for (const model of Object.entries(PERMISSIONS)) {
         const newModel = await this.#_prisma.models.create({
           data: {
             name: model[0],
@@ -39,7 +39,7 @@ export class SeedsService {
         });
 
         // CREATE MODEL PERMISSIONS
-        Object.entries(model[1]).forEach(async (ds) => {
+        for (const ds of Object.entries(model[1])) {
           await this.#_prisma.permission.create({
             data: {
               code: ds[1].name,
@@ -47,8 +47,8 @@ export class SeedsService {
               modelId: newModel.id,
             },
           });
-        });
-      });
+        }
+      }
 
       // CREATE USER ROLE
       await this.#_prisma.role.create({
@@ -67,14 +67,14 @@ export class SeedsService {
       // SET ALL PERMISSIONS ON SUPER-ADMIN
       const allPermissions = await this.#_prisma.permission.findMany();
 
-      allPermissions.forEach(async (p) => {
+      for (const p of allPermissions) {
         await this.#_prisma.role_Permission.create({
           data: {
             permissionId: p.id,
             roleId: superAdminRole.id,
           },
         });
-      });
+      }
 
       // CREATE DEFAULT SUPER-ADMIN USER
       const superAdminUser = await this.#_prisma.user.create({

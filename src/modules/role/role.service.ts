@@ -41,7 +41,6 @@ export class Roleservice {
       include: {
         permissions: {
           select: {
-            id: true,
             permission: {
               select: {
                 code: true,

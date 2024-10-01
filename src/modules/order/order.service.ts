@@ -64,7 +64,11 @@ export class OrderService {
     const data = await this.#_prisma.orders.findMany({
       include: {
         cottage: true,
-        tariff: true,
+        tariff: {
+          include: {
+            service: true
+          }
+        },
         user: true,
       },
     });

@@ -5,6 +5,7 @@ import {
   InternalServerErrorException,
   UnprocessableEntityException,
   ConflictException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { PERMISSION_KEY } from '@decorators';
@@ -47,6 +48,11 @@ export class PermissionGuard implements CanActivate {
         },
       },
     });
+
+    if (!userRole) {
+      throw new UnauthorizedException('User role not found');
+    }
+
     const foundedPermission = await this.prisma.permission.findFirst({
       where: { code: permission },
     });
