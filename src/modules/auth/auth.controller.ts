@@ -1,4 +1,4 @@
-import { Body, Controller, Headers, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Headers, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto, LoginForAdminDto, LoginGetSMSDto, RefreshDto } from './dtos';
@@ -19,9 +19,7 @@ export class AuthController {
   }
 
   @Post('/login')
-  async login(
-    @Body() payload: LoginDto,
-  ): Promise<LoginResponse> {
+  async login(@Body() payload: LoginDto): Promise<LoginResponse> {
     return await this.#_service.login(payload);
   }
 
@@ -47,8 +45,8 @@ export class AuthController {
     return await this.#_service.refresh({ refreshToken, ...payload });
   }
 
-  // @Delete('/logout')
-  // async logout(): Promise<void> {
-  //   await this.#_service.logout();
-  // }
+  @Delete('/logout')
+  async logout(@Headers('authorization') accessToken: string): Promise<void> {
+    await this.#_service.logout({ accessToken });
+  }
 }

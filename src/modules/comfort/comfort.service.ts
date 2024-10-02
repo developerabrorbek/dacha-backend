@@ -67,39 +67,20 @@ export class ComfortService {
     if (!foundedComfort) {
       throw new NotFoundException('Comfort not found');
     }
-    let image = null;
 
-    if (payload?.name) {
-      await this.#_translate.updateTranslate({
-        id: foundedComfort.name,
-        status: 'inactive',
-      });
-      await this.#_translate.updateTranslate({
-        id: payload.name,
-        status: 'active',
-      });
+    await this.#_translate.updateTranslate({
+      id: foundedComfort.name,
+      status: 'inactive',
+    });
+    await this.#_translate.updateTranslate({
+      id: payload.name,
+      status: 'active',
+    });
 
-      await this.#_prisma.comfort.update({
-        where: { id: payload.id },
-        data: { name: payload?.name },
-      });
-    }
-
-    if (payload?.image?.path) {
-      fs.unlink(
-        join(process.cwd(), foundedComfort.image),
-        (): unknown => undefined,
-      );
-
-      const imagePath = payload.image.path.replace('\\', '/');
-
-      image = imagePath.replace('\\', '/');
-
-      await this.#_prisma.comfort.update({
-        where: { id: payload.id },
-        data: { image: image },
-      });
-    }
+    await this.#_prisma.comfort.update({
+      where: { id: payload.id },
+      data: { name: payload?.name },
+    });
   }
 
   async updateComfortImage(

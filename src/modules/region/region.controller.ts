@@ -25,7 +25,7 @@ export class RegionController {
   }
 
   @CheckAuth(false)
-  @Permission(PERMISSIONS.region.get_all_region)
+  @Permission(PERMISSIONS.region.get_all_region.name)
   @Get()
   async getRegionList(
     @Headers('accept-language') languageCode: string,
@@ -35,7 +35,7 @@ export class RegionController {
 
   @ApiBearerAuth("JWT")
   @CheckAuth(true)
-  @Permission(PERMISSIONS.region.create_region)
+  @Permission(PERMISSIONS.region.create_region.name)
   @Post('/add')
   async createRegion(@Body() payload: CreateRegionDto): Promise<void> {
     await this.#_service.createRegion(payload);
@@ -43,7 +43,7 @@ export class RegionController {
 
   @ApiBearerAuth("JWT")
   @CheckAuth(true)
-  @Permission(PERMISSIONS.region.edit_region)
+  @Permission(PERMISSIONS.region.edit_region.name)
   @Patch('/edit/:id')
   async updateRegion(
     @Param('id') regionId: string,
@@ -54,7 +54,7 @@ export class RegionController {
 
   @ApiBearerAuth("JWT")
   @CheckAuth(true)
-  @Permission(PERMISSIONS.region.delete_region)
+  @Permission(PERMISSIONS.region.delete_region.name)
   @Delete("/delete/:id")
   async deleteRegion(@Param('id') id: string): Promise<void> {
     await this.#_service.deleteRegion(id);

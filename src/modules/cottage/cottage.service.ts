@@ -7,6 +7,7 @@ import { PrismaService } from 'prisma/prisma.service';
 import {
   AddCottageImageRequest,
   CreateCottageRequest,
+  CreatePremiumCottageRequest,
   GetComfortsInterface,
   GetCottageListResponse,
   GetCottageTypesInterfaces,
@@ -20,6 +21,7 @@ import * as fs from 'fs';
 import { TranslateService } from 'modules/translate';
 import { join } from 'path';
 import { isArray, isUUID } from 'class-validator';
+import { Cottage_Comfort, Cottage_CottageType } from '@prisma/client';
 
 @Injectable()
 export class CottageService {
@@ -72,6 +74,8 @@ export class CottageService {
       comforts.push(payload.comforts);
     }
 
+    await this.#_checkComforts(comforts);
+
     const cottageType = [];
     if (isArray(payload.cottageType)) {
       await this.#_checkCottageTypes(payload.cottageType);
@@ -79,6 +83,8 @@ export class CottageService {
     } else {
       cottageType.push(payload.cottageType);
     }
+
+    await this.#_checkCottageTypes(cottageType);
 
     const cottageImages = [];
 
@@ -98,18 +104,16 @@ export class CottageService {
       isMainImage: true,
     });
 
-    await this.#_prisma.cottage.create({
+    const cottage = await this.#_prisma.cottage.create({
       data: {
         name: payload.name,
         description: payload.description,
         price: Number(payload.price),
         priceWeekend: Number(payload.priceWeekend),
-        comforts: comforts,
         rating: 1,
-        cottageType: cottageType,
         placeId: payload.placeId,
         regionId: payload.regionId,
-        createdBy: userId,
+        userId: userId,
         latitude: payload.latitude,
         longitude: payload.longitude,
         images: {
@@ -121,6 +125,48 @@ export class CottageService {
         isTest,
       },
     });
+
+    if (comforts.length) {
+      // add comforts to cottage
+      for (const c of comforts) {
+        await this.#_prisma.cottage_Comfort.create({
+          data: {
+            cottageId: cottage.id,
+            comfortId: c,
+          },
+        });
+      }
+    }
+
+    if (cottageType.length) {
+      // add cottage types to cottage
+      for (const ct of cottageType) {
+        await this.#_prisma.cottage_CottageType.create({
+          data: {
+            cottageId: cottage.id,
+            cottageTypeId: ct,
+          },
+        });
+      }
+    }
+  }
+
+  async createPremiumCottage(
+    payload: CreatePremiumCottageRequest,
+  ): Promise<void> {
+    const today = new Date();
+
+    const expireDate = new Date(today);
+    expireDate.setDate(today.getDate() + payload.expireDays);
+
+    await this.#_prisma.premium_Cottage.create({
+      data: {
+        expireAt: expireDate,
+        serviceCode: payload.serviceCode,
+        cottageId: payload.cottageId,
+        priority: payload.priority,
+      },
+    });
   }
 
   async getCottageList(
@@ -129,18 +175,23 @@ export class CottageService {
     const response = [];
 
     const data = await this.#_prisma.cottage.findMany({
-      include: { Orders: true },
+      include: {
+        comforts: true,
+        cottageTypes: true,
+        images: {
+          where: {
+            status: 'active',
+          },
+        },
+        place: true,
+        region: true,
+        user: true,
+      },
     });
 
     for (const cottage of data) {
       const data = await this.#_getCottage(cottage, languageCode);
-
-      // Find who created the cottage
-      const user = await this.#_prisma.user.findFirst({
-        where: { id: cottage.createdBy },
-      });
-
-      response.push({ ...data, user });
+      response.push({ ...data });
     }
 
     return response;
@@ -159,6 +210,18 @@ export class CottageService {
     if (!foundedCottage) throw new NotFoundException('Cottage not found');
 
     const data = await this.#_prisma.cottage.findMany({
+      include: {
+        comforts: true,
+        cottageTypes: true,
+        images: {
+          where: {
+            status: 'active',
+          },
+        },
+        place: true,
+        region: true,
+        user: true,
+      },
       where: {
         OR: [
           {
@@ -179,12 +242,7 @@ export class CottageService {
     for (const cottage of data) {
       const data = await this.#_getCottage(cottage, payload.languageCode);
 
-      // Find who created the cottage
-      const user = await this.#_prisma.user.findFirst({
-        where: { id: cottage.createdBy },
-      });
-
-      response.push({ ...data, user });
+      response.push({ ...data });
     }
 
     return response;
@@ -203,16 +261,34 @@ export class CottageService {
     }
 
     const data = await this.#_prisma.cottage.findMany({
+      include: {
+        comforts: true,
+        cottageTypes: true,
+        images: {
+          where: {
+            status: 'active',
+          },
+        },
+        place: true,
+        region: true,
+        user: true,
+      },
       where: {
         AND: [
           {
-            cottageType: {
-              hasSome: [payload.cottageType],
+            cottageTypes: {
+              some: {
+                id: {
+                  in: [payload.cottageType],
+                },
+              },
             },
             price: {
-              lte: payload.price,
+              lte: payload?.price,
             },
-            placeId: payload.placeId,
+            placeId: {
+              in: [payload.placeId],
+            },
           },
         ],
         cottageStatus: 'confirmed',
@@ -232,9 +308,23 @@ export class CottageService {
     this.#_checkUUID(cottageTypeId);
     const response = [];
     const data = await this.#_prisma.cottage.findMany({
+      include: {
+        comforts: true,
+        cottageTypes: true,
+        images: {
+          where: {
+            status: 'active',
+          },
+        },
+        place: true,
+        region: true,
+        user: true,
+      },
       where: {
-        cottageType: {
-          has: cottageTypeId,
+        cottageTypes: {
+          some: {
+            cottageTypeId: cottageTypeId,
+          },
         },
         cottageStatus: 'confirmed',
       },
@@ -252,6 +342,18 @@ export class CottageService {
   ): Promise<GetCottageListResponse[]> {
     const response = [];
     const data = await this.#_prisma.cottage.findMany({
+      include: {
+        comforts: true,
+        cottageTypes: true,
+        images: {
+          where: {
+            status: 'active',
+          },
+        },
+        place: true,
+        region: true,
+        user: true,
+      },
       where: {
         placeId: placeId,
         cottageStatus: 'confirmed',
@@ -274,10 +376,10 @@ export class CottageService {
 
     const data = await this.#_prisma.cottage.findMany({
       where: {
-        createdBy: userId,
+        userId,
       },
       include: {
-        Orders: true,
+        orders: true,
       },
     });
 
@@ -292,24 +394,36 @@ export class CottageService {
     languageCode: string,
   ): Promise<GetCottageListResponse[]> {
     const response = [];
-    const data = await this.#_prisma.cottage.findMany({
-      where: {
-        Orders: {
-          some: {
-            orderStatus: 'success',
-            status: 'active',
-            tariff: {
-              service: {
-                serviceCode: 'top',
+    const data = await this.#_prisma.premium_Cottage.findMany({
+      include: {
+        cottage: {
+          include: {
+            comforts: true,
+            cottageTypes: true,
+            images: {
+              where: {
+                status: 'active',
               },
             },
+            place: true,
+            region: true,
+            user: true,
           },
+        },
+      },
+      orderBy: {
+        priority: 'desc',
+      },
+      where: {
+        serviceCode: 'top',
+        expireAt: {
+          gte: new Date(),
         },
       },
     });
     for (const cottage of data) {
-      const data = await this.#_getCottage(cottage, languageCode);
-      response.push(data);
+      const data = await this.#_getCottage(cottage.cottage, languageCode);
+      response.push({ ...cottage, cottage: data });
     }
     return response;
   }
@@ -318,49 +432,38 @@ export class CottageService {
     languageCode: string,
   ): Promise<GetCottageListResponse[]> {
     const response = [];
-    const allCottages = [];
 
-    const data = await this.#_prisma.cottage.findMany({
-      where: {
-        status: 'active',
-        Orders: {
-          some: {
-            orderStatus: 'success',
-            status: 'active',
-            tariff: {
-              service: {
-                serviceCode: 'recommended',
+    const data = await this.#_prisma.premium_Cottage.findMany({
+      include: {
+        cottage: {
+          include: {
+            comforts: true,
+            cottageTypes: true,
+            images: {
+              where: {
+                status: 'active',
               },
             },
+            place: true,
+            region: true,
+            user: true,
           },
+        },
+      },
+      orderBy: {
+        priority: 'desc',
+      },
+      where: {
+        serviceCode: 'recommended',
+        expireAt: {
+          gte: new Date(),
         },
       },
     });
 
-    const cottages = await this.#_prisma.cottage.findMany({
-      where: {
-        AND: [
-          {
-            status: 'active',
-          },
-          {
-            Orders: {
-              none: {
-                orderStatus: 'success',
-              },
-            },
-          },
-        ],
-      },
-    });
-
-    allCottages.push(...data);
-
-    allCottages.push(...cottages);
-
-    for (const cottage of allCottages) {
-      const data = await this.#_getCottage(cottage, languageCode);
-      response.push(data);
+    for (const cottage of data) {
+      const data = await this.#_getCottage(cottage.cottage, languageCode);
+      response.push({ ...cottage, cottage: data });
     }
     return response;
   }
@@ -375,6 +478,25 @@ export class CottageService {
       comforts.push(payload.comforts);
     }
 
+    await this.#_checkComforts(comforts);
+
+    if (comforts.length) {
+      // remove all comforts linked to cottage
+      await this.#_prisma.cottage_Comfort.deleteMany({
+        where: { cottageId: payload.id },
+      });
+
+      // add new comforts to cottage
+      for (const c of comforts) {
+        await this.#_prisma.cottage_Comfort.create({
+          data: {
+            cottageId: payload.id,
+            comfortId: c,
+          },
+        });
+      }
+    }
+
     const cottageType = [];
     if (isArray(payload.cottageType)) {
       await this.#_checkCottageTypes(payload.cottageType);
@@ -383,15 +505,29 @@ export class CottageService {
       cottageType.push(payload.cottageType);
     }
 
-    await this.#_checkComforts(comforts);
     await this.#_checkCottageTypes(cottageType);
+
+    if (cottageType.length) {
+      // remove all cottage types linked to cottage
+      await this.#_prisma.cottage_CottageType.deleteMany({
+        where: { cottageId: payload.id },
+      });
+
+      // add new cottage types to cottage
+      for (const ct of cottageType) {
+        await this.#_prisma.cottage_CottageType.create({
+          data: {
+            cottageId: payload.id,
+            cottageTypeId: ct,
+          },
+        });
+      }
+    }
 
     await this.#_prisma.cottage.update({
       where: { id: payload.id },
       data: {
         rating: payload.rating,
-        cottageType: cottageType,
-        comforts: comforts,
         name: payload.name,
         description: payload.description,
         price: payload.price,
@@ -418,13 +554,16 @@ export class CottageService {
       where: { cottageId: foundedCottage.id },
     });
 
+    // deleting all cottage images from storage
     for (const image of images) {
       fs.unlink(join(process.cwd(), image.image), () => console.log('err'));
-
-      await this.#_prisma.cottageImage.delete({ where: { id: image.id } });
     }
 
     await this.#_prisma.cottage.delete({ where: { id: foundedCottage.id } });
+  }
+
+  async deletePremiumCottage(id: string): Promise<void> {
+    await this.#_prisma.premium_Cottage.delete({ where: { id } });
   }
 
   async addCottageImage(payload: AddCottageImageRequest): Promise<void> {
@@ -496,7 +635,7 @@ export class CottageService {
 
     // get cottage-types with translations
     const cottageTypes = await this.#_getCottageTypes(
-      cottage.cottageType,
+      cottage.cottageTypes,
       languageCode,
     );
 
@@ -504,6 +643,7 @@ export class CottageService {
     const region = await this.#_prisma.region.findFirst({
       where: { id: cottage.regionId },
     });
+
     region.name = (
       await this.#_translate.getSingleTranslate({
         languageCode,
@@ -533,15 +673,12 @@ export class CottageService {
       rating: cottage.rating,
       price: cottage.price,
       priceWeekend: cottage.priceWeekend,
-      images: await this.#_prisma.cottageImage.findMany({
-        where: { cottageId: cottage.id, status: 'active' },
-      }),
+      images: cottage.images,
       longitude: cottage.latitude,
       latitude: cottage.longitude,
       cottageStatus: cottage.cottageStatus,
       status: cottage.status,
-      tariffs: cottage.tariffs,
-      user: cottage?.user,
+      user: cottage.user,
     };
   }
 
@@ -568,13 +705,13 @@ export class CottageService {
   }
 
   async #_getComforts(
-    comforts: string[],
+    comforts: Cottage_Comfort[] = [],
     languageCode: string,
   ): Promise<GetComfortsInterface[]> {
     const response = [];
     for (const c of comforts) {
       const foundedComfort = await this.#_prisma.comfort.findFirst({
-        where: { id: c },
+        where: { id: c.comfortId },
       });
       if (!foundedComfort) {
         throw new NotFoundException('Comfort not found');
@@ -592,13 +729,13 @@ export class CottageService {
   }
 
   async #_getCottageTypes(
-    cottageTypes: string[],
+    cottageTypes: Cottage_CottageType[] = [],
     languageCode: string,
   ): Promise<GetCottageTypesInterfaces[]> {
     const response = [];
     for (const c of cottageTypes) {
       const foundedCottageType = await this.#_prisma.cottageType.findFirst({
-        where: { id: c },
+        where: { id: c.cottageTypeId },
       });
       if (!foundedCottageType) {
         throw new NotFoundException('Cottage type not found');

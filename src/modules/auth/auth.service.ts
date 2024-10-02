@@ -14,6 +14,7 @@ import {
   LoginGetSMSCodeResponse,
   LoginRequest,
   LoginResponse,
+  LogoutRequest,
   RefreshRequest,
   RefreshResponse,
   SendSMSRequest,
@@ -25,6 +26,7 @@ import {
 } from '@constants';
 import { ConfigService } from '@nestjs/config';
 import { isJWT } from 'class-validator';
+import { UAParser, UAParserInstance } from 'ua-parser-js';
 
 @Injectable()
 export class AuthService {
@@ -58,17 +60,19 @@ export class AuthService {
       userId = newUser.id;
     }
 
+    // generate 5 digits unique code for otp
     const smsCode = String(Math.floor(Math.random() * 90000) + 10000);
 
+    // Send otp code to user phone
     await this.#_sendSms({ phone: payload.phone, smsCode });
 
-    const expireSmsTime = String(new Date().getTime() + SMS_EXPIRE_TIME * 1000);
+    const expireSmsTime = new Date(new Date().getTime() + SMS_EXPIRE_TIME * 1000);
 
-    await this.#_prisma.user.update({
-      where: { id: userId },
+    await this.#_prisma.user_Otp.create({
       data: {
-        smsCode,
-        smsExpireTime: expireSmsTime,
+        otp: smsCode,
+        expiresAt: expireSmsTime,
+        userId: userId,
       },
     });
 
@@ -82,6 +86,16 @@ export class AuthService {
   async login(payload: LoginRequest): Promise<LoginResponse> {
     const foundedUser = await this.#_prisma.user.findFirst({
       where: { id: payload.userId },
+      include: {
+        userOtps: {
+          select: {
+            expiresAt: true,
+            id: true,
+            isUsed: true,
+            otp: true,
+          },
+        },
+      },
     });
 
     if (!foundedUser) {
@@ -90,15 +104,40 @@ export class AuthService {
 
     const currentTime = new Date().getTime();
 
-    if (Number(foundedUser.smsExpireTime) - currentTime < 0) {
-      throw new UnprocessableEntityException('Sms Code already expired');
+    // Found match OTP for user login
+    const matchOtp = foundedUser.userOtps.find(
+      (otp) =>
+        otp.otp == payload.smsCode &&
+        otp.isUsed == false &&
+        Number(otp.expiresAt) - currentTime < 0,
+    );
+
+    if (!matchOtp) {
+      throw new UnprocessableEntityException(
+        'Sms Code already expired or used. Try another one',
+      );
     }
+
+    // update user match OTP as used
+    await this.#_prisma.user_Otp.update({
+      where: { id: matchOtp.id },
+      data: {
+        isUsed: true,
+      },
+    });
+
+    // Parse user agent string
+    const userAgent: UAParserInstance = new UAParser(payload.userAgent);
 
     const foundedUserDevice = await this.#_prisma.userDevice.findFirst({
       where: {
         userId: payload.userId,
-        userAgent: payload.userAgent,
-        ip: payload.ip,
+        deviceId: payload.ip,
+        OR: [
+          { deviceName: userAgent.getDevice().model },
+          { deviceType: userAgent.getDevice().type },
+        ],
+        platform: userAgent.getOS().name,
       },
     });
 
@@ -123,14 +162,11 @@ export class AuthService {
         data: {
           accessToken,
           refreshToken,
+          isActive: true,
+          lastLogin: new Date(),
+          tokenExpireAt: new Date(Date.now() + Number(JWT_ACCESS_EXPIRE_TIME)),
         },
       });
-
-      return {
-        accessToken,
-        refreshToken,
-        user: foundedUser,
-      };
     }
 
     await this.#_prisma.userDevice.create({
@@ -138,11 +174,15 @@ export class AuthService {
         accessToken,
         refreshToken,
         userId: payload.userId,
-        userAgent: payload.userAgent,
-        ip: payload.ip,
+        isActive: true,
+        lastLogin: new Date(),
+        deviceId: payload.ip,
+        deviceName: userAgent.getDevice()?.model || "device",
+        deviceType: userAgent.getDevice()?.type || "device",
+        platform: userAgent.getOS().name,
+        tokenExpireAt: new Date(Date.now() + Number(JWT_ACCESS_EXPIRE_TIME)),
       },
     });
-
 
     return {
       accessToken,
@@ -157,15 +197,23 @@ export class AuthService {
     const foundedUser = await this.#_prisma.user.findFirst({
       where: { password: payload.password, username: payload.username },
     });
+
     if (!foundedUser) {
       throw new NotFoundException('User not found');
     }
 
+    // Parse user agent string
+    const userAgent: UAParserInstance = new UAParser(payload.userAgent);
+
     const foundedUserDevice = await this.#_prisma.userDevice.findFirst({
       where: {
         userId: foundedUser.id,
-        userAgent: payload.userAgent,
-        ip: payload.ip,
+        deviceId: payload.ip,
+        OR: [
+          { deviceName: userAgent.getDevice().model },
+          { deviceType: userAgent.getDevice().type },
+        ],
+        platform: userAgent.getOS().name,
       },
     });
 
@@ -190,13 +238,11 @@ export class AuthService {
         data: {
           accessToken,
           refreshToken,
+          isActive: true,
+          lastLogin: new Date(),
+          tokenExpireAt: new Date(Date.now() + Number(JWT_ACCESS_EXPIRE_TIME)),
         },
       });
-
-      return {
-        accessToken,
-        refreshToken,
-      };
     }
 
     await this.#_prisma.userDevice.create({
@@ -204,8 +250,13 @@ export class AuthService {
         accessToken,
         refreshToken,
         userId: foundedUser.id,
-        userAgent: payload.userAgent,
-        ip: payload.ip,
+        isActive: true,
+        lastLogin: new Date(),
+        deviceId: payload.ip,
+        deviceName: userAgent.getDevice()?.model || "desktop",
+        deviceType: userAgent.getDevice()?.type || "desktop",
+        platform: userAgent.getOS().name,
+        tokenExpireAt: new Date(Date.now() + Number(JWT_ACCESS_EXPIRE_TIME)),
       },
     });
 
@@ -221,13 +272,19 @@ export class AuthService {
         throw new UnprocessableEntityException('Invalid token');
       }
 
+      // Verify if refresh token is valid and not expired
       const data = await this.#_jwt.verifyAsync(payload.refreshToken, {
         secret: this.#_config.getOrThrow<string>('jwt.refreshKey'),
       });
 
+      // Found users device
       const userDevice = await this.#_prisma.userDevice.findFirst({
-        where: { ip: payload.ip, userAgent: payload.userAgent },
+        where: { deviceId: payload.ip, refreshToken: payload.refreshToken },
       });
+
+      if (!userDevice) {
+        throw new NotFoundException('User device not found');
+      }
 
       const accessToken = this.#_jwt.sign(
         { id: data.id },
@@ -243,6 +300,9 @@ export class AuthService {
         data: {
           accessToken,
           refreshToken,
+          lastLogin: new Date(),
+          isActive: true,
+          tokenExpireAt: new Date(Date.now() + Number(JWT_ACCESS_EXPIRE_TIME)),
         },
       });
 
@@ -256,6 +316,32 @@ export class AuthService {
       }
       throw new ForbiddenException('Refresh token error');
     }
+  }
+
+  async logout(payload: LogoutRequest): Promise<void> {
+    const accessToken = payload.accessToken.split('Bearer ')[1];
+    // Check access token
+    if (!isJWT(accessToken)) {
+      throw new UnprocessableEntityException('Invalid token');
+    }
+
+    const userDevice = await this.#_prisma.userDevice.findFirst({
+      where: { accessToken: accessToken },
+    });
+
+    if (!userDevice) {
+      throw new NotFoundException('User device not found');
+    }
+
+    await this.#_prisma.userDevice.update({
+      where: { id: userDevice.id },
+      data: {
+        accessToken: null,
+        refreshToken: null,
+        isActive: false,
+        tokenExpireAt: null,
+      },
+    });
   }
 
   async #_sendSms(payload: SendSMSRequest): Promise<any> {

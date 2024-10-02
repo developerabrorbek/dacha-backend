@@ -17,8 +17,7 @@ import { CreatePlaceDto, UpdatePlaceDto, UpdatePlaceImageDto } from './dtos';
 import { CheckAuth, Permission } from '@decorators';
 import { PERMISSIONS } from '@constants';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { MulterConfig } from '@config';
 
 @ApiTags('Place')
 @Controller('place')
@@ -30,7 +29,7 @@ export class PlaceController {
   }
 
   @CheckAuth(false)
-  @Permission(PERMISSIONS.place.get_all_place)
+  @Permission(PERMISSIONS.place.get_all_place.name)
   @Get()
   async getPlaceList(
     @Headers('accept-language') languageCode: string,
@@ -39,7 +38,7 @@ export class PlaceController {
   }
 
   @CheckAuth(false)
-  @Permission(PERMISSIONS.place.get_all_place_by_region)
+  @Permission(PERMISSIONS.place.get_all_place_by_region.name)
   @Get('by/region/:regionId')
   async getPlaceListByRegion(
     @Headers('accept-language') languageCode: string,
@@ -49,22 +48,12 @@ export class PlaceController {
   }
 
   @ApiBearerAuth('JWT')
+  @ApiConsumes("multipart/form-data")
   @CheckAuth(true)
-  @Permission(PERMISSIONS.place.create_place)
+  @Permission(PERMISSIONS.place.create_place.name)
   @Post('/add')
   @UseInterceptors(
-    FileInterceptor('image', {
-      storage: diskStorage({
-        destination: './uploads/images',
-        filename: (req, file, cb) => {
-          const randomName = Array(32)
-            .fill(null)
-            .map(() => Math.round(Math.random() * 16).toString(16))
-            .join('');
-          cb(null, `${randomName}${extname(file.originalname)}`);
-        },
-      }),
-    }),
+    FileInterceptor('image', MulterConfig()),
   )
   async createPlace(
     @Body() payload: CreatePlaceDto,
@@ -75,7 +64,7 @@ export class PlaceController {
 
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.place.edit_place)
+  @Permission(PERMISSIONS.place.edit_place.name)
   @Patch('/edit/:id')
   async updatePlace(
     @Param('id') placeId: string,
@@ -90,21 +79,10 @@ export class PlaceController {
   @ApiConsumes("multipart/form-data")
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.place.edit_place_image)
+  @Permission(PERMISSIONS.place.edit_place_image.name)
   @Patch('/edit/image/:placeId')
   @UseInterceptors(
-    FileInterceptor('image', {
-      storage: diskStorage({
-        destination: './uploads/images',
-        filename: (req, file, cb) => {
-          const randomName = Array(32)
-            .fill(null)
-            .map(() => Math.round(Math.random() * 16).toString(16))
-            .join('');
-          cb(null, `${randomName}${extname(file.originalname)}`);
-        },
-      }),
-    }),
+    FileInterceptor('image', MulterConfig()),
   )
   async updatePlaceImage(
     @Param('placeId') placeId: string,
@@ -119,7 +97,7 @@ export class PlaceController {
 
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.place.delete_place)
+  @Permission(PERMISSIONS.place.delete_place.name)
   @Delete('/delete/:id')
   async deletePlace(@Param('id') id: string): Promise<void> {
     await this.#_service.deletePlace(id);

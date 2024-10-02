@@ -1,6 +1,11 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import {
+  CreateNotificationForAllRequest,
   CreateNotificationRequest,
   GetNotificationListRequest,
   UpdateNotificationRequest,
@@ -16,14 +21,41 @@ export class NotificationService {
     this.#_prisma = prisma;
   }
 
-  async createNotification(payload: CreateNotificationRequest): Promise<void> {
+  async createNotificationForSingle(
+    payload: CreateNotificationRequest,
+  ): Promise<void> {
     await this.#_prisma.notification.create({
       data: {
         message: payload.message,
-        userId: payload.userId,
+        users: {
+          connect: {
+            id: payload.userId,
+          },
+        },
         type: payload.type,
-        createdBy: payload.createdBy,
       },
+    });
+  }
+
+  async createNotificationForAll(
+    payload: CreateNotificationForAllRequest,
+  ): Promise<void> {
+    const allUsers = await this.#_prisma.user.findMany();
+
+    const notification = await this.#_prisma.notification.create({
+      data: {
+        message: payload.message,
+        type: payload.type,
+      },
+    });
+
+    allUsers.forEach(async (u) => {
+      await this.#_prisma.user_Notification.create({
+        data: {
+          notificationId: notification.id,
+          userId: u.id,
+        },
+      });
     });
   }
 
@@ -34,49 +66,58 @@ export class NotificationService {
       throw new ConflictException('Give valid ID');
     }
     const data = await this.#_prisma.notification.findMany({
-      where: { OR: [{ userId: payload.userId }, { type: 'public' }] },
-      orderBy: {createdAt: "desc"}
+      where: {
+        users: {
+          some: {
+            userId: payload.userId,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
     });
-
-    for (const nf of data) {
-      if (nf.watchedUsers.includes(payload.userId)) {
-        nf.status = 'seen';
-      }
-    }
 
     return data;
   }
 
   async getAllNotifications(): Promise<Notification[]> {
-    return await this.#_prisma.notification.findMany({orderBy: {createdAt: "desc"}});
+    return await this.#_prisma.notification.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
   }
 
-  async updateNotification(payload: UpdateNotificationRequest): Promise<null> {
-    this.#_checkUUID(payload.id);
+  async updateNotification(payload: UpdateNotificationRequest): Promise<void> {
+    this.#_checkUUID(payload.notificationId);
+
     const notification = await this.#_prisma.notification.findFirst({
-      where: { id: payload.id },
+      where: { id: payload.notificationId },
     });
 
-    if (
-      payload.userId == notification.userId &&
-      notification.type == 'personal'
-    ) {
-      await this.#_prisma.notification.update({
-        where: { id: payload.id },
-        data: { status: payload.status },
-      });
-      return null;
+    if (!notification) {
+      throw new NotFoundException('Notification not found');
     }
 
-    await this.#_prisma.notification.update({
-      where: { id: payload.id },
+    const user = await this.#_prisma.user.findFirst({
+      where: { id: payload.userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const userNotification = await this.#_prisma.user_Notification.findFirst({
+      where: { userId: payload.userId, notificationId: payload.notificationId },
+    });
+
+    if (!userNotification) {
+      throw new NotFoundException('User notification not found');
+    }
+
+    await this.#_prisma.user_Notification.update({
+      where: { id: userNotification.id },
       data: {
-        watchedUsers: {
-          push: payload.watchedUserId,
-        },
+        isRead: payload.isRead,
       },
     });
-    return null;
   }
 
   async deleteNotification(id: string): Promise<void> {

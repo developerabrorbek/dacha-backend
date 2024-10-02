@@ -15,10 +15,9 @@ import { ServicesService } from './services.service';
 import { Service } from '@prisma/client';
 import { CreateServiceDto, UpdateServiceDto } from './dtos';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
 import { CheckAuth, Permission } from '@decorators';
 import { PERMISSIONS } from '@constants';
+import { MulterConfig } from '@config';
 
 @ApiBearerAuth('JWT')
 @ApiTags('Services')
@@ -31,7 +30,7 @@ export class ServicesController {
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.services.get_all_services)
+  @Permission(PERMISSIONS.services.get_all_services.name)
   @Get()
   async getAllService(
     @Headers('accept-language') languageCode: string,
@@ -40,8 +39,8 @@ export class ServicesController {
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.services.get_single_service)
-  @Get('/single/:id')
+  @Permission(PERMISSIONS.services.get_single_service.name)
+  @Get('/:id')
   async getSingleService(
     @Headers('accept-language') languageCode: string,
     @Param('id') serviceId: string,
@@ -50,23 +49,10 @@ export class ServicesController {
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.services.create_service)
+  @Permission(PERMISSIONS.services.create_service.name)
   @ApiConsumes('multipart/form-data')
   @Post('/add')
-  @UseInterceptors(
-    FilesInterceptor('images', 10, {
-      storage: diskStorage({
-        destination: './uploads/images',
-        filename: (req, file, cb) => {
-          const randomName = Array(32)
-            .fill(null)
-            .map(() => Math.round(Math.random() * 16).toString(16))
-            .join('');
-          cb(null, `${randomName}${extname(file.originalname)}`);
-        },
-      }),
-    }),
-  )
+  @UseInterceptors(FilesInterceptor('images', 10, MulterConfig()))
   async createService(
     @Body() payload: CreateServiceDto,
     @UploadedFiles() images: Array<Express.Multer.File>,
@@ -75,22 +61,9 @@ export class ServicesController {
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.services.edit_service)
+  @Permission(PERMISSIONS.services.edit_service.name)
   @Patch('/edit/:id')
-  @UseInterceptors(
-    FilesInterceptor('images', 10, {
-      storage: diskStorage({
-        destination: './uploads/images',
-        filename: (req, file, cb) => {
-          const randomName = Array(32)
-            .fill(null)
-            .map(() => Math.round(Math.random() * 16).toString(16))
-            .join('');
-          cb(null, `${randomName}${extname(file.originalname)}`);
-        },
-      }),
-    }),
-  )
+  @UseInterceptors(FilesInterceptor('images', 10, MulterConfig()))
   async updateService(
     @Body() payload: UpdateServiceDto,
     @UploadedFiles() images: Array<Express.Multer.File>,
@@ -100,7 +73,7 @@ export class ServicesController {
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.services.delete_service)
+  @Permission(PERMISSIONS.services.delete_service.name)
   @Delete('/delete/:id')
   async deleteService(@Param('id') id: string): Promise<void> {
     await this.#_service.deleteService(id);

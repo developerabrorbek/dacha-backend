@@ -27,7 +27,7 @@ export class TariffController {
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.tariff.get_all_tariffs)
+  @Permission(PERMISSIONS.tariff.get_all_tariffs.name)
   @Get()
   async getAllTariff(
     @Headers('accept-language') languageCode: string,
@@ -36,14 +36,14 @@ export class TariffController {
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.tariff.create_tariff)
+  @Permission(PERMISSIONS.tariff.create_tariff.name)
   @Post('/add')
   async createTariff(@Body() payload: CreateTariffDto): Promise<void> {
     await this.#_service.createTariff(payload);
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.tariff.edit_tariff)
+  @Permission(PERMISSIONS.tariff.edit_tariff.name)
   @Patch('/edit/:id')
   async updateTariff(
     @Param('id') id: string,
@@ -53,7 +53,7 @@ export class TariffController {
   }
 
   @CheckAuth(true)
-  @Permission(PERMISSIONS.tariff.delete_tariff)
+  @Permission(PERMISSIONS.tariff.delete_tariff.name)
   @Delete('/delete/:id')
   async deleteTariff(@Param('id') id: string): Promise<void> {
     await this.#_service.deleteTariff(id);

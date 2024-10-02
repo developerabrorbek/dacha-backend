@@ -5,9 +5,11 @@ import {
   Get,
   Headers,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Query,
+  // Query,
   Req,
   UploadedFile,
   UploadedFiles,
@@ -18,6 +20,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import {
   AddCottageImageDto,
   CreateCottageDto,
+  CreatePremiumCottageDto,
   UpdateCottageDto,
   UpdateCottageImageDto,
 } from './dtos';
@@ -31,8 +34,7 @@ import {
   FileFieldsInterceptor,
   FileInterceptor,
 } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { MulterConfig } from '@config';
 
 @ApiTags('Cottage')
 @Controller('cottage')
@@ -44,7 +46,7 @@ export class CottageController {
   }
 
   @CheckAuth(false)
-  @Permission(PERMISSIONS.cottage.get_all_cottage)
+  @Permission(PERMISSIONS.cottage.get_all_cottage.name)
   @Get()
   async getCottageList(
     @Headers('accept-language') languageCode: string,
@@ -53,7 +55,7 @@ export class CottageController {
   }
 
   @CheckAuth(false)
-  @Permission(PERMISSIONS.cottage.get_all_cottages_on_top)
+  @Permission(PERMISSIONS.cottage.get_all_cottages_on_top.name)
   @Get('top')
   async getTopCottageList(
     @Headers('accept-language') languageCode: string,
@@ -62,7 +64,7 @@ export class CottageController {
   }
 
   @CheckAuth(false)
-  @Permission(PERMISSIONS.cottage.get_all_cottages_on_top)
+  @Permission(PERMISSIONS.cottage.get_all_cottages_on_top.name)
   @Get('recommended')
   async getRecommendedCottageList(
     @Headers('accept-language') languageCode: string,
@@ -71,7 +73,7 @@ export class CottageController {
   }
 
   @CheckAuth(false)
-  @Permission(PERMISSIONS.cottage.get_all_cottages_by_cottage_type)
+  @Permission(PERMISSIONS.cottage.get_all_cottages_by_cottage_type.name)
   @Get('cottage-type/:cottageTypeId')
   async getCottageListByCottageType(
     @Headers('accept-language') languageCode: string,
@@ -81,7 +83,7 @@ export class CottageController {
   }
 
   @CheckAuth(false)
-  @Permission(PERMISSIONS.cottage.get_all_suitable_cottages)
+  @Permission(PERMISSIONS.cottage.get_all_suitable_cottages.name)
   @Get('suitable/:cottageId')
   async getSutableCottageList(
     @Headers('accept-language') languageCode: string,
@@ -94,7 +96,7 @@ export class CottageController {
   }
 
   @CheckAuth(false)
-  @Permission(PERMISSIONS.cottage.get_all_cottages_by_place)
+  @Permission(PERMISSIONS.cottage.get_all_cottages_by_place.name)
   @Get('place/:placeId')
   async getCottageListByPlace(
     @Headers('accept-language') languageCode: string,
@@ -105,7 +107,7 @@ export class CottageController {
 
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.cottage.get_all_cottages_by_user)
+  @Permission(PERMISSIONS.cottage.get_all_cottages_by_user.name)
   @Get('user')
   async getCottageListByUser(
     @Headers('accept-language') languageCode: string,
@@ -115,7 +117,7 @@ export class CottageController {
   }
 
   @CheckAuth(false)
-  @Permission(PERMISSIONS.cottage.get_all_cottages_by_user_id)
+  @Permission(PERMISSIONS.cottage.get_all_cottages_by_user_id.name)
   @Get('user/:userId')
   async getCottageListByUserId(
     @Headers('accept-language') languageCode: string,
@@ -125,7 +127,7 @@ export class CottageController {
   }
 
   @CheckAuth(false)
-  @Permission(PERMISSIONS.cottage.get_all_filtered_cottages)
+  @Permission(PERMISSIONS.cottage.get_all_filtered_cottages.name)
   @Get('filter/?')
   async getFilteredCottageList(
     @Headers('accept-language') languageCode: string,
@@ -143,7 +145,7 @@ export class CottageController {
 
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.cottage.create_cottage)
+  @Permission(PERMISSIONS.cottage.create_cottage.name)
   @UseInterceptors(
     FileFieldsInterceptor(
       [
@@ -156,18 +158,7 @@ export class CottageController {
           maxCount: 15,
         },
       ],
-      {
-        storage: diskStorage({
-          destination: './uploads/images',
-          filename: (req, file, cb) => {
-            const randomName = Array(32)
-              .fill(null)
-              .map(() => Math.round(Math.random() * 16).toString(16))
-              .join('');
-            cb(null, `${randomName}${extname(file.originalname)}`);
-          },
-        }),
-      },
+      MulterConfig(),
     ),
   )
   @Post('/add')
@@ -185,7 +176,21 @@ export class CottageController {
 
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.cottage.edit_cottage)
+  @Permission(PERMISSIONS.cottage.create_premium_cottage.name)
+  @Post('/add/premium/:cottageId')
+  async createPremiumCottage(
+    @Param('cottageId', new ParseUUIDPipe({ version: '4' })) cottageId: string,
+    @Body() payload: CreatePremiumCottageDto,
+  ): Promise<void> {
+    await this.#_service.createPremiumCottage({
+      cottageId: cottageId,
+      ...payload,
+    });
+  }
+
+  @ApiBearerAuth('JWT')
+  @CheckAuth(true)
+  @Permission(PERMISSIONS.cottage.edit_cottage.name)
   @Patch('/edit/:id')
   async updateCottage(
     @Param('id') cottageId: string,
@@ -196,7 +201,7 @@ export class CottageController {
 
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.cottage.delete_cottage)
+  @Permission(PERMISSIONS.cottage.delete_cottage.name)
   @Delete('/delete/:id')
   async deleteCottage(@Param('id') id: string): Promise<void> {
     await this.#_service.deleteCottage(id);
@@ -204,21 +209,18 @@ export class CottageController {
 
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.cottage.create_cottage_image)
-  @UseInterceptors(
-    FileInterceptor('image', {
-      storage: diskStorage({
-        destination: './uploads/images',
-        filename: (req, file, cb) => {
-          const randomName = Array(32)
-            .fill(null)
-            .map(() => Math.round(Math.random() * 16).toString(16))
-            .join('');
-          cb(null, `${randomName}${extname(file.originalname)}`);
-        },
-      }),
-    }),
-  )
+  @Permission(PERMISSIONS.cottage.delete_premium_cottage.name)
+  @Delete('/delete/premium/:premiumCottageId')
+  async deletePremiumCottage(
+    @Param('premiumCottageId', new ParseUUIDPipe({ version: '4' })) id: string,
+  ): Promise<void> {
+    await this.#_service.deletePremiumCottage(id);
+  }
+
+  @ApiBearerAuth('JWT')
+  @CheckAuth(true)
+  @Permission(PERMISSIONS.cottage.create_cottage_image.name)
+  @UseInterceptors(FileInterceptor('image', MulterConfig()))
   @Post('/image/add')
   async addCottageImage(
     @Body() payload: AddCottageImageDto,
@@ -229,21 +231,8 @@ export class CottageController {
 
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.cottage.edit_cottage_image)
-  @UseInterceptors(
-    FileInterceptor('image', {
-      storage: diskStorage({
-        destination: './uploads/images',
-        filename: (req, file, cb) => {
-          const randomName = Array(32)
-            .fill(null)
-            .map(() => Math.round(Math.random() * 16).toString(16))
-            .join('');
-          cb(null, `${randomName}${extname(file.originalname)}`);
-        },
-      }),
-    }),
-  )
+  @Permission(PERMISSIONS.cottage.edit_cottage_image.name)
+  @UseInterceptors(FileInterceptor('image', MulterConfig()))
   @Patch('/image/edit/:id')
   async updateCottageImage(
     @Param('id') id: string,
@@ -255,7 +244,7 @@ export class CottageController {
 
   @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.cottage.delete_cottage_image)
+  @Permission(PERMISSIONS.cottage.delete_cottage_image.name)
   @Delete('/image/delete/:id')
   async deleteCottageImage(@Param('id') id: string): Promise<void> {
     await this.#_service.deleteCottageImage(id);

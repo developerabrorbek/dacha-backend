@@ -8,12 +8,12 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { CottageTypeService } from './cottage-type.service';
-import { CottageType } from '@prisma/client';
-import { UpdateCottageTypeDto, CreateCottageTypeDto } from './dtos';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { CottageType } from '@prisma/client';
 import { CheckAuth, Permission } from '@decorators';
 import { PERMISSIONS } from '@constants';
+import { CottageTypeService } from './cottage-type.service';
+import { UpdateCottageTypeDto, CreateCottageTypeDto } from './dtos';
 
 @ApiTags('Cottage Type')
 @Controller('cottage-type')
@@ -25,7 +25,7 @@ export class CottageTypeController {
   }
 
   @CheckAuth(false)
-  @Permission(PERMISSIONS.cottage_type.get_all_cottage_type)
+  @Permission(PERMISSIONS.cottage_type.get_all_cottage_type.name)
   @Get()
   async getCottageTypeList(
     @Headers('accept-language') languageCode: string,
@@ -33,29 +33,34 @@ export class CottageTypeController {
     return await this.#_service.getCottageTypeList(languageCode);
   }
 
-  @ApiBearerAuth("JWT")
+  @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.cottage_type.create_cottage_type)
+  @Permission(PERMISSIONS.cottage_type.create_cottage_type.name)
   @Post('/add')
-  async createCottageType(@Body() payload: CreateCottageTypeDto): Promise<void> {
+  async createCottageType(
+    @Body() payload: CreateCottageTypeDto,
+  ): Promise<void> {
     await this.#_service.createCottageType(payload);
   }
 
-  @ApiBearerAuth("JWT")
+  @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.cottage_type.edit_cottage_type)
+  @Permission(PERMISSIONS.cottage_type.edit_cottage_type.name)
   @Patch('/edit/:id')
   async updateCottageType(
     @Param('id') cottageTypeId: string,
     @Body() paylaod: UpdateCottageTypeDto,
   ): Promise<void> {
-    await this.#_service.updateCottageType({ id: cottageTypeId, name: paylaod.name });
+    await this.#_service.updateCottageType({
+      id: cottageTypeId,
+      name: paylaod.name,
+    });
   }
 
-  @ApiBearerAuth("JWT")
+  @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.cottage_type.delete_cottage_type)
-  @Delete("/delete/:id")
+  @Permission(PERMISSIONS.cottage_type.delete_cottage_type.name)
+  @Delete('/delete/:id')
   async deleteCottageType(@Param('id') id: string): Promise<void> {
     await this.#_service.deleteCottageType(id);
   }

@@ -1,14 +1,15 @@
-import { registerAs } from "@nestjs/config";
+
+import { registerAs } from '@nestjs/config';
 
 declare interface AppConfigOptions {
-  port: number
-  host: string
+  port: number;
+  host: string;
 }
 
 export const appConfig = registerAs<AppConfigOptions>(
-  'app',
+  'appConfig',
   (): AppConfigOptions => ({
-    port: parseInt(process.env.APP_PORT, 10) || 3000,
     host: process.env.APP_HOST,
+    port: parseInt(process.env.APP_PORT) || 1002,
   }),
 );

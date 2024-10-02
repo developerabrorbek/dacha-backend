@@ -5,6 +5,7 @@ import {
   InternalServerErrorException,
   UnprocessableEntityException,
   ConflictException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { PERMISSION_KEY } from '@decorators';
@@ -33,7 +34,25 @@ export class PermissionGuard implements CanActivate {
 
     const userRole = await this.prisma.role.findFirst({
       where: { name: 'USER' },
+      include: {
+        permissions: {
+          select: {
+            permission: {
+              select: {
+                code: true,
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
     });
+
+    if (!userRole) {
+      throw new UnauthorizedException('User role not found');
+    }
+
     const foundedPermission = await this.prisma.permission.findFirst({
       where: { code: permission },
     });
@@ -44,7 +63,9 @@ export class PermissionGuard implements CanActivate {
       );
     }
 
-    if (userRole?.permissions?.includes(foundedPermission?.id)) {
+    if (
+      userRole.permissions.some((p) => p.permission.id == foundedPermission.id)
+    ) {
       return true;
     }
 
@@ -62,7 +83,7 @@ export class PermissionGuard implements CanActivate {
       secret: this.config.getOrThrow<string>('jwt.accessKey'),
     });
 
-    const userRoles = await this.prisma.userOnRole.findMany({
+    const userRoles = await this.prisma.user_Role.findMany({
       where: { userId: userData?.id },
     });
 
@@ -71,9 +92,26 @@ export class PermissionGuard implements CanActivate {
     for (const role of userRoles) {
       const foundedRole = await this.prisma.role.findFirst({
         where: { id: role.roleId },
+        include: {
+          permissions: {
+            select: {
+              permission: {
+                select: {
+                  id: true,
+                  code: true,
+                  name: true,
+                },
+              },
+            },
+          },
+        },
       });
 
-      if (foundedRole?.permissions?.includes(foundedPermission.id)) {
+      if (
+        foundedRole?.permissions?.some(
+          (p) => p.permission.id == foundedPermission.id,
+        )
+      ) {
         isHavePermission = true;
       }
     }

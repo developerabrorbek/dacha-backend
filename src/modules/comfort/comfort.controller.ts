@@ -10,16 +10,19 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { ComfortService } from './comfort.service';
+import { Express } from 'express';
+import { MulterConfig } from '@config';
 import { Comfort } from '@prisma/client';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { CreateComfortDto, UpdateComfortDto, UpdateComfortImageDto } from './dtos';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ComfortService } from './comfort.service';
+import {
+  CreateComfortDto,
+  UpdateComfortDto,
+  UpdateComfortImageDto,
+} from './dtos';
 import { CheckAuth, Permission } from '@decorators';
 import { PERMISSIONS } from '@constants';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { extname } from 'path';
-import { Express } from 'express';
-import { diskStorage } from 'multer';
 
 @ApiTags('Comfort')
 @Controller('comfort')
@@ -31,7 +34,7 @@ export class ComfortController {
   }
 
   @CheckAuth(false)
-  @Permission(PERMISSIONS.comfort.get_all_comfort)
+  @Permission(PERMISSIONS.comfort.get_all_comfort.name)
   @Get()
   async getComfortList(
     @Headers('accept-language') languageCode: string,
@@ -39,24 +42,11 @@ export class ComfortController {
     return await this.#_service.getComfortList(languageCode);
   }
 
-  @ApiBearerAuth("JWT")
+  @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.comfort.create_comfort)
+  @Permission(PERMISSIONS.comfort.create_comfort.name)
   @Post('/add')
-  @UseInterceptors(
-    FileInterceptor('image', {
-      storage: diskStorage({
-        destination: './uploads/images',
-        filename: (_, file, cb) => {
-          const randomName = Array(32)
-            .fill(null)
-            .map(() => Math.round(Math.random() * 16).toString(16))
-            .join('');
-          cb(null, `${randomName}${extname(file.originalname)}`);
-        },
-      }),
-    }),
-  )
+  @UseInterceptors(FileInterceptor('image', MulterConfig()))
   async createComfort(
     @Body() payload: CreateComfortDto,
     @UploadedFile() image: Express.Multer.File,
@@ -64,48 +54,34 @@ export class ComfortController {
     await this.#_service.createComfort({ ...payload, image });
   }
 
-  @ApiBearerAuth("JWT")
+  @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.comfort.edit_comfort)
+  @Permission(PERMISSIONS.comfort.edit_comfort.name)
   @Patch('/edit/:id')
   async updateComfort(
     @Param('id') comfortId: string,
     @Body() payload: UpdateComfortDto,
-    @UploadedFile() image: Express.Multer.File,
   ): Promise<void> {
-    await this.#_service.updateComfort({ ...payload, id: comfortId, image });
+    await this.#_service.updateComfort({ ...payload, id: comfortId });
   }
 
-  @ApiConsumes("multipart/form-data")
-  @ApiBearerAuth("JWT")
+  @ApiConsumes('multipart/form-data')
+  @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.comfort.edit_comfort_image)
-  @UseInterceptors(
-    FileInterceptor('image', {
-      storage: diskStorage({
-        destination: './uploads/images',
-        filename: (req, file, cb) => {
-          const randomName = Array(32)
-            .fill(null)
-            .map(() => Math.round(Math.random() * 16).toString(16))
-            .join('');
-          cb(null, `${randomName}${extname(file.originalname)}`);
-        },
-      }),
-    }),
-  )
+  @Permission(PERMISSIONS.comfort.edit_comfort_image.name)
+  @UseInterceptors(FileInterceptor('image', MulterConfig()))
   @Patch('/edit/image/:comfortId')
   async updateComfortImage(
     @Param('comfortId') comfortId: string,
     @Body() payload: UpdateComfortImageDto,
     @UploadedFile() image: Express.Multer.File,
   ): Promise<void> {
-    await this.#_service.updateComfort({ ...payload, id: comfortId, image });
+    await this.#_service.updateComfortImage({ ...payload, id: comfortId, image });
   }
 
-  @ApiBearerAuth("JWT")
+  @ApiBearerAuth('JWT')
   @CheckAuth(true)
-  @Permission(PERMISSIONS.comfort.delete_comfort)
+  @Permission(PERMISSIONS.comfort.delete_comfort.name)
   @Delete('/delete/:id')
   async deleteComfort(@Param('id') id: string): Promise<void> {
     await this.#_service.deleteComfort(id);
