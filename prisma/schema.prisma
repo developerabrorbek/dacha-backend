@@ -173,7 +173,7 @@ model Cottage {
   latitude      String?       @map("latitude") @db.VarChar()
   createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamp()
   updatedAt     DateTime      @updatedAt @map("updated_at") @db.Timestamp()
-  isTest        Boolean       @default(false) @map("is_test") @db.Boolean
+  isTest        Boolean?       @default(false) @map("is_test") @db.Boolean
   userId        String        @map("user_id") @db.Uuid
   regionId      String        @map("region_id") @db.Uuid
   placeId       String        @map("place_id") @db.Uuid
