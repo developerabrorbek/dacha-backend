@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { databaseConfig, jwtConfig } from '@config';
+import { appConfig, databaseConfig, jwtConfig } from '@config';
 import {
   AuthModule,
   ComfortModule,
@@ -30,12 +30,12 @@ import { join } from 'path';
 @Module({
   imports: [
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, "..", "uploads"),
       serveRoot: "/uploads/",
+      rootPath: join(__dirname, "..", "uploads"),
     }),
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [databaseConfig, jwtConfig],
+      load: [appConfig,databaseConfig, jwtConfig],
     }),
     JwtModule,
     PrismaModule,
