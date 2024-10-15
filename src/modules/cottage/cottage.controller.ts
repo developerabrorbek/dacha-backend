@@ -21,6 +21,7 @@ import {
   AddCottageImageDto,
   CreateCottageDto,
   CreatePremiumCottageDto,
+  GetFilteredCottagesQueryDto,
   UpdateCottageDto,
   UpdateCottageImageDto,
 } from './dtos';
@@ -131,15 +132,13 @@ export class CottageController {
   @Get('filter/?')
   async getFilteredCottageList(
     @Headers('accept-language') languageCode: string,
-    @Query('type') cottageType?: string,
-    @Query('place') placeId?: string,
-    @Query('price') price?: string,
+    @Query() queries: GetFilteredCottagesQueryDto
   ): Promise<GetCottageListResponse[]> {
     return await this.#_service.getFilteredCottageList({
       languageCode,
-      cottageType,
-      price: Number(price) || 10000,
-      placeId,
+      cottageType: queries?.type,
+      price: queries.price,
+      placeId: queries.place,
     });
   }
 

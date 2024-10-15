@@ -186,6 +186,12 @@ export class CottageService {
         place: true,
         region: true,
         user: true,
+        orders: {
+          where: {
+            status: 'active',
+          },
+        },
+        premiumCottages: true,
       },
     });
 
@@ -221,6 +227,12 @@ export class CottageService {
         place: true,
         region: true,
         user: true,
+        orders: {
+          where: {
+            status: 'active',
+          },
+        },
+        premiumCottages: true,
       },
       where: {
         OR: [
@@ -252,12 +264,28 @@ export class CottageService {
     payload: GetFilteredCottagesRequest,
   ): Promise<GetCottageListResponse[]> {
     const response = [];
-    if (!payload.cottageType || payload.cottageType == 'undefined') {
-      payload.cottageType = '';
+    const where: any = { cottageStatus: 'confirmed' };
+
+    if (payload.price) {
+      where.price = {
+        lte: +payload.price,
+      };
     }
 
-    if (!payload.placeId || payload.placeId == 'undefined') {
-      payload.placeId = undefined;
+    if (payload.cottageType) {
+      where.cottageTypes = {
+        some: {
+          id: {
+            in: [payload.cottageType],
+          },
+        },
+      };
+    }
+
+    if (payload.placeId) {
+      where.place = {
+        id: payload.placeId,
+      };
     }
 
     const data = await this.#_prisma.cottage.findMany({
@@ -272,26 +300,15 @@ export class CottageService {
         place: true,
         region: true,
         user: true,
+        orders: {
+          where: {
+            status: 'active',
+          },
+        },
+        premiumCottages: true,
       },
       where: {
-        AND: [
-          {
-            cottageTypes: {
-              some: {
-                id: {
-                  in: [payload.cottageType],
-                },
-              },
-            },
-            price: {
-              lte: payload?.price,
-            },
-            placeId: {
-              in: [payload.placeId],
-            },
-          },
-        ],
-        cottageStatus: 'confirmed',
+        ...where,
       },
     });
     for (const cottage of data) {
@@ -319,6 +336,12 @@ export class CottageService {
         place: true,
         region: true,
         user: true,
+        orders: {
+          where: {
+            status: 'active',
+          },
+        },
+        premiumCottages: true,
       },
       where: {
         cottageTypes: {
@@ -353,6 +376,12 @@ export class CottageService {
         place: true,
         region: true,
         user: true,
+        orders: {
+          where: {
+            status: 'active',
+          },
+        },
+        premiumCottages: true,
       },
       where: {
         placeId: placeId,
@@ -379,7 +408,18 @@ export class CottageService {
         userId,
       },
       include: {
+        comforts: true,
+        cottageTypes: true,
+        images: {
+          where: {
+            status: 'active',
+          },
+        },
+        place: true,
+        region: true,
+        user: true,
         orders: true,
+        premiumCottages: true,
       },
     });
 
@@ -679,6 +719,8 @@ export class CottageService {
       cottageStatus: cottage.cottageStatus,
       status: cottage.status,
       user: cottage.user,
+      premiumCottages: cottage?.premiumCottages || [],
+      orders: cottage?.orders || [],
     };
   }
 
