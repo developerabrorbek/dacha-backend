@@ -318,6 +318,10 @@ export const PERMISSIONS = {
       name: 'delete_cottage_type',
       description: "Dacha turini o'chirish",
     },
+    edit_cottage_type_image: {
+      name: 'edit_cottage_type_image',
+      description: 'Dacha turining rasmini tahrirlash',
+    }
   },
   services: {
     get_all_services: {

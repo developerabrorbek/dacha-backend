@@ -106,6 +106,7 @@ model Place {
 model CottageType {
   id       String                @default(dbgenerated("GEN_RANDOM_UUID()")) @map("id") @db.Uuid
   name     String                @map("name") @db.Uuid
+  image String? @map("image") @db.VarChar()
   cottages Cottage_CottageType[]
 
   @@id([id])
