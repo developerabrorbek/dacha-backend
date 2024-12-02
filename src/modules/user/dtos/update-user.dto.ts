@@ -32,8 +32,8 @@ export class UpdateUserDto {
   roles?: string[];
 
   @ApiProperty()
-  @IsString()
   @IsOptional()
+  @IsString()
   username?: string;
 
   @ApiProperty({
