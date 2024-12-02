@@ -204,6 +204,49 @@ export class CottageService {
     return response;
   }
 
+  async getHotelsSanatoriumsWaterfallsList(
+    languageCode: string,
+  ): Promise<GetCottageListResponse[]> {
+    const response = [];
+
+    const data = await this.#_prisma.cottage.findMany({
+      where: {
+        id: {
+          in: [
+            '9aa6de2d-42be-4465-9b1d-5d43dd49e1a0',
+            '3e54eff7-8a26-443b-a302-066cbe8a05ff',
+            '52b306ee-6a60-47b8-bf9a-f3de02ad7ea0',
+          ],
+        },
+      },
+      include: {
+        comforts: true,
+        cottageTypes: true,
+        images: {
+          where: {
+            status: 'active',
+          },
+        },
+        place: true,
+        region: true,
+        user: true,
+        orders: {
+          where: {
+            status: 'active',
+          },
+        },
+        premiumCottages: true,
+      },
+    });
+
+    for (const cottage of data) {
+      const data = await this.#_getCottage(cottage, languageCode);
+      response.push({ ...data });
+    }
+
+    return response;
+  }
+
   async getSuitableCottageList(
     payload: GetSuitableCottageListRequest,
   ): Promise<GetSuitableCottageListResponse[]> {
@@ -431,14 +474,17 @@ export class CottageService {
     return response;
   }
 
-  async getSearchedCottageList(payload: GetSearchedCottageListRequest, languageCode: string): Promise<GetCottageListResponse[]> {
+  async getSearchedCottageList(
+    payload: GetSearchedCottageListRequest,
+    languageCode: string,
+  ): Promise<GetCottageListResponse[]> {
     const response = [];
 
     const data = await this.#_prisma.cottage.findMany({
       where: {
         name: {
           contains: payload?.name,
-          mode: "insensitive",
+          mode: 'insensitive',
         },
       },
       include: {

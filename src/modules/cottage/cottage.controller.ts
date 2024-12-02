@@ -57,6 +57,15 @@ export class CottageController {
   }
 
   @CheckAuth(false)
+  @Permission(PERMISSIONS.cottage.get_all_hotel_sanatorium_waterfall_cottages.name)
+  @Get("hotels-sanatorium-waterfall")
+  async getAllHotelSanatoriumWaterfallCottageList(
+    @Headers('accept-language') languageCode: string,
+  ): Promise<GetCottageListResponse[]> {
+    return await this.#_service.getHotelsSanatoriumsWaterfallsList(languageCode);
+  }
+
+  @CheckAuth(false)
   @Permission(PERMISSIONS.cottage.get_all_cottages_on_top.name)
   @Get('top')
   async getTopCottageList(

@@ -146,6 +146,10 @@ export const PERMISSIONS = {
       name: 'get_all_searched_cottages',
       description: 'Barcha qidirilgan dachalarni olish',
     },
+    get_all_hotel_sanatorium_waterfall_cottages: {
+      name: 'get_all_hotel_sanatorium_waterfall_cottages',
+      description: 'Barcha mehmonxona, sharshara, sanatoriyalarni olish',
+    },
     get_all_suitable_cottages: {
       name: 'get_all_suitable_cottages',
       description: 'Barcha mos dachalarni olish',
