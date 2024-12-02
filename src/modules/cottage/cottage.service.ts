@@ -212,7 +212,7 @@ export class CottageService {
     const data = await this.#_prisma.cottage.findMany({
       where: {
         cottageTypes: {
-          every: {
+          some: {
             cottageTypeId: {
               in: [
                 '9aa6de2d-42be-4465-9b1d-5d43dd49e1a0',
