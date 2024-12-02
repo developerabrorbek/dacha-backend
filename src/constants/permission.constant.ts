@@ -142,6 +142,10 @@ export const PERMISSIONS = {
       name: 'get_all_filtered_cottages',
       description: 'Barcha filtrlangan dachalarni olish',
     },
+    get_all_searched_cottages: {
+      name: 'get_all_searched_cottages',
+      description: 'Barcha qidirilgan dachalarni olish',
+    },
     get_all_suitable_cottages: {
       name: 'get_all_suitable_cottages',
       description: 'Barcha mos dachalarni olish',

@@ -22,6 +22,7 @@ import {
   CreateCottageDto,
   CreatePremiumCottageDto,
   GetFilteredCottagesQueryDto,
+  SearchCottageListDto,
   UpdateCottageDto,
   UpdateCottageImageDto,
 } from './dtos';
@@ -128,11 +129,21 @@ export class CottageController {
   }
 
   @CheckAuth(false)
+  @Permission(PERMISSIONS.cottage.get_all_searched_cottages.name)
+  @Get('search')
+  async getSearchedCottages(
+    @Query() query: SearchCottageListDto,
+    @Headers('accept-language') languageCode: string,
+  ): Promise<GetCottageListResponse[]> {
+    return await this.#_service.getSearchedCottageList(query, languageCode);
+  }
+
+  @CheckAuth(false)
   @Permission(PERMISSIONS.cottage.get_all_filtered_cottages.name)
   @Get('filter/?')
   async getFilteredCottageList(
     @Headers('accept-language') languageCode: string,
-    @Query() queries: GetFilteredCottagesQueryDto
+    @Query() queries: GetFilteredCottagesQueryDto,
   ): Promise<GetCottageListResponse[]> {
     return await this.#_service.getFilteredCottageList({
       languageCode,

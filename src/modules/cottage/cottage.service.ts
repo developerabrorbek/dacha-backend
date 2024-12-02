@@ -12,6 +12,7 @@ import {
   GetCottageListResponse,
   GetCottageTypesInterfaces,
   GetFilteredCottagesRequest,
+  GetSearchedCottageListRequest,
   GetSuitableCottageListRequest,
   GetSuitableCottageListResponse,
   UpdateCottageImageRequest,
@@ -406,6 +407,39 @@ export class CottageService {
     const data = await this.#_prisma.cottage.findMany({
       where: {
         userId,
+      },
+      include: {
+        comforts: true,
+        cottageTypes: true,
+        images: {
+          where: {
+            status: 'active',
+          },
+        },
+        place: true,
+        region: true,
+        user: true,
+        orders: true,
+        premiumCottages: true,
+      },
+    });
+
+    for (const cottage of data) {
+      const data = await this.#_getCottage(cottage, languageCode);
+      response.push(data);
+    }
+    return response;
+  }
+
+  async getSearchedCottageList(payload: GetSearchedCottageListRequest, languageCode: string): Promise<GetCottageListResponse[]> {
+    const response = [];
+
+    const data = await this.#_prisma.cottage.findMany({
+      where: {
+        name: {
+          contains: payload?.name,
+          mode: "insensitive",
+        },
       },
       include: {
         comforts: true,
