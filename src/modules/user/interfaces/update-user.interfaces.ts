@@ -6,5 +6,4 @@ export class UpdateUserRequest {
   phone?: string;
   password?: string;
   username?: string;
-  email?: string;
 }

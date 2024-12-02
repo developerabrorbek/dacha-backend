@@ -11,11 +11,6 @@ import { phoneRegex } from '@constants';
 export class UpdateUserDto {
   @ApiProperty()
   @IsOptional()
-  @IsEmail()
-  email?: string;
-
-  @ApiProperty()
-  @IsOptional()
   @IsString()
   name?: string;
 

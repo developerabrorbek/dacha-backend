@@ -253,7 +253,6 @@ export class UserService {
       where: { id: payload.id },
       data: {
         name: payload.name,
-        email: payload.email,
         password: payload.password,
         phone: payload.phone,
         username: payload.username,
