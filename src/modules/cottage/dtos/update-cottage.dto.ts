@@ -112,19 +112,19 @@ export class UpdateCottageDto implements Omit<UpdateCottageRequest, 'id'> {
   @IsOptional()
   bookedTime?: string[];
 
-  @Transform(({value}) => {
-    if(!value) return undefined
-    else return value
-  } )
+  @Transform(({ value }) => {
+    if (!value) return undefined;
+    else return parseFloat(value);
+  })
   @ApiProperty()
   @IsLatitude()
   @IsOptional()
   latitude?: string;
 
-  @Transform(({value}) => {
-    if(!value) return undefined
-    else return value
-  } )
+  @Transform(({ value }) => {
+    if (!value) return undefined;
+    else return parseFloat(value);
+  })
   @ApiProperty()
   @IsLongitude()
   @IsOptional()
