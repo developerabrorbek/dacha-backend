@@ -119,7 +119,7 @@ export class UpdateCottageDto implements Omit<UpdateCottageRequest, 'id'> {
   @ApiProperty()
   @IsLatitude()
   @IsOptional()
-  latitude?: string;
+  latitude?: number;
 
   @Transform(({ value }) => {
     if (!value) return undefined;
@@ -128,7 +128,7 @@ export class UpdateCottageDto implements Omit<UpdateCottageRequest, 'id'> {
   @ApiProperty()
   @IsLongitude()
   @IsOptional()
-  longitude?: string;
+  longitude?: number;
 
   @ApiProperty()
   @IsBoolean()

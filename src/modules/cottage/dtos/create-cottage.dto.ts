@@ -61,7 +61,7 @@ export class CreateCottageDto {
   @ApiProperty()
   @IsOptional()
   @IsLatitude()
-  latitude?: string;
+  latitude?: number;
 
   @Transform(({ value }) => {
     if (!value) return undefined;
@@ -70,7 +70,7 @@ export class CreateCottageDto {
   @ApiProperty()
   @IsOptional()
   @IsLongitude()
-  longitude?: string;
+  longitude?: number;
 
   @ApiProperty()
   @IsEnum($Enums.CottageStatus)

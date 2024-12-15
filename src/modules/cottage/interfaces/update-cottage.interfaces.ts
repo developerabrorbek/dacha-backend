@@ -10,7 +10,7 @@ export declare interface UpdateCottageRequest {
   priceWeekend?: number;
   comforts?: string[];
   status?: Status;
-  latitude?: string;
-  longitude?: string;
+  latitude?: number;
+  longitude?: number;
   cottageStatus?: CottageStatus;
 }

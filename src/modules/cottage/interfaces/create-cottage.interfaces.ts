@@ -10,8 +10,8 @@ export declare interface CreateCottageRequest {
   comforts: string[];
   placeId: string;
   regionId: string;
-  longitude?: string;
-  latitude?: string;
+  longitude?: number;
+  latitude?: number;
   createdBy: string;
   cottageStatus?: CottageStatus;
 }

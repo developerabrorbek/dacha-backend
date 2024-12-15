@@ -30,6 +30,13 @@ export class SeedsService {
         );
       }
 
+      // CREATE USER ROLE
+      const userRole = await this.#_prisma.role.create({
+        data: {
+          name: 'USER',
+        },
+      });
+
       // CREATE ALL MODELS WITH PERMISSIONS
       for (const model of Object.entries(PERMISSIONS)) {
         const newModel = await this.#_prisma.models.create({
@@ -40,22 +47,25 @@ export class SeedsService {
 
         // CREATE MODEL PERMISSIONS
         for (const ds of Object.entries(model[1])) {
-          await this.#_prisma.permission.create({
+          const permission = await this.#_prisma.permission.create({
             data: {
               code: ds[1].name,
               name: ds[1].description,
               modelId: newModel.id,
             },
           });
+
+          if(ds[1]?.user_access) {
+            await this.#_prisma.role_Permission.create({
+              data: {
+                permissionId: permission.id,
+                roleId: userRole.id
+              }
+            })
+          }
         }
       }
 
-      // CREATE USER ROLE
-      await this.#_prisma.role.create({
-        data: {
-          name: 'USER',
-        },
-      });
 
       // CREATE SUPER-ADMIN ROLE
       const superAdminRole = await this.#_prisma.role.create({
