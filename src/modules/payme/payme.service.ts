@@ -252,15 +252,15 @@ export class PaymeService {
 
     return transactions.map((transaction) => ({
       id: transaction.id,
-      time: transaction.createTime,
+      time: Number(transaction.createTime),
       amount: transaction.amount,
       account: {
         user_id: transaction.userId,
         order_id: transaction.orderId,
       },
-      create_time: transaction.createTime,
-      perform_time: transaction.performTime,
-      cancel_time: transaction.cancelTime,
+      create_time: Number(transaction.createTime),
+      perform_time: Number(transaction.performTime),
+      cancel_time: Number(transaction.cancelTime),
       transaction: transaction.id,
       state: transaction.state,
       reason: transaction.reason,
