@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Req, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, Req, UseGuards, HttpCode, HttpStatus, Header } from '@nestjs/common';
 import { PaymeService } from './payme.service';
 import { CheckoutPaymentDto, CreatePaymentDto } from './dto';
 import { PaymeError, PaymeMethod } from '@enums';
@@ -15,6 +15,7 @@ export class PaymeController {
   constructor(private readonly paymeService: PaymeService, private configService: ConfigService) {}
 
   @HttpCode(HttpStatus.OK)
+  @Header('Content-Type', 'application/json')
   @UseGuards(PaymeGuard)
   @Post("pay")
   async pay(@Body() payload: CreatePaymentDto) {
