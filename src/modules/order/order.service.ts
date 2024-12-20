@@ -20,7 +20,7 @@ export class OrderService {
     this.#_translate = translate;
   }
 
-  async createOrder(payload: CreateOrderRequest): Promise<void> {
+  async createOrder(payload: CreateOrderRequest): Promise<Orders> {
     // check user if exists
     await this.#_checkUser(payload.assignedBy);
 
@@ -50,7 +50,7 @@ export class OrderService {
     //   },
     // });
 
-    await this.#_prisma.orders.create({
+    return await this.#_prisma.orders.create({
       data: {
         userId: payload.assignedBy,
         expireAt: date,
@@ -69,9 +69,12 @@ export class OrderService {
             service: true
           }
         },
+        transactions: true,
         user: true,
       },
     });
+
+    const response = []
 
     for (const el of data) {
       const tariff = await this.#_translate.getSingleTranslate({
@@ -85,9 +88,19 @@ export class OrderService {
         translateId: el.tariff.type,
       });
       el.tariff.type = tariffType.value;
+
+      const transactions = el.transactions?.length && el.transactions.map(tr => {
+        return  {
+          ...tr,
+          cancelTime: Number(tr.cancelTime),
+          createTime: Number(tr.createTime),
+          performTime: Number(tr.performTime),
+        }
+      })
+      response.push({...el, transactions})
     }
 
-    return data;
+    return response;
   }
 
   async getAllUserOrder(payload: GetAllUserOrderRequest): Promise<Orders[]> {
@@ -99,8 +112,11 @@ export class OrderService {
         cottage: true,
         tariff: true,
         user: true,
+        transactions: true,
       },
     });
+
+    const response = []
 
     for (const el of data) {
       const tariff = await this.#_translate.getSingleTranslate({
@@ -114,9 +130,19 @@ export class OrderService {
         translateId: el.tariff.type,
       });
       el.tariff.type = tariffType.value;
+
+      const transactions = el.transactions?.length && el.transactions.map(tr => {
+        return  {
+          ...tr,
+          cancelTime: Number(tr.cancelTime),
+          createTime: Number(tr.createTime),
+          performTime: Number(tr.performTime),
+        }
+      })
+      response.push({...el, transactions})
     }
 
-    return data;
+    return response;
   }
 
   async updateOrder(payload: UpdateOrderRequest): Promise<void> {

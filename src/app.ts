@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { appConfig, databaseConfig, jwtConfig } from '@config';
+import { appConfig, databaseConfig, jwtConfig, paymeConfig } from '@config';
 import {
   AuthModule,
   ComfortModule,
@@ -18,6 +18,7 @@ import {
   TariffModule,
   TranslateModule,
   UserModule,
+  PaymeModule
 } from '@modules';
 import { PrismaModule } from '@prisma';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
@@ -36,9 +37,11 @@ import { SeedsModule } from 'db';
     }),
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [appConfig, databaseConfig, jwtConfig],
+      load: [appConfig, databaseConfig, jwtConfig, paymeConfig],
     }),
-    JwtModule,
+    JwtModule.register({
+      global: true
+    }),
     PrismaModule,
     LanguageModule,
     TranslateModule,
@@ -56,6 +59,7 @@ import { SeedsModule } from 'db';
     ServicesModule,
     TariffModule,
     OrderModule,
+    PaymeModule,
     SeedsModule,
   ],
   providers: [

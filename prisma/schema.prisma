@@ -106,7 +106,7 @@ model Place {
 model CottageType {
   id       String                @default(dbgenerated("GEN_RANDOM_UUID()")) @map("id") @db.Uuid
   name     String                @map("name") @db.Uuid
-  image String? @map("image") @db.VarChar()
+  image    String?               @map("image") @db.VarChar()
   cottages Cottage_CottageType[]
 
   @@id([id])
@@ -170,11 +170,11 @@ model Cottage {
   price         Float         @map("price") @db.Real
   priceWeekend  Float         @map("price_weekend") @db.Real
   status        Status        @default(active) @map("status")
-  longitude     Float?       @map("longitude") @db.DoublePrecision()
-  latitude      Float?       @map("latitude") @db.DoublePrecision()
+  longitude     Float?        @map("longitude") @db.DoublePrecision()
+  latitude      Float?        @map("latitude") @db.DoublePrecision()
   createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamp()
   updatedAt     DateTime      @updatedAt @map("updated_at") @db.Timestamp()
-  isTest        Boolean?       @default(false) @map("is_test") @db.Boolean
+  isTest        Boolean?      @default(false) @map("is_test") @db.Boolean
   userId        String        @map("user_id") @db.Uuid
   regionId      String        @map("region_id") @db.Uuid
   placeId       String        @map("place_id") @db.Uuid
@@ -246,6 +246,7 @@ model User {
   cottages      Cottage[]
   notifications User_Notification[]
   userOtps      User_Otp[]
+  transactions   Transaction[]
 
   @@id([id])
   @@unique([phone])
@@ -381,10 +382,30 @@ model Orders {
   tariffId    String      @map("tariff_id") @db.Uuid
   userId      String      @map("assigned_by") @db.Uuid
 
-  cottage Cottage @relation(fields: [cottageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  tariff  Tariff  @relation(fields: [tariffId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  cottage     Cottage       @relation(fields: [cottageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tariff      Tariff        @relation(fields: [tariffId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  transactions Transaction[]
 
   @@id([id])
   @@map("orders")
+}
+
+model Transaction {
+  id          String @map("id") @db.VarChar()
+  createTime  BigInt    @map("create_time")
+  performTime BigInt    @default(0) @map("perform_time")
+  cancelTime  BigInt    @default(0) @map("cancel_time")
+  reason      Int?   @map("reason")
+  provider    String @map("provider")
+  state       Int    @map("state")
+  amount      Int    @map("amount")
+  orderId     String @map("order_id") @db.Uuid
+  userId      String @map("user_id") @db.Uuid
+
+  order Orders @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([id])
+  @@map("transactions")
 }

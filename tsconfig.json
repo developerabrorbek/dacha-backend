@@ -18,6 +18,8 @@
       "@modules": ["./modules"],
       "@decorators": ["./decorators"],
       "@filters": ["./filters"],
+      "@exceptions": ["./exceptions"],
+      "@enums": ["./enums"],
     },
     "incremental": true,
     "skipLibCheck": true,

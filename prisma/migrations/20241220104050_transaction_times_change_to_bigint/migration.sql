@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "transactions" ALTER COLUMN "create_time" SET DATA TYPE BIGINT,
+ALTER COLUMN "perform_time" SET DATA TYPE BIGINT,
+ALTER COLUMN "cancel_time" SET DATA TYPE BIGINT;

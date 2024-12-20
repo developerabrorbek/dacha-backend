@@ -54,8 +54,8 @@ export class OrderController {
   async createOrder(
     @Body() payload: CreateOrderDto,
     @Req() req: any,
-  ): Promise<void> {
-    await this.#_service.createOrder({ ...payload, assignedBy: req.userId });
+  ): Promise<Orders> {
+    return await this.#_service.createOrder({ ...payload, assignedBy: req.userId });
   }
 
   @CheckAuth(true)

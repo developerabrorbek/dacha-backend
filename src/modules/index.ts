@@ -14,3 +14,4 @@ export * from './user';
 export * from './services';
 export * from './tariff'
 export * from './order'
+export * from './payme'

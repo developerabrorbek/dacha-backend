@@ -111,6 +111,7 @@ export class UserService {
       include: {
         cottages: true,
         notifications: true,
+        transactions: true,
         orders: {
           include: {
             tariff: {
@@ -126,6 +127,15 @@ export class UserService {
     });
 
     if (!user) throw new NotFoundException('User not found');
+
+    const transactions = user.transactions?.length && user.transactions.map(tr => {
+      return {
+        ...tr,
+        cancelTime: Number(tr.cancelTime),
+        performTime: Number(tr.performTime),
+        createTime: Number(tr.createTime),
+      }
+    })
 
     // const roles = await this.#_prisma.user_Role.findMany({
     //   where: {
@@ -150,7 +160,7 @@ export class UserService {
     //   },
     // });
 
-    return user;
+    return {...user, transactions};
   }
 
   async getSingleUserByUserID(id: string): Promise<User> {
