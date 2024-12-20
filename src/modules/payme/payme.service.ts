@@ -250,7 +250,7 @@ export class PaymeService {
       },
     });
 
-    return transactions.map((transaction) => ({
+    const response = transactions.map((transaction) => ({
       id: transaction.id,
       time: Number(transaction.createTime),
       amount: transaction.amount,
@@ -265,6 +265,8 @@ export class PaymeService {
       state: transaction.state,
       reason: transaction.reason,
     }));
+
+    return response
   }
 
   async checkUser(id: string) {

@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Req, UseGuards, HttpCode, HttpStatus, Header, Res } from '@nestjs/common';
+import { Controller, Post, Body, Req, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
 import { PaymeService } from './payme.service';
 import { CheckoutPaymentDto, CreatePaymentDto } from './dto';
 import { PaymeError, PaymeMethod } from '@enums';
@@ -8,7 +8,6 @@ import { PaymeGuard } from '@guard';
 import { ConfigService } from '@nestjs/config';
 import { encode } from "base-64"
 import { CheckAuth } from '@decorators';
-import { Response } from 'express';
 
 @ApiTags("Payme")
 @Controller('payme')
@@ -16,10 +15,9 @@ export class PaymeController {
   constructor(private readonly paymeService: PaymeService, private configService: ConfigService) {}
 
   @HttpCode(HttpStatus.OK)
-  @Header('Content-Type', 'application/json')
   @UseGuards(PaymeGuard)
   @Post("pay")
-  async pay(@Body() payload: CreatePaymentDto, @Res() res: Response) {
+  async pay(@Body() payload: CreatePaymentDto) {
     const { id, method, params } = payload;
 
     switch(method) {
@@ -45,8 +43,7 @@ export class PaymeController {
       }
       case PaymeMethod.GetStatement: {
         const result =  await this.paymeService.getStatement(params);
-        res.status(200).send({result})
-        break;
+        return {result};
       }
       default: {
         throw new TransactionException(PaymeError.MethodNotFound, id)
