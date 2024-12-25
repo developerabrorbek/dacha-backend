@@ -194,6 +194,7 @@ export class CottageService {
         },
         premiumCottages: true,
       },
+      where: { cottageStatus: 'confirmed' },
     });
 
     for (const cottage of data) {
@@ -211,6 +212,7 @@ export class CottageService {
 
     const data = await this.#_prisma.cottage.findMany({
       where: {
+        cottageStatus: 'confirmed',
         cottageTypes: {
           some: {
             cottageTypeId: {
@@ -283,6 +285,7 @@ export class CottageService {
         premiumCottages: true,
       },
       where: {
+        cottageStatus: 'confirmed',
         OR: [
           {
             placeId: foundedCottage.placeId,
@@ -454,6 +457,7 @@ export class CottageService {
     const data = await this.#_prisma.cottage.findMany({
       where: {
         userId,
+        cottageStatus: 'confirmed',
       },
       include: {
         comforts: true,
@@ -490,6 +494,7 @@ export class CottageService {
           contains: payload?.name,
           mode: 'insensitive',
         },
+        cottageStatus: 'confirmed',
       },
       include: {
         comforts: true,
