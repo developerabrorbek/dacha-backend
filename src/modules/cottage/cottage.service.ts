@@ -194,7 +194,6 @@ export class CottageService {
         },
         premiumCottages: true,
       },
-      where: { cottageStatus: 'confirmed' },
     });
 
     for (const cottage of data) {
