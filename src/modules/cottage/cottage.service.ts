@@ -456,7 +456,6 @@ export class CottageService {
     const data = await this.#_prisma.cottage.findMany({
       where: {
         userId,
-        cottageStatus: 'confirmed',
       },
       include: {
         comforts: true,
