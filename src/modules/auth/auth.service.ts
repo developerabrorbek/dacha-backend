@@ -288,11 +288,11 @@ export class AuthService {
 
       const accessToken = this.#_jwt.sign(
         { id: data.id },
-        { secret: this.#_config.getOrThrow<string>('jwt.accessKey') },
+        { secret: this.#_config.getOrThrow<string>('jwt.accessKey'), expiresIn: JWT_ACCESS_EXPIRE_TIME },
       );
       const refreshToken = this.#_jwt.sign(
         { id: data.id },
-        { secret: this.#_config.getOrThrow<string>('jwt.refreshKey') },
+        { secret: this.#_config.getOrThrow<string>('jwt.refreshKey'), expiresIn: JWT_REFRESH_EXPIRE_TIME },
       );
 
       await this.#_prisma.userDevice.update({
