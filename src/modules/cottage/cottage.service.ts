@@ -8,6 +8,7 @@ import {
   AddCottageImageRequest,
   CreateCottageRequest,
   CreatePremiumCottageRequest,
+  FilterAndSortCottagesQuery,
   GetComfortsInterface,
   GetCottageListResponse,
   GetCottageTypesInterfaces,
@@ -23,6 +24,7 @@ import { TranslateService } from 'modules/translate';
 import { join } from 'path';
 import { isArray, isUUID } from 'class-validator';
 import { Cottage_Comfort, Cottage_CottageType } from '@prisma/client';
+import { FilterAndSortCottages } from './utils';
 
 @Injectable()
 export class CottageService {
@@ -311,32 +313,10 @@ export class CottageService {
   }
 
   async getFilteredCottageList(
-    payload: GetFilteredCottagesRequest,
+    payload: FilterAndSortCottagesQuery,
   ): Promise<GetCottageListResponse[]> {
     const response = [];
-    const where: any = { cottageStatus: 'confirmed' };
-
-    if (payload.price) {
-      where.price = {
-        lte: +payload.price,
-      };
-    }
-
-    if (payload.cottageType) {
-      where.cottageTypes = {
-        some: {
-          id: {
-            in: [payload.cottageType],
-          },
-        },
-      };
-    }
-
-    if (payload.placeId) {
-      where.place = {
-        id: payload.placeId,
-      };
-    }
+    const filters = new FilterAndSortCottages().generateQuery(payload)
 
     const data = await this.#_prisma.cottage.findMany({
       include: {
@@ -357,9 +337,7 @@ export class CottageService {
         },
         premiumCottages: true,
       },
-      where: {
-        ...where,
-      },
+      ...filters,
     });
     for (const cottage of data) {
       const data = await this.#_getCottage(cottage, payload.languageCode);
@@ -756,7 +734,7 @@ export class CottageService {
     }
   }
 
-  async #_getCottage(cottage: any, languageCode: string): Promise<any> {
+  async #_getCottage(cottage: any, languageCode: string): Promise<GetCottageListResponse> {
     // get comforts with translations
     const comforts = await this.#_getComforts(cottage.comforts, languageCode);
 
@@ -808,6 +786,8 @@ export class CottageService {
       user: cottage.user,
       premiumCottages: cottage?.premiumCottages || [],
       orders: cottage?.orders || [],
+      createdAt: cottage.createdAt,
+      updatedAt: cottage.updatedAt,
     };
   }
 
