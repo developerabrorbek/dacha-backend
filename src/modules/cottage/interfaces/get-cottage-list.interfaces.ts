@@ -1,3 +1,4 @@
+import { Status } from '@prisma/client';
 import { GetComfortsInterface } from './get-comforts.interfaces';
 import { GetCottageTypesInterfaces } from './get-cottage-types.interfaces';
 
@@ -30,4 +31,9 @@ export declare interface GetCottageListResponse {
   cottageStatus?: string;
   isTop? :boolean;
   user: any
+  status: Status;
+  createdAt: Date;
+  updatedAt: Date;
+  premiumCottages?: any;
+  orders?: any;
 }
