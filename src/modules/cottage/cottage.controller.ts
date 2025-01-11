@@ -9,7 +9,6 @@ import {
   Patch,
   Post,
   Query,
-  // Query,
   Req,
   UploadedFile,
   UploadedFiles,
@@ -37,6 +36,7 @@ import {
   FileInterceptor,
 } from '@nestjs/platform-express';
 import { MulterConfig } from '@config';
+import { FilterAndSortCottagesQueryDto } from './dtos/filter-and-sort-cottages.dto';
 
 @ApiTags('Cottage')
 @Controller('cottage')
@@ -152,13 +152,11 @@ export class CottageController {
   @Get('filter/?')
   async getFilteredCottageList(
     @Headers('accept-language') languageCode: string,
-    @Query() queries: GetFilteredCottagesQueryDto,
+    @Query() queries: FilterAndSortCottagesQueryDto,
   ): Promise<GetCottageListResponse[]> {
     return await this.#_service.getFilteredCottageList({
       languageCode,
-      cottageType: queries?.type,
-      price: queries.price,
-      placeId: queries.place,
+      ...queries,
     });
   }
 
