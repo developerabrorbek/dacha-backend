@@ -77,7 +77,7 @@ export class PaymeController {
     const amount = order.tariff.price * 100;
 
     const r = encode(
-      `m=${MERCHANT_ID};ac.user_id=${user.id};ac.product_id=${order.id};a=${amount};c=${payload.url}`,
+      `m=${MERCHANT_ID};ac.user_id=${user.id};ac.order_id=${order.id};a=${amount};c=${payload.url}`,
     );
     return { url: `https://checkout.paycom.uz/${r}` };
   }
