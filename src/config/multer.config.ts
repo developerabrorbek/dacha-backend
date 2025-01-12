@@ -1,7 +1,8 @@
+import { MulterOptions } from '@nestjs/platform-express/multer/interfaces/multer-options.interface';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 
-export const MulterConfig = (uploadDir = './uploads/images') => {
+export const MulterConfig = (uploadDir = './uploads/images', fileSizeMb = 5): MulterOptions => {
   return {
     storage: diskStorage({
       destination: uploadDir,
@@ -12,6 +13,8 @@ export const MulterConfig = (uploadDir = './uploads/images') => {
           .join('');
         cb(null, `${randomName}${extname(file.originalname)}`);
       },
+      
     }),
+    limits: { fileSize: fileSizeMb * 1024 * 1024 }
   };
 };
