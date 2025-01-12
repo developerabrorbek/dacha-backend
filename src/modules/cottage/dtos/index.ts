@@ -5,3 +5,4 @@ export * from './add-cottage-image.dto';
 export * from './create-premium-cottage.dtos';
 export * from './search-cottage.dto'
 export * from "./filter-and-sort-cottages.dto"
+export * from './add-cottage-event.dto'

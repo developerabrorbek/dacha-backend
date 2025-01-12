@@ -9,3 +9,4 @@ export * from './get-suitable-cottages.interfaces';
 export * from './create-premium-cottage.interfaces';
 export * from './get-searched-cottages.interfaces'
 export * from "./filter-and-sort-cottages.interfaces"
+export * from './add-cottage-event.interfaces'

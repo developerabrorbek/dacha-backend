@@ -24,6 +24,7 @@ import {
   UpdateCottageDto,
   UpdateCottageImageDto,
   FilterAndSortCottagesQueryDto,
+  AddCottageEventDto,
 } from './dtos';
 import {
   GetCottageListResponse,
@@ -255,6 +256,15 @@ export class CottageController {
     @Param('premiumCottageId', new ParseUUIDPipe({ version: '4' })) id: string,
   ): Promise<void> {
     await this.#_service.deletePremiumCottage(id);
+  }
+
+  @CheckAuth(false)
+  @Permission(PERMISSIONS.cottage.create_cottage_event.name)
+  @Post('/add/event')
+  async addCottageEvent(
+    @Body() payload: AddCottageEventDto,
+  ): Promise<void> {
+    await this.#_service.addCottageEvent(payload);
   }
 
   @ApiBearerAuth('JWT')

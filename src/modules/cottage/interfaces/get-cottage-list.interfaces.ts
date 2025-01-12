@@ -36,4 +36,5 @@ export declare interface GetCottageListResponse {
   updatedAt: Date;
   premiumCottages?: any;
   orders?: any;
+  events?: any;
 }

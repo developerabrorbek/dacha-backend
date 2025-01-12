@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import {
+  AddCottageEventRequest,
   AddCottageImageRequest,
   CreateCottageRequest,
   CreatePremiumCottageRequest,
@@ -22,7 +23,11 @@ import * as fs from 'fs';
 import { TranslateService } from 'modules/translate';
 import { join } from 'path';
 import { isArray, isUUID } from 'class-validator';
-import { Cottage_Comfort, Cottage_CottageType } from '@prisma/client';
+import {
+  Cottage_Comfort,
+  Cottage_CottageType,
+  CottageEventType,
+} from '@prisma/client';
 import { FilterAndSortCottages } from './utils';
 
 @Injectable()
@@ -197,6 +202,7 @@ export class CottageService {
           },
         },
         premiumCottages: true,
+        events: true,
       },
     });
 
@@ -240,6 +246,11 @@ export class CottageService {
           },
         },
         premiumCottages: true,
+        events: {
+          where: {
+            eventType: 'view',
+          },
+        },
       },
     });
 
@@ -281,6 +292,11 @@ export class CottageService {
           },
         },
         premiumCottages: true,
+        events: {
+          where: {
+            eventType: 'view',
+          },
+        },
       },
       where: {
         cottageStatus: 'confirmed',
@@ -334,6 +350,11 @@ export class CottageService {
           },
         },
         premiumCottages: true,
+        events: {
+          where: {
+            eventType: 'view',
+          },
+        },
       },
       ...filters,
     });
@@ -389,10 +410,9 @@ export class CottageService {
     queries: FilterAndSortCottagesQuery,
   ): Promise<GetCottageListResponse[]> {
     const response = [];
-    queries.cottageStatus = "confirmed",
-    queries.placeId = placeId
+    (queries.cottageStatus = 'confirmed'), (queries.placeId = placeId);
     const filters = new FilterAndSortCottages().generateQuery(queries);
-    
+
     const data = await this.#_prisma.cottage.findMany({
       ...filters,
       include: {
@@ -412,6 +432,11 @@ export class CottageService {
           },
         },
         premiumCottages: true,
+        events: {
+          where: {
+            eventType: 'view',
+          },
+        },
       },
     });
     for (const cottage of data) {
@@ -429,8 +454,7 @@ export class CottageService {
     this.#_checkUUID(userId);
     const response = [];
     const filters = new FilterAndSortCottages().generateQuery(queries);
-    filters.where.userId = userId
-
+    filters.where.userId = userId;
 
     const data = await this.#_prisma.cottage.findMany({
       ...filters,
@@ -447,6 +471,7 @@ export class CottageService {
         user: true,
         orders: true,
         premiumCottages: true,
+        events: true,
       },
     });
 
@@ -484,6 +509,11 @@ export class CottageService {
         user: true,
         orders: true,
         premiumCottages: true,
+        events: {
+          where: {
+            eventType: 'view',
+          },
+        },
       },
     });
 
@@ -512,6 +542,11 @@ export class CottageService {
             place: true,
             region: true,
             user: true,
+            events: {
+              where: {
+                eventType: 'view',
+              },
+            },
           },
         },
       },
@@ -551,6 +586,11 @@ export class CottageService {
             place: true,
             region: true,
             user: true,
+            events: {
+              where: {
+                eventType: 'view',
+              },
+            },
           },
         },
       },
@@ -668,6 +708,23 @@ export class CottageService {
 
   async deletePremiumCottage(id: string): Promise<void> {
     await this.#_prisma.premium_Cottage.delete({ where: { id } });
+  }
+
+  async addCottageEvent(payload: AddCottageEventRequest): Promise<void> {
+    this.#_checkUUID(payload.cottageId);
+
+    const cottage = await this.#_prisma.cottage.findFirst({
+      where: { id: payload.cottageId },
+    });
+
+    if (!cottage) return;
+
+    await this.#_prisma.cottage_Event.create({
+      data: {
+        eventType: payload.event,
+        cottageId: payload.cottageId,
+      },
+    });
   }
 
   async addCottageImage(payload: AddCottageImageRequest): Promise<void> {
@@ -790,6 +847,7 @@ export class CottageService {
       orders: cottage?.orders || [],
       createdAt: cottage.createdAt,
       updatedAt: cottage.updatedAt,
+      events: cottage?.events || [],
     };
   }
 

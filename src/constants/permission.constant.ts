@@ -240,6 +240,11 @@ export const PERMISSIONS = {
       description: 'Dachani rasmini yaratish',
       user_access: true,
     },
+    create_cottage_event: {
+      name: 'create_cottage_event',
+      description: "Dachaga yangi hodisa(ko'rish, telefon qilish) qo'shish",
+      user_access: true,
+    },
   },
   notification: {
     get_all_notification: {
@@ -406,7 +411,7 @@ export const PERMISSIONS = {
       name: 'edit_cottage_type_image',
       description: 'Dacha turining rasmini tahrirlash',
       user_access: false,
-    }
+    },
   },
   services: {
     get_all_services: {
