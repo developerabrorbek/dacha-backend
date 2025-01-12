@@ -118,7 +118,8 @@ export class UserService {
               include: {
                 service: true
               }
-            }
+            },
+            cottage: true,
           }
         },
         roles: true,
