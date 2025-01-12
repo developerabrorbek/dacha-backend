@@ -2,11 +2,9 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsArray,
   IsBoolean,
-  IsBooleanString,
   IsEnum,
   IsIn,
   IsInt,
-  IsNumberString,
   IsOptional,
   IsUUID,
 } from 'class-validator';
@@ -23,7 +21,7 @@ export enum SortFields {
 }
 
 export class FilterAndSortCottagesQueryDto
-  implements Omit<FilterAndSortCottagesQuery, 'languageCode'>
+  implements FilterAndSortCottagesQuery
 {
   @ApiProperty({
     type: 'number',

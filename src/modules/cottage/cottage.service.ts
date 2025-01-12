@@ -12,7 +12,6 @@ import {
   GetComfortsInterface,
   GetCottageListResponse,
   GetCottageTypesInterfaces,
-  GetFilteredCottagesRequest,
   GetSearchedCottageListRequest,
   GetSuitableCottageListRequest,
   GetSuitableCottageListResponse,
@@ -174,10 +173,13 @@ export class CottageService {
 
   async getCottageList(
     languageCode: string,
+    queries: FilterAndSortCottagesQuery,
   ): Promise<GetCottageListResponse[]> {
     const response = [];
+    const filters = new FilterAndSortCottages().generateQuery(queries);
 
     const data = await this.#_prisma.cottage.findMany({
+      ...filters,
       include: {
         comforts: true,
         cottageTypes: true,
@@ -208,24 +210,19 @@ export class CottageService {
 
   async getHotelsSanatoriumsWaterfallsList(
     languageCode: string,
+    queries: FilterAndSortCottagesQuery,
   ): Promise<GetCottageListResponse[]> {
     const response = [];
+    (queries.cottageStatus = 'confirmed'),
+      (queries.cottageTypes = [
+        '9aa6de2d-42be-4465-9b1d-5d43dd49e1a0',
+        '3e54eff7-8a26-443b-a302-066cbe8a05ff',
+        '52b306ee-6a60-47b8-bf9a-f3de02ad7ea0',
+      ]);
+    const filters = new FilterAndSortCottages().generateQuery(queries);
 
     const data = await this.#_prisma.cottage.findMany({
-      where: {
-        cottageStatus: 'confirmed',
-        cottageTypes: {
-          some: {
-            cottageTypeId: {
-              in: [
-                '9aa6de2d-42be-4465-9b1d-5d43dd49e1a0',
-                '3e54eff7-8a26-443b-a302-066cbe8a05ff',
-                '52b306ee-6a60-47b8-bf9a-f3de02ad7ea0',
-              ],
-            },
-          },
-        },
-      },
+      ...filters,
       include: {
         comforts: true,
         cottageTypes: true,
@@ -313,10 +310,11 @@ export class CottageService {
   }
 
   async getFilteredCottageList(
+    languageCode: string,
     payload: FilterAndSortCottagesQuery,
   ): Promise<GetCottageListResponse[]> {
     const response = [];
-    const filters = new FilterAndSortCottages().generateQuery(payload)
+    const filters = new FilterAndSortCottages().generateQuery(payload);
 
     const data = await this.#_prisma.cottage.findMany({
       include: {
@@ -340,7 +338,7 @@ export class CottageService {
       ...filters,
     });
     for (const cottage of data) {
-      const data = await this.#_getCottage(cottage, payload.languageCode);
+      const data = await this.#_getCottage(cottage, languageCode);
       response.push(data);
     }
     return response;
@@ -349,10 +347,16 @@ export class CottageService {
   async getCottageListByCottageType(
     languageCode: string,
     cottageTypeId: string,
+    queries: FilterAndSortCottagesQuery,
   ): Promise<GetCottageListResponse[]> {
     this.#_checkUUID(cottageTypeId);
     const response = [];
+    queries.cottageStatus = 'confirmed';
+    queries.cottageTypes = [cottageTypeId];
+    const filters = new FilterAndSortCottages().generateQuery(queries);
+
     const data = await this.#_prisma.cottage.findMany({
+      ...filters,
       include: {
         comforts: true,
         cottageTypes: true,
@@ -370,14 +374,6 @@ export class CottageService {
           },
         },
         premiumCottages: true,
-      },
-      where: {
-        cottageTypes: {
-          some: {
-            cottageTypeId: cottageTypeId,
-          },
-        },
-        cottageStatus: 'confirmed',
       },
     });
     for (const cottage of data) {
@@ -390,9 +386,15 @@ export class CottageService {
   async getCottageListByPlace(
     languageCode: string,
     placeId: string,
+    queries: FilterAndSortCottagesQuery,
   ): Promise<GetCottageListResponse[]> {
     const response = [];
+    queries.cottageStatus = "confirmed",
+    queries.placeId = placeId
+    const filters = new FilterAndSortCottages().generateQuery(queries);
+    
     const data = await this.#_prisma.cottage.findMany({
+      ...filters,
       include: {
         comforts: true,
         cottageTypes: true,
@@ -411,10 +413,6 @@ export class CottageService {
         },
         premiumCottages: true,
       },
-      where: {
-        placeId: placeId,
-        cottageStatus: 'confirmed',
-      },
     });
     for (const cottage of data) {
       const data = await this.#_getCottage(cottage, languageCode);
@@ -426,15 +424,16 @@ export class CottageService {
   async getCottageListByUser(
     languageCode: string,
     userId: string,
+    queries: FilterAndSortCottagesQuery,
   ): Promise<GetCottageListResponse[]> {
-    const response = [];
-
     this.#_checkUUID(userId);
+    const response = [];
+    const filters = new FilterAndSortCottages().generateQuery(queries);
+    filters.where.userId = userId
+
 
     const data = await this.#_prisma.cottage.findMany({
-      where: {
-        userId,
-      },
+      ...filters,
       include: {
         comforts: true,
         cottageTypes: true,
@@ -734,7 +733,10 @@ export class CottageService {
     }
   }
 
-  async #_getCottage(cottage: any, languageCode: string): Promise<GetCottageListResponse> {
+  async #_getCottage(
+    cottage: any,
+    languageCode: string,
+  ): Promise<GetCottageListResponse> {
     // get comforts with translations
     const comforts = await this.#_getComforts(cottage.comforts, languageCode);
 

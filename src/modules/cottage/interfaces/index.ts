@@ -5,7 +5,6 @@ export * from './get-comforts.interfaces';
 export * from './get-cottage-types.interfaces';
 export * from './get-cottage-list.interfaces';
 export * from './add-cottage-image.interfaces';
-export * from './get-filtered-cottages.interfaces';
 export * from './get-suitable-cottages.interfaces';
 export * from './create-premium-cottage.interfaces';
 export * from './get-searched-cottages.interfaces'

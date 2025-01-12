@@ -2,7 +2,6 @@ import { CottageStatus, Status } from '@prisma/client';
 import { SortFields } from '../dtos/filter-and-sort-cottages.dto';
 
 export declare interface FilterAndSortCottagesQuery {
-  languageCode: string;
   minRating?: number;
   maxRating?: number;
   cottageStatus?: CottageStatus;

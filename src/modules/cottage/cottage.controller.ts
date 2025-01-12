@@ -20,10 +20,10 @@ import {
   AddCottageImageDto,
   CreateCottageDto,
   CreatePremiumCottageDto,
-  GetFilteredCottagesQueryDto,
   SearchCottageListDto,
   UpdateCottageDto,
   UpdateCottageImageDto,
+  FilterAndSortCottagesQueryDto,
 } from './dtos';
 import {
   GetCottageListResponse,
@@ -36,7 +36,6 @@ import {
   FileInterceptor,
 } from '@nestjs/platform-express';
 import { MulterConfig } from '@config';
-import { FilterAndSortCottagesQueryDto } from './dtos/filter-and-sort-cottages.dto';
 
 @ApiTags('Cottage')
 @Controller('cottage')
@@ -52,17 +51,24 @@ export class CottageController {
   @Get()
   async getCottageList(
     @Headers('accept-language') languageCode: string,
+    @Query() queries: FilterAndSortCottagesQueryDto,
   ): Promise<GetCottageListResponse[]> {
-    return await this.#_service.getCottageList(languageCode);
+    return await this.#_service.getCottageList(languageCode, queries);
   }
 
   @CheckAuth(false)
-  @Permission(PERMISSIONS.cottage.get_all_hotel_sanatorium_waterfall_cottages.name)
-  @Get("hotels-sanatorium-waterfall")
+  @Permission(
+    PERMISSIONS.cottage.get_all_hotel_sanatorium_waterfall_cottages.name,
+  )
+  @Get('hotels-sanatorium-waterfall')
   async getAllHotelSanatoriumWaterfallCottageList(
     @Headers('accept-language') languageCode: string,
+    @Query() queries: FilterAndSortCottagesQueryDto,
   ): Promise<GetCottageListResponse[]> {
-    return await this.#_service.getHotelsSanatoriumsWaterfallsList(languageCode);
+    return await this.#_service.getHotelsSanatoriumsWaterfallsList(
+      languageCode,
+      queries,
+    );
   }
 
   @CheckAuth(false)
@@ -89,8 +95,13 @@ export class CottageController {
   async getCottageListByCottageType(
     @Headers('accept-language') languageCode: string,
     @Param('cottageTypeId') id: string,
+    @Query() queries: FilterAndSortCottagesQueryDto,
   ): Promise<GetCottageListResponse[]> {
-    return await this.#_service.getCottageListByCottageType(languageCode, id);
+    return await this.#_service.getCottageListByCottageType(
+      languageCode,
+      id,
+      queries,
+    );
   }
 
   @CheckAuth(false)
@@ -112,8 +123,13 @@ export class CottageController {
   async getCottageListByPlace(
     @Headers('accept-language') languageCode: string,
     @Param('placeId') id: string,
+    @Query() queries: FilterAndSortCottagesQueryDto,
   ): Promise<GetCottageListResponse[]> {
-    return await this.#_service.getCottageListByPlace(languageCode, id);
+    return await this.#_service.getCottageListByPlace(
+      languageCode,
+      id,
+      queries,
+    );
   }
 
   @ApiBearerAuth('JWT')
@@ -123,8 +139,13 @@ export class CottageController {
   async getCottageListByUser(
     @Headers('accept-language') languageCode: string,
     @Req() req: any,
+    @Query() queries: FilterAndSortCottagesQueryDto,
   ): Promise<GetCottageListResponse[]> {
-    return await this.#_service.getCottageListByUser(languageCode, req.userId);
+    return await this.#_service.getCottageListByUser(
+      languageCode,
+      req.userId,
+      queries,
+    );
   }
 
   @CheckAuth(false)
@@ -133,8 +154,13 @@ export class CottageController {
   async getCottageListByUserId(
     @Headers('accept-language') languageCode: string,
     @Param('userId') userId: string,
+    @Query() queries: FilterAndSortCottagesQueryDto,
   ): Promise<GetCottageListResponse[]> {
-    return await this.#_service.getCottageListByUser(languageCode, userId);
+    return await this.#_service.getCottageListByUser(
+      languageCode,
+      userId,
+      queries,
+    );
   }
 
   @CheckAuth(false)
@@ -154,10 +180,7 @@ export class CottageController {
     @Headers('accept-language') languageCode: string,
     @Query() queries: FilterAndSortCottagesQueryDto,
   ): Promise<GetCottageListResponse[]> {
-    return await this.#_service.getFilteredCottageList({
-      languageCode,
-      ...queries,
-    });
+    return await this.#_service.getFilteredCottageList(languageCode, queries);
   }
 
   @ApiBearerAuth('JWT')
