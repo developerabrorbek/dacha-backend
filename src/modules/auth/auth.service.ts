@@ -64,7 +64,7 @@ export class AuthService {
     const smsCode = String(Math.floor(Math.random() * 90000) + 10000);
 
     // Send otp code to user phone
-    await this.#_sendSms({ phone: payload.phone, smsCode });
+    await this.#_sendSms({ phone: payload.phone, smsCode, smsId: userId });
 
     const expireSmsTime = new Date(new Date().getTime() + SMS_EXPIRE_TIME * 1000);
 
@@ -345,30 +345,13 @@ export class AuthService {
   }
 
   async #_sendSms(payload: SendSMSRequest): Promise<any> {
-    // const myHeaders = new Headers();
-    // myHeaders.append(
-    //   'Authorization',
-    //   'App 53006856e580728eba1da7cd3f11ce58-3e9f8ccf-6c3b-426b-a398-cc89ba3b4a93',
-    // );
-    // myHeaders.append('Content-Type', 'application/json');
-    // myHeaders.append('Accept', 'application/json');
-
-    // const raw = JSON.stringify({
-    //   messages: [
-    //     {
-    //       destinations: [{ to: `998${payload.phone}` }],
-    //       from: 'ServiceSMS',
-    //       text: `Assalomu alaykum, sizning dacha v gorax ga kirish kodingiz: ${payload.smsCode}`,
-    //     },
-    //   ],
-    // });
     let result = null;
 
-    const message = `Sizning Dachi v gorax sayti uchun tasdiqlash kodingiz: ${payload.smsCode} \n\n Your confirmation code for Dachi v gorax site: ${payload.smsCode} \n\n Ваш код подтверждения для сайта «Дачи в горах»: ${payload.smsCode}
+    const message = `Sizning «Dachaol.uz» sayti uchun tasdiqlash kodingiz: ${payload.smsCode} \n\n Your confirmation code for «Dachaol.uz» site: ${payload.smsCode} \n\n Ваш код подтверждения для сайта «Dachaol.uz»: ${payload.smsCode}
     `;
 
     fetch(
-      `http://94.158.52.192/api/husanboy_ytt/sendsms.php?username=HusanboyYTT&password=5ddfb54b7a39cd782a37f3f493051509e9a8fb2d&id=MESSSAGE_ID&from=SMSINFO&to=998${payload.phone}&text=${message}&coding=Dachivgorax`,
+      `http://94.158.52.192/api/mdsoft/sendsms.php?username=${this.#_config.get<string>("sms.username")}&password=${this.#_config.get<string>("sms.password")}&id=${payload.smsId}&from=DachaOl.uz&to=998${payload.phone}&text=${message}&coding=dachaol`,
       {
         method: 'GET',
       },

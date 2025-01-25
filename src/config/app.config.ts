@@ -1,4 +1,3 @@
-
 import { registerAs } from '@nestjs/config';
 
 declare interface AppConfigOptions {

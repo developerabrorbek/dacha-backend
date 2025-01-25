@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { appConfig, databaseConfig, jwtConfig, paymeConfig } from '@config';
+import { appConfig, databaseConfig, jwtConfig, paymeConfig, smsConfig } from '@config';
 import {
   AuthModule,
   ComfortModule,
@@ -37,7 +37,7 @@ import { SeedsModule } from 'db';
     }),
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [appConfig, databaseConfig, jwtConfig, paymeConfig],
+      load: [appConfig, databaseConfig, jwtConfig, paymeConfig, smsConfig],
     }),
     JwtModule.register({
       global: true
